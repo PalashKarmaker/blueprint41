@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Runtime.CompilerServices;
 
-using neo4j = Neo4j.Driver.V1;
+using neo4j = Neo4j.Driver;
 
 using Blueprint41.Core;
 using Blueprint41.Log;

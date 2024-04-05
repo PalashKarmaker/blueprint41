@@ -53,7 +53,7 @@
   </ItemGroup>
     
   <ItemGroup>
-    <PackageReference Include="Neo4j.Driver" Version="1.7.2" />
+    <PackageReference Include="Neo4j.Driver" Version="5.18.1" />
   </ItemGroup>
 
   <ItemGroup>

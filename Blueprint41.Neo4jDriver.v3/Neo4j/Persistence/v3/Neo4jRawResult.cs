@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
-using Neo4j.Driver.V1;
+using Neo4j.Driver;
 using Blueprint41.Core;
-using Blueprint41.Neo4j.Persistence;
 using System.Linq;
 
 namespace Blueprint41.Neo4j.Persistence.Driver.v3
