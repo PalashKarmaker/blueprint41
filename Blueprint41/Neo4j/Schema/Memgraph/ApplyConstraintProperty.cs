@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Blueprint41.Neo4j.Persistence.Void;
 using Blueprint41.Neo4j.Refactoring;
 using Blueprint41.Neo4j.Schema.v5;
@@ -40,6 +41,7 @@ namespace Blueprint41.Neo4j.Schema.Memgraph
                 ApplyConstraintAction.CreateUniqueConstraint or ApplyConstraintAction.DeleteUniqueConstraint => features.Unique,
                 ApplyConstraintAction.CreateExistsConstraint or ApplyConstraintAction.DeleteExistsConstraint => features.Exists,
                 ApplyConstraintAction.CreateKeyConstraint or ApplyConstraintAction.DeleteKeyConstraint => features.Key,
+                ApplyConstraintAction.CreateCompositeUniqueConstraint or ApplyConstraintAction.DeleteCompositeUniqueConstraint => features.CompositeUnique,
                 _ => false,
             };
         }
@@ -60,6 +62,8 @@ namespace Blueprint41.Neo4j.Schema.Memgraph
                 ApplyConstraintAction.DeleteExistsConstraint => DropExistsConstraintCommand(targetEntityType, alias, propertyName),
                 ApplyConstraintAction.DeleteIndex => DropIndexCommand(entity.Neo4jName, propertyName),
                 ApplyConstraintAction.DeleteKeyConstraint => DropKeyConstraintCommand(targetEntityType, alias, propertyName),
+                ApplyConstraintAction.CreateCompositeUniqueConstraint => CreateCompositeUniqueConstraintCommand(targetEntityType, alias, propertyName),
+                ApplyConstraintAction.DeleteCompositeUniqueConstraint => DropCompositeUniqueConstraintCommand(targetEntityType, alias, propertyName),
                 _ => string.Empty,
             };
         }
@@ -71,30 +75,26 @@ namespace Blueprint41.Neo4j.Schema.Memgraph
         }
         private string CreateKeyConstraintCommand(string targetEntityType, string alias, string propertyName)
         {
-            return  $"{CreateExistsConstraintCommand(targetEntityType, alias, propertyName)}; " +
+            return $"{CreateExistsConstraintCommand(targetEntityType, alias, propertyName)}; " +
                     $"{CreateUniqueConstraintCommand(targetEntityType, alias, propertyName)}";
         }
-        private string CreateUniqueConstraintCommand(string targetEntityType, string alias, string propertyName)
-        {
-            return $"CREATE CONSTRAINT ON {targetEntityType} ASSERT {alias}.{propertyName} IS UNIQUE";
-        }
+        private string CreateUniqueConstraintCommand(string targetEntityType, string alias, string propertyName) =>
+            $"CREATE CONSTRAINT ON {targetEntityType} ASSERT {alias}.{propertyName} IS UNIQUE";
 
-        private string CreateExistsConstraintCommand(string targetEntityType, string alias, string propertyName)
+        private string CreateExistsConstraintCommand(string targetEntityType, string alias, string propertyName) => $"CREATE CONSTRAINT ON {targetEntityType} ASSERT EXISTS ({alias}.{propertyName})";
+        private string DropUniqueConstraintCommand(string targetEntityType, string alias, string propertyName) => $"DROP CONSTRAINT ON {targetEntityType} ASSERT {alias}.{propertyName} IS UNIQUE";
+        private string CreateCompositeUniqueConstraintCommand(string targetEntityType, string alias, params string[] propertyNames)
         {
-            return $"CREATE CONSTRAINT ON {targetEntityType} ASSERT EXISTS ({alias}.{propertyName})";
+            var withAlias = propertyNames.Select(p => $"{alias}.{p}");
+            return $"CREATE CONSTRAINT ON {targetEntityType} ASSERT {string.Join(",", withAlias)} IS UNIQUE";
         }
-        private string DropUniqueConstraintCommand(string targetEntityType, string alias, string propertyName)
+        private string DropCompositeUniqueConstraintCommand(string targetEntityType, string alias, params string[] propertyNames)
         {
-            return $"DROP CONSTRAINT ON {targetEntityType} ASSERT {alias}.{propertyName} IS UNIQUE";
+            var withAlias = propertyNames.Select(p => $"{alias}.{p}");
+            return $"DROP CONSTRAINT ON {targetEntityType} ASSERT {string.Join(",", withAlias)} IS UNIQUE";
         }
-        private string DropExistsConstraintCommand(string targetEntityType, string alias, string propertyName)
-        {
-            return $"DROP CONSTRAINT ON {targetEntityType} ASSERT EXISTS ({alias}.{propertyName})";
-        }
-        private string DropIndexCommand(string neo4jName, string propertyName)
-        {
-            return $"DROP INDEX ON :{neo4jName}({propertyName})";
-        }
+        private string DropExistsConstraintCommand(string targetEntityType, string alias, string propertyName) => $"DROP CONSTRAINT ON {targetEntityType} ASSERT EXISTS ({alias}.{propertyName})";
+        private string DropIndexCommand(string neo4jName, string propertyName) => $"DROP INDEX ON :{neo4jName}({propertyName})";
         private string DropKeyConstraintCommand(string targetEntityType, string alias, string propertyName)
         {
             return $"{DropExistsConstraintCommand(targetEntityType, alias, propertyName)}; " +

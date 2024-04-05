@@ -261,6 +261,7 @@ namespace Blueprint41.Neo4j.Persistence.Void
         public bool Unique;
         public bool Key;
         public bool Type;
+        public bool CompositeUnique;
     }
 }
 /*

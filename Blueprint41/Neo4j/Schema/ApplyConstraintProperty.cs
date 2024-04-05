@@ -74,19 +74,33 @@ public class ApplyConstraintProperty
                     if (PersistenceProvider.NodePropertyFeatures.Exists)
                         commands.Add($"DROP CONSTRAINT ON (node:{entity.Label.Name}) ASSERT exists(node.{Property})");
                     break;
+                case ApplyConstraintAction.CreateCompositeUniqueConstraint:
+                    if (PersistenceProvider.NodePropertyFeatures.Exists)
+                        commands.Add(CreateCompositeUniqueConstraintCommand(entity.Label.Name, Property));
+                    break;
+                case ApplyConstraintAction.DeleteCompositeUniqueConstraint:
+                    if (PersistenceProvider.NodePropertyFeatures.Exists)
+                        commands.Add(DropCompositeUniqueConstraintCommand(entity.Label.Name, Property));
+                    break;
                 default:
                     break;
             }
         }
 
         foreach (var command in commands)
-        {
             Parser.Log(command);
-        }
-
         return commands;
     }
-
+    private string CreateCompositeUniqueConstraintCommand(string label, params string[] propertyNames)
+    {
+        var withAlias = propertyNames.Select(p => $"n.{p}");
+        return $"CREATE CONSTRAINT ON (n:{label}) ASSERT {string.Join(",", withAlias)} IS UNIQUE";
+    }
+    private string DropCompositeUniqueConstraintCommand(string targetEntityType, string alias, params string[] propertyNames)
+    {
+        var withAlias = propertyNames.Select(p => $"{alias}.{p}");
+        return $"DROP CONSTRAINT ON {targetEntityType} ASSERT {string.Join(",", withAlias)} IS UNIQUE";
+    }
     public override string ToString()
     {
         string diff = string.Join(", ", Commands.Select(item => item.ToString()).ToArray());

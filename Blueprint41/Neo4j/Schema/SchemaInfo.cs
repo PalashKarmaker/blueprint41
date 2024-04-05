@@ -27,10 +27,10 @@ namespace Blueprint41.Neo4j.Schema
             {
                 bool hasPlugin = Model.PersistenceProvider.Translator.HasBlueprint41Plugin.Value;
 
-                FunctionalIds     = hasPlugin ? LoadData("CALL blueprint41.functionalid.list()", record => NewFunctionalIdInfo(record)) : new List<FunctionalIdInfo>(0);
-                Constraints       = LoadData("CALL db.constraints()", record => NewConstraintInfo(record, PersistenceProvider));
-                Indexes           = LoadData("CALL db.indexes()", record => NewIndexInfo(record, PersistenceProvider));
-                Labels            = LoadSimpleData("CALL db.labels()", "label");
+                FunctionalIds = hasPlugin ? LoadData("CALL blueprint41.functionalid.list()", record => NewFunctionalIdInfo(record)) : new List<FunctionalIdInfo>(0);
+                Constraints = LoadData("CALL db.constraints()", record => NewConstraintInfo(record, PersistenceProvider));
+                Indexes = LoadData("CALL db.indexes()", record => NewIndexInfo(record, PersistenceProvider));
+                Labels = LoadSimpleData("CALL db.labels()", "label");
                 RelationshipTypes = LoadSimpleData("CALL db.relationshipTypes()", "relationshipType");
             }
         }
@@ -66,10 +66,10 @@ namespace Blueprint41.Neo4j.Schema
         }
 
         public IReadOnlyList<FunctionalIdInfo> FunctionalIds { get; protected set; } = null!;
-        public IReadOnlyList<ConstraintInfo>   Constraints   { get; protected set; } = null!;
+        public IReadOnlyList<ConstraintInfo> Constraints { get; protected set; } = null!;
         public IReadOnlyList<IndexInfo> Indexes { get; protected set; } = null!;
 
-        public IReadOnlyList<string> Labels            { get; protected set; } = null!;
+        public IReadOnlyList<string> Labels { get; protected set; } = null!;
         public IReadOnlyList<string> RelationshipTypes { get; protected set; } = null!;
         protected DatastoreModel Model;
 
@@ -104,7 +104,7 @@ namespace Blueprint41.Neo4j.Schema
             }
             else
             {
-                return LoadData(string.Format(actualFidValue, functionalId.Label), record => record.Values["sequence"].As<int?>()).FirstOrDefault()??0;
+                return LoadData(string.Format(actualFidValue, functionalId.Label), record => record.Values["sequence"].As<int?>()).FirstOrDefault() ?? 0;
             }
         }
 
@@ -127,9 +127,9 @@ namespace Blueprint41.Neo4j.Schema
                     startFrom = startFrom > inDb.SequenceNumber ? startFrom : inDb.SequenceNumber;
                     actions.Add(
                         NewApplyFunctionalId(
-                            inDb.Label, 
+                            inDb.Label,
                             inMemory.Prefix,
-                            startFrom, 
+                            startFrom,
                             ApplyFunctionalIdAction.UpdateFunctionalId));
                 }
             }
@@ -137,7 +137,7 @@ namespace Blueprint41.Neo4j.Schema
             foreach (var inDb in FunctionalIds)
             {
                 var inMemory = Model.FunctionalIds.FirstOrDefault(item => inDb.Label == item.Label);
-                if(inMemory is null)
+                if (inMemory is null)
                     actions.Add(new Schema.ApplyFunctionalId(this, inDb.Label, inDb.Prefix, inDb.SequenceNumber, ApplyFunctionalIdAction.DeleteFunctionalId));
             }
 
@@ -160,24 +160,16 @@ namespace Blueprint41.Neo4j.Schema
         }
         internal virtual void UpdateConstraints()
         {
-            using (Session.Begin())
-            {
-                foreach (var diff in GetConstraintDifferences())
-                {
-                    foreach (var action in diff.Actions)
-                    {
-                        foreach (var cql in action.ToCypher())
+            using var _ = Session.Begin();
+            foreach (var diff in GetConstraintDifferences())
+                foreach (var action in diff.Actions)
+                    foreach (var cql in action.ToCypher())
+                        using (Transaction.Begin())
                         {
-                            using (Transaction.Begin())
-                            {
-                                Parser.Log(cql);
-                                Transaction.RunningTransaction.Run(cql);
-                                Transaction.Commit();
-                            }
+                            Parser.Log(cql);
+                            Transaction.RunningTransaction.Run(cql);
+                            Transaction.Commit();
                         }
-                    }
-                }
-            }
         }
 
         internal virtual void RemoveIndexesAndContraints(Property property)
@@ -205,10 +197,10 @@ namespace Blueprint41.Neo4j.Schema
         protected virtual ConstraintInfo NewConstraintInfo(RawRecord rawRecord, Neo4jPersistenceProvider persistenceProvider) => new(rawRecord, persistenceProvider);
         protected virtual IndexInfo NewIndexInfo(RawRecord rawRecord, Neo4jPersistenceProvider persistenceProvider) => new(rawRecord, persistenceProvider);
 
-        internal virtual ApplyConstraintEntity    NewApplyConstraintEntity(IEntity entity)                                                                              => new ApplyConstraintEntity(this, entity);
-        internal virtual ApplyFunctionalId        NewApplyFunctionalId(string label, string prefix, long startFrom, ApplyFunctionalIdAction action)                     => new ApplyFunctionalId(this, label, prefix, startFrom, action);
-        internal virtual ApplyConstraintProperty  NewApplyConstraintProperty(ApplyConstraintEntity parent, Property property, List<(ApplyConstraintAction, string?)> commands) => new ApplyConstraintProperty(parent, property, commands);
-        internal virtual ApplyConstraintProperty  NewApplyConstraintProperty(ApplyConstraintEntity parent, string property, List<(ApplyConstraintAction, string?)> commands)   => new ApplyConstraintProperty(parent, property, commands);
+        internal virtual ApplyConstraintEntity NewApplyConstraintEntity(IEntity entity) => new(this, entity);
+        internal virtual ApplyFunctionalId NewApplyFunctionalId(string label, string prefix, long startFrom, ApplyFunctionalIdAction action) => new ApplyFunctionalId(this, label, prefix, startFrom, action);
+        internal virtual ApplyConstraintProperty NewApplyConstraintProperty(ApplyConstraintEntity parent, Property property, List<(ApplyConstraintAction, string?)> commands) => new ApplyConstraintProperty(parent, property, commands);
+        internal virtual ApplyConstraintProperty NewApplyConstraintProperty(ApplyConstraintEntity parent, string property, List<(ApplyConstraintAction, string?)> commands) => new ApplyConstraintProperty(parent, property, commands);
 
         internal virtual List<(ApplyConstraintAction, string?)> ComputeCommands(IEntity entity, IndexType indexType, bool nullable, bool isKey, IEnumerable<ConstraintInfo> constraints, IEnumerable<IndexInfo> indexes)
         {
