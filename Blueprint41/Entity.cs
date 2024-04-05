@@ -146,10 +146,7 @@ public partial class Entity : IRefactorEntity, IEntityEvents, ISetRuntimeType, I
     }
 
 
-    public Entity AddProperty(string name, Type type)
-    {
-        return AddProperty(name, type, true, IndexType.None);
-    }
+    public Entity AddProperty(string name, Type type) => AddProperty(name, type, true, IndexType.None);
     public Entity AddProperty(string name, string[] enumeration, bool nullable = true, IndexType indexType = IndexType.None)
     {
         VerifyFromInheritedProperties(name);
@@ -174,10 +171,7 @@ public partial class Entity : IRefactorEntity, IEntityEvents, ISetRuntimeType, I
 
         return this;
     }
-    public Entity AddProperty(string name, Type type, IndexType indexType)
-    {
-        return AddProperty(name, type, true, indexType);
-    }
+    public Entity AddProperty(string name, Type type, IndexType indexType) => AddProperty(name, type, true, indexType);
     public Entity AddProperty(string name, Type type, bool nullable, IndexType indexType = IndexType.None)
     {
         if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))

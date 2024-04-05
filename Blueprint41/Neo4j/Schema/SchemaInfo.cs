@@ -67,20 +67,14 @@ namespace Blueprint41.Neo4j.Schema
 
         public IReadOnlyList<FunctionalIdInfo> FunctionalIds { get; protected set; } = null!;
         public IReadOnlyList<ConstraintInfo>   Constraints   { get; protected set; } = null!;
-        public IReadOnlyList<IndexInfo>        Indexes       { get; protected set; } = null!;
+        public IReadOnlyList<IndexInfo> Indexes { get; protected set; } = null!;
 
         public IReadOnlyList<string> Labels            { get; protected set; } = null!;
         public IReadOnlyList<string> RelationshipTypes { get; protected set; } = null!;
         protected DatastoreModel Model;
 
-        public IReadOnlyList<ApplyConstraintEntity> GetConstraintDifferences()
-        {
-            return Model.Entities.Where(entity => !entity.IsVirtual).Select(GetConstraintDifferences).Union(Model.Relations.Select(GetConstraintDifferences)).ToArray();
-        }
-        public ApplyConstraintEntity GetConstraintDifferences(IEntity entity)
-        {
-            return NewApplyConstraintEntity(entity);
-        }
+        public IReadOnlyList<ApplyConstraintEntity> GetConstraintDifferences() => Model.Entities.Where(entity => !entity.IsVirtual).Select(GetConstraintDifferences).Union(Model.Relations.Select(GetConstraintDifferences)).ToArray();
+        public ApplyConstraintEntity GetConstraintDifferences(IEntity entity) => NewApplyConstraintEntity(entity);
 
         protected virtual long FindMaxId(FunctionalId functionalId)
         {
@@ -207,9 +201,9 @@ namespace Blueprint41.Neo4j.Schema
             }
         }
 
-        protected virtual FunctionalIdInfo NewFunctionalIdInfo(RawRecord rawRecord)                                               => new FunctionalIdInfo(rawRecord);
-        protected virtual ConstraintInfo   NewConstraintInfo(RawRecord rawRecord, Neo4jPersistenceProvider persistenceProvider)   => new ConstraintInfo(rawRecord, persistenceProvider);
-        protected virtual IndexInfo        NewIndexInfo(RawRecord rawRecord, Neo4jPersistenceProvider persistenceProvider)        => new IndexInfo(rawRecord, persistenceProvider);
+        protected virtual FunctionalIdInfo NewFunctionalIdInfo(RawRecord rawRecord) => new(rawRecord);
+        protected virtual ConstraintInfo NewConstraintInfo(RawRecord rawRecord, Neo4jPersistenceProvider persistenceProvider) => new(rawRecord, persistenceProvider);
+        protected virtual IndexInfo NewIndexInfo(RawRecord rawRecord, Neo4jPersistenceProvider persistenceProvider) => new(rawRecord, persistenceProvider);
 
         internal virtual ApplyConstraintEntity    NewApplyConstraintEntity(IEntity entity)                                                                              => new ApplyConstraintEntity(this, entity);
         internal virtual ApplyFunctionalId        NewApplyFunctionalId(string label, string prefix, long startFrom, ApplyFunctionalIdAction action)                     => new ApplyFunctionalId(this, label, prefix, startFrom, action);

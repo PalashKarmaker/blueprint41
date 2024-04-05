@@ -20,7 +20,7 @@ namespace Blueprint41.Neo4j.Schema
         internal virtual List<ApplyConstraintProperty> Initialize()
         {
 
-            List<ApplyConstraintProperty> actions = new List<ApplyConstraintProperty>();
+            List<ApplyConstraintProperty> actions = new();
             IEnumerable<ConstraintInfo> entityConstraints = Parent.Constraints.Where(item => item.Entity.Count == 1 && item.Entity[0] == Entity.Neo4jName);
             IEnumerable<IndexInfo> entityIndexes = Parent.Indexes.Where(item => item.Entity.Count == 1 && item.Entity[0] == Entity.Neo4jName);
             IReadOnlyList<Property> properties = Entity.GetPropertiesOfBaseTypesAndSelf();
