@@ -15,10 +15,7 @@ namespace Blueprint41.Neo4j.Model
 {
     public abstract partial class QueryTranslator
     {
-        protected QueryTranslator(Neo4jPersistenceProvider persistenceProvider)
-        {
-            PersistenceProvider = persistenceProvider;
-        }
+        protected QueryTranslator(Neo4jPersistenceProvider persistenceProvider) => PersistenceProvider = persistenceProvider;
 
         #region Compile Query Parts
 

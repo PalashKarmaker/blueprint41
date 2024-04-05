@@ -117,10 +117,7 @@ namespace Blueprint41
             return scripts;
         }
 
-        public void Execute(bool upgradeDatastore)
-        {
-            Execute(upgradeDatastore, null);
-        }
+        public void Execute(bool upgradeDatastore) => Execute(upgradeDatastore, null);
         void IDatastoreUnitTesting.Execute(bool upgradeDatastore, MethodInfo? unitTestScript) => Execute(upgradeDatastore, unitTestScript);
         internal void Execute(bool upgradeDatastore, MethodInfo? unitTestScript)
         {
@@ -135,7 +132,7 @@ namespace Blueprint41
                 DatastoreModel? model = null;
                 lock (RegisteredModels)
                 {
-                    model = RegisteredModels.FirstOrDefault(item => item.GetType() == this.GetType());
+                    model = RegisteredModels.FirstOrDefault(item => item.GetType() == GetType());
                     if (model is null)
                     {
                         model = this;
@@ -160,7 +157,7 @@ namespace Blueprint41
 
         internal void Execute(bool upgradeDatastore, MethodInfo? unitTestScript, Predicate<UpgradeScript> predicate, bool standAloneScript)
         {
-            bool isVoidProvider = (PersistenceProvider.GetType() == typeof(Blueprint41.Neo4j.Persistence.Void.Neo4jPersistenceProvider));
+            bool isVoidProvider = (PersistenceProvider.GetType() == typeof(Neo4j.Persistence.Void.Neo4jPersistenceProvider));
 
 #pragma warning disable CS0618 // Type or member is obsolete
 
