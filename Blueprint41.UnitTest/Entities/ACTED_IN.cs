@@ -53,11 +53,11 @@ namespace Datastore.Manipulation
             var context = query.GetExecutionContext();
             context.Execute();
 
-            Assignment[] GetAssignments(q.ACTED_IN_ALIAS alias)
+            static Assignment[] GetAssignments(q.ACTED_IN_ALIAS alias)
             {
-                List<Assignment> assignments = new List<Assignment>();
+                List<Assignment> assignments = [];
                
-                return assignments.ToArray();
+                return [.. assignments];
             }
         }
         public static List<ACTED_IN> Where(Func<Alias, QueryCondition> expression)
@@ -91,7 +91,7 @@ namespace Datastore.Manipulation
                 if (InNode.HasValue) conditions.Add(alias.Person(InNode.Value));
                 if (OutNode.HasValue) conditions.Add(alias.Movie(OutNode.Value));
 
-                return conditions.ToArray();
+                return [.. conditions];
             });
         }
         internal static List<ACTED_IN> Load(ICompiled query) => Load(query, null);
@@ -133,8 +133,7 @@ namespace Datastore.Manipulation
             {
                 get
                 {
-                    if (_creationDate is null)
-                        _creationDate = _relAlias.CreationDate;
+                    _creationDate ??= _relAlias.CreationDate;
 
                     return _creationDate;
                 }
@@ -222,11 +221,11 @@ namespace Datastore.Manipulation
             var context = query.GetExecutionContext();
             context.Execute();
 
-            Assignment[] GetAssignments(q.ACTED_IN_ALIAS alias)
+            static Assignment[] GetAssignments(q.ACTED_IN_ALIAS alias)
             {
-                List<Assignment> assignments = new List<Assignment>();
+                List<Assignment> assignments = new();
                
-                return assignments.ToArray();
+                return [.. assignments];
             }
         }
     }

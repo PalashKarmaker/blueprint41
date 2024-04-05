@@ -194,15 +194,11 @@ namespace Blueprint41.Build
         static string ComputeHash(string filePath)
         {
 #pragma warning disable S4790
-            using (HashAlgorithm algorithm = SHA1.Create())
-            {
-                using (FileStream fileStream = File.OpenRead(filePath))
-                {
-                    byte[] hashValue = algorithm.ComputeHash(fileStream);
+            using HashAlgorithm algorithm = SHA1.Create();
+            using FileStream fileStream = File.OpenRead(filePath);
+            byte[] hashValue = algorithm.ComputeHash(fileStream);
 
-                    return BitConverter.ToString(hashValue).Replace("-", "").ToLowerInvariant();
-                }
-            }
+            return BitConverter.ToString(hashValue).Replace("-", "").ToLowerInvariant();
 #pragma warning restore S4790
         }
         static string CalculateFolderHash(string folderPath)
@@ -211,26 +207,22 @@ namespace Blueprint41.Build
                 return DateTime.UtcNow.ToString("O");
 
 #pragma warning disable S4790
-            using (var algorithm = SHA1.Create())
+            using var algorithm = SHA1.Create();
+            var files = Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories);
+
+            foreach (var file in files)
             {
-                var files = Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories);
-
-                foreach (var file in files)
+                using var stream = File.OpenRead(file);
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+                while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
                 {
-                    using (var stream = File.OpenRead(file))
-                    {
-                        byte[] buffer = new byte[8192];
-                        int bytesRead;
-                        while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
-                        {
-                            algorithm.TransformBlock(buffer, 0, bytesRead, buffer, 0);
-                        }
-                    }
+                    algorithm.TransformBlock(buffer, 0, bytesRead, buffer, 0);
                 }
-
-                algorithm.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
-                return BitConverter.ToString(algorithm.Hash).Replace("-", "").ToLowerInvariant();
             }
+
+            algorithm.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
+            return BitConverter.ToString(algorithm.Hash).Replace("-", "").ToLowerInvariant();
 
 #pragma warning restore S4790
         }

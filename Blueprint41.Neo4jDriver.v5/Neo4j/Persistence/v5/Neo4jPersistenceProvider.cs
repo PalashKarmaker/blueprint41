@@ -23,9 +23,7 @@ namespace Blueprint41.Neo4j.Persistence.Driver.v5
                 {
                     lock (typeof(Neo4jPersistenceProvider))
                     {
-                        if (driver is null)
-                        {
-                            driver = GraphDatabase.Driver(Uri, AuthTokens.Basic(Username, Password),
+                        driver ??= GraphDatabase.Driver(Uri, AuthTokens.Basic(Username, Password),
                                 o =>
                                 {
                                     o.WithFetchSize(Config.Infinite);
@@ -40,7 +38,6 @@ namespace Blueprint41.Neo4j.Persistence.Driver.v5
                                         o.WithResolver(new HostResolver(AdvancedConfig));
                                 }
                             );
-                        }
                     }
                 }
                 return driver;
@@ -96,8 +93,8 @@ namespace Blueprint41.Neo4j.Persistence.Driver.v5
                     {
                         if (taskScheduler is null)
                         {
-                            CustomTaskQueueOptions main = new CustomTaskQueueOptions(10, 50);
-                            CustomTaskQueueOptions sub = new CustomTaskQueueOptions(4, 20);
+                            CustomTaskQueueOptions main = new(10, 50);
+                            CustomTaskQueueOptions sub = new(4, 20);
                             taskScheduler = new CustomThreadSafeTaskScheduler(main, sub);
                         }
                     }
@@ -108,7 +105,7 @@ namespace Blueprint41.Neo4j.Persistence.Driver.v5
         }
 
         private CustomTaskScheduler? taskScheduler = null;
-        private static object sync = new object();
+        private static readonly object sync = new();
 
         public Neo4jPersistenceProvider ConfigureTaskScheduler(CustomTaskQueueOptions mainQueue) => ConfigureTaskScheduler(mainQueue, CustomTaskQueueOptions.Disabled);
 

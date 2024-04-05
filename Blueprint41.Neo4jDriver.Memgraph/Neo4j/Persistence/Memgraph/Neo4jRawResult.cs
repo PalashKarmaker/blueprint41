@@ -39,9 +39,9 @@ namespace Blueprint41.Neo4j.Persistence.Driver.Memgraph
                 m_Enumerator = new RawRecordEnumerator<IRecord>(Scheduler.RunBlocking(() => ToList(Result), "Convert Result to Result List").GetEnumerator(), item => new Neo4jRawRecord(item));
                 return m_Enumerator!;
 
-                async Task<List<IRecord>> ToList(IResultCursor? cursor)
+                static async Task<List<IRecord>> ToList(IResultCursor? cursor)
                 {
-                    List<IRecord> records = new List<IRecord>(64);
+                    List<IRecord> records = new(64);
 
                     if (cursor is not null)
                     {

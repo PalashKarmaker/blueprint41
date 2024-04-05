@@ -76,7 +76,7 @@ namespace Blueprint41.Core
         private readonly Lazy<Dictionary<Type, Conversion?>> convertFromStoredType;
 
         public static PersistenceProvider CurrentPersistenceProvider { get; set; } = Neo4jPersistenceProvider.VoidPersistenceProvider;
-        public static bool IsConfigured => ((CurrentPersistenceProvider as Neo4jPersistenceProvider)?.Uri is not null);
+        public static bool IsConfigured => CurrentPersistenceProvider is Neo4jPersistenceProvider { Uri: not null };
 
         public static bool IsNeo4j
         {
@@ -101,8 +101,7 @@ namespace Blueprint41.Core
             if (returnType is null)
                 return value;
 
-            Conversion? converter;
-            if (!ConvertToStoredTypeCache.TryGetValue(returnType, out converter))
+            if (!ConvertToStoredTypeCache.TryGetValue(returnType, out Conversion? converter))
                 return value;
 
             if (converter is null)
@@ -121,8 +120,7 @@ namespace Blueprint41.Core
             if (returnType is null)
                 return value;
 
-            Conversion? converter;
-            if (!ConvertFromStoredTypeCache.TryGetValue(returnType, out converter))
+            if (!ConvertFromStoredTypeCache.TryGetValue(returnType, out Conversion? converter))
                 return value;
 
             if (converter is null)
@@ -136,8 +134,7 @@ namespace Blueprint41.Core
             if (returnType is null)
                 return null;
 
-            Conversion? converter;
-            ConvertToStoredTypeCache.TryGetValue(returnType, out converter);
+            ConvertToStoredTypeCache.TryGetValue(returnType, out Conversion? converter);
 
             return converter;
         }
@@ -147,8 +144,7 @@ namespace Blueprint41.Core
             if (returnType is null)
                 return null;
 
-            Conversion? converter;
-            ConvertFromStoredTypeCache.TryGetValue(returnType, out converter);
+            ConvertFromStoredTypeCache.TryGetValue(returnType, out Conversion? converter);
 
             return converter;
         }
@@ -161,8 +157,7 @@ namespace Blueprint41.Core
 
         public Type? GetStoredType(Type returnType)
         {
-            Conversion? converter;
-            if (!ConvertFromStoredTypeCache.TryGetValue(returnType, out converter))
+            if (!ConvertFromStoredTypeCache.TryGetValue(returnType, out Conversion? converter))
                 return null;
 
             return converter?.FromType ?? returnType;
