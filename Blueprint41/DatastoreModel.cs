@@ -8,7 +8,6 @@ using System.Text;
 
 using Blueprint41.Core;
 using Blueprint41.Neo4j.Schema;
-using Blueprint41.Neo4j.Persistence;
 using Blueprint41.Neo4j.Refactoring;
 using Force.Crc32;
 using model = Blueprint41.Neo4j.Model;
@@ -80,7 +79,7 @@ namespace Blueprint41
 
         internal List<UpgradeScript> GetUpgradeScripts(MethodInfo? unitTestScript)
         {
-            List<UpgradeScript> scripts = new List<UpgradeScript>();
+            List<UpgradeScript> scripts = new();
 
             foreach (MethodInfo info in GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance))
             {
@@ -275,7 +274,7 @@ namespace Blueprint41
             {
                 int line = 0;
 
-                StackTrace stack = new StackTrace(e, true);
+                StackTrace stack = new(e, true);
                 for (int frameIndex = 0; frameIndex < stack.FrameCount; frameIndex++)
                 {
                     StackFrame? frame = stack.GetFrame(frameIndex);
@@ -339,19 +338,13 @@ namespace Blueprint41
                 return (Patch == other.Patch && Minor == other.Minor && Major == other.Major);
             }
 
-            public override int GetHashCode()
-            {
-                return HashCode.Combine(Patch, Minor, Major, Name);
-            }
+            public override int GetHashCode() => HashCode.Combine(Patch, Minor, Major, Name);
         }
 
         #endregion
 
 
-        internal SchemaInfo GetSchema()
-        {
-            return PersistenceProvider.GetSchemaInfo(this);
-        }
+        internal SchemaInfo GetSchema() => PersistenceProvider.GetSchemaInfo(this);
         SchemaInfo IDatastoreUnitTesting.GetSchemaInfo() => GetSchema();
 
         protected IRefactorGlobal Refactor { get { return this; } }
@@ -390,18 +383,12 @@ namespace Blueprint41
             PersistenceProvider.Translator.ApplyFullTextSearchIndexes(Entities);
         }
 
-        bool IRefactorGlobal.HasFullTextSearchIndexes()
-        {
-            return PersistenceProvider.Translator.HasFullTextSearchIndexes();
-        }
+        bool IRefactorGlobal.HasFullTextSearchIndexes() => PersistenceProvider.Translator.HasFullTextSearchIndexes();
 
         protected DataMigrationScope DataMigration { get; private set; }
         public class DataMigrationScope
         {
-            internal DataMigrationScope(DatastoreModel model)
-            {
-                Model = model;
-            }
+            internal DataMigrationScope(DatastoreModel model) => Model = model;
             public DatastoreModel Model { get; private set; }
 
             public void Run(Action script)
