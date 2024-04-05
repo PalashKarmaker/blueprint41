@@ -17,15 +17,13 @@ namespace Blueprint41.Neo4j.Schema.v5
         {
             // TODO: Fix case where constraint is for a property on a relationship
             //       https://neo4j.com/docs/cypher-manual/current/constraints/
-            using (Transaction.Begin())
-            {
-                bool hasPlugin = Model.PersistenceProvider.Translator.HasBlueprint41FunctionalidFnNext.Value;
-                FunctionalIds     = hasPlugin ? LoadData("CALL blueprint41.functionalid.list()", record => NewFunctionalIdInfo(record)) : new List<FunctionalIdInfo>(0);
-                Constraints       = LoadData("show constraints", record => NewConstraintInfo(record, PersistenceProvider)).Where(item => item.Entity is not null && item.Field is not null).ToArray();
-                Indexes           = LoadData("show indexes", record => NewIndexInfo(record, PersistenceProvider)).Where(item => item.Entity is not null && item.Field is not null).ToArray();
-                Labels            = LoadSimpleData("CALL db.labels()", "label");
-                RelationshipTypes = LoadSimpleData("CALL db.relationshipTypes()", "relationshipType");
-            }
+            using var _ = Transaction.Begin();
+            bool hasPlugin = Model.PersistenceProvider.Translator.HasBlueprint41FunctionalidFnNext.Value;
+            FunctionalIds = hasPlugin ? LoadData("CALL blueprint41.functionalid.list()", record => NewFunctionalIdInfo(record)) : new List<FunctionalIdInfo>(0);
+            Constraints = LoadData("show constraints", record => NewConstraintInfo(record, PersistenceProvider)).Where(item => item.Entity is not null && item.Field is not null).ToArray();
+            Indexes = LoadData("show indexes", record => NewIndexInfo(record, PersistenceProvider)).Where(item => item.Entity is not null && item.Field is not null).ToArray();
+            Labels = LoadSimpleData("CALL db.labels()", "label");
+            RelationshipTypes = LoadSimpleData("CALL db.relationshipTypes()", "relationshipType");
         }
 
         protected override long FindMaxId(FunctionalId functionalId)
@@ -34,7 +32,7 @@ namespace Blueprint41.Neo4j.Schema.v5
             string templateNumeric = "MATCH (node:{0}) WHERE toInteger(node.Uid) IS NOT NULL WITH toInteger(node.Uid) AS decoded RETURN CASE WHEN Max(decoded) IS NULL THEN 0 ELSE Max(decoded) END as MaxId";
             string templateHash = "MATCH (node:{0}) where node.Uid STARTS WITH '{1}' AND SIZE(node.Uid) = {2} CALL blueprint41.hashing.decode(replace(node.Uid, '{1}', '')) YIELD value as decoded RETURN CASE WHEN Max(decoded) IS NULL THEN 0 ELSE Max(decoded) END as MaxId";
             string actualFidValue = "CALL blueprint41.functionalid.current('{0}') YIELD Sequence as sequence RETURN sequence";
-            StringBuilder queryBuilder = new StringBuilder();
+            StringBuilder queryBuilder = new();
             foreach (var entity in Model.Entities.Where(entity => entity.FunctionalId?.Label == functionalId.Label))
             {
                 if (first)
@@ -130,7 +128,7 @@ namespace Blueprint41.Neo4j.Schema.v5
             {
                 // Database has has a exists constraint, but we want a nullable field instead
                 commands.Add((ApplyConstraintAction.DeleteKeyConstraint, keyConstraint.Name));
-            }    
+            }
             else if (isKey && keyConstraint is null)
             {
                 // Database has has no exists constraint, but we want a non-nullable field instead

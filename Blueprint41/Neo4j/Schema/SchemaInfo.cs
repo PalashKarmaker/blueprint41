@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using Blueprint41.Core;
 using Blueprint41.Neo4j.Persistence.Void;
 using Blueprint41.Neo4j.Refactoring;
@@ -23,21 +21,16 @@ namespace Blueprint41.Neo4j.Schema
 
         protected virtual void Initialize()
         {
-            using (Transaction.Begin())
-            {
-                bool hasPlugin = Model.PersistenceProvider.Translator.HasBlueprint41Plugin.Value;
+            using var _ = Transaction.Begin();
+            bool hasPlugin = Model.PersistenceProvider.Translator.HasBlueprint41Plugin.Value;
 
-                FunctionalIds = hasPlugin ? LoadData("CALL blueprint41.functionalid.list()", record => NewFunctionalIdInfo(record)) : new List<FunctionalIdInfo>(0);
-                Constraints = LoadData("CALL db.constraints()", record => NewConstraintInfo(record, PersistenceProvider));
-                Indexes = LoadData("CALL db.indexes()", record => NewIndexInfo(record, PersistenceProvider));
-                Labels = LoadSimpleData("CALL db.labels()", "label");
-                RelationshipTypes = LoadSimpleData("CALL db.relationshipTypes()", "relationshipType");
-            }
+            FunctionalIds = hasPlugin ? LoadData("CALL blueprint41.functionalid.list()", record => NewFunctionalIdInfo(record)) : new List<FunctionalIdInfo>(0);
+            Constraints = LoadData("CALL db.constraints()", record => NewConstraintInfo(record, PersistenceProvider));
+            Indexes = LoadData("CALL db.indexes()", record => NewIndexInfo(record, PersistenceProvider));
+            Labels = LoadSimpleData("CALL db.labels()", "label");
+            RelationshipTypes = LoadSimpleData("CALL db.relationshipTypes()", "relationshipType");
         }
-        protected IReadOnlyList<string> LoadSimpleData(string procedure, string resultname)
-        {
-            return LoadData<string>(procedure, record => record.Values[resultname].As<string>());
-        }
+        protected IReadOnlyList<string> LoadSimpleData(string procedure, string resultname) => LoadData<string>(procedure, record => record.Values[resultname].As<string>());
         protected IReadOnlyList<T> LoadData<T>(string procedure, Func<RawRecord, T> processor)
         {
             IStatementRunner runner = Session.Current as IStatementRunner ?? Transaction.Current ?? throw new InvalidOperationException("Either a Session or an Transaction should be started.");
@@ -183,12 +176,8 @@ namespace Blueprint41.Neo4j.Schema
                 {
                     ApplyConstraintEntity applyConstraint = NewApplyConstraintEntity(entity);
                     foreach (var action in applyConstraint.Actions.Where(c => c.Property == property.Name))
-                    {
                         foreach (string query in action.ToCypher())
-                        {
                             Parser.Execute(query, null, !PersistenceProvider.IsMemgraph);
-                        }
-                    }
                 }
             }
         }
@@ -204,9 +193,9 @@ namespace Blueprint41.Neo4j.Schema
 
         internal virtual List<(ApplyConstraintAction, string?)> ComputeCommands(IEntity entity, IndexType indexType, bool nullable, bool isKey, IEnumerable<ConstraintInfo> constraints, IEnumerable<IndexInfo> indexes)
         {
-            bool isUnique = entity.IsVirtual ? false : constraints.Any(item => item.IsUnique);
-            bool isIndexed = entity.IsVirtual ? false : indexes.Any(item => item.IsIndexed);
-            bool isMandatory = entity.IsVirtual ? false : constraints.Any(item => item.IsMandatory);
+            bool isUnique = !entity.IsVirtual && constraints.Any(item => item.IsUnique);
+            bool isIndexed = !entity.IsVirtual && indexes.Any(item => item.IsIndexed);
+            bool isMandatory = !entity.IsVirtual && constraints.Any(item => item.IsMandatory);
 
             string? uniqueConstraintName = constraints.FirstOrDefault(item => item.IsUnique)?.Name;
             string? existsConstraintName = constraints.FirstOrDefault(item => item.IsMandatory)?.Name;

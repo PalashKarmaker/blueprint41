@@ -40,7 +40,7 @@ public class ApplyConstraintProperty
         // TODO: What about if the constraint is for a property on a relationship
         Entity entity = (Entity)Parent.Entity;
 
-        List<string> commands = new List<string>();
+        List<string> commands = new();
         foreach (var (actionEnum, constraintOrIndexName) in Commands)
         {
             switch (actionEnum)
