@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Blueprint41;
 
-namespace Blueprint41
+public enum PropertyType
 {
-    public enum PropertyType
-    {
-        Attribute,
-        Lookup,
-        Collection,
-    }
+    Attribute,
+    Lookup,
+    Collection,
 }

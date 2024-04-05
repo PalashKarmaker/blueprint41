@@ -1,18 +1,12 @@
 ﻿using Blueprint41.Neo4j.Refactoring;
-using Blueprint41.Neo4j.Refactoring.Templates;
-using Templates = Blueprint41.Neo4j.Refactoring.Templates;
 using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Text;
-using System.Threading.Tasks;
 using System.Diagnostics;
 using Blueprint41.Core;
 using System.Reflection;
 using Blueprint41.Dynamic;
-using Blueprint41.Neo4j.Schema;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Blueprint41
