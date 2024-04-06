@@ -1,41 +1,23 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Blueprint41.Neo4j.Refactoring;
-using Blueprint41.Neo4j.Persistence.Void;
 
 namespace Blueprint41.Neo4j.Schema;
-
-public class ApplyConstraintProperty
+public class ApplyConstraintProperty: ApplyConstraintBase
 {
     internal ApplyConstraintProperty(ApplyConstraintEntity parent, Property property, List<(ApplyConstraintAction actionEnum, string? constraintOrIndexName)> commands)
-    {
-        Parent = parent;
-        Property = property.Name;
-        Commands = commands;
-
-        PersistenceProvider = (Neo4jPersistenceProvider)Parent.Entity.Parent.PersistenceProvider;
-    }
+        : base(parent, commands) => Property = property.Name;
 
     internal ApplyConstraintProperty(ApplyConstraintEntity parent, string property, List<(ApplyConstraintAction actionEnum, string? constraintOrIndexName)> commands)
-    {
-        Parent = parent;
-        Property = property;
-        Commands = commands;
-
-        PersistenceProvider = (Neo4jPersistenceProvider)Parent.Entity.Parent.PersistenceProvider;
-    }
-
-    protected ApplyConstraintEntity Parent { get; private set; }
-    protected Neo4jPersistenceProvider PersistenceProvider { get; private set; }
+     : base(parent, commands) => Property = property;
 
     public string Property { get; protected set; }
-    public IReadOnlyList<(ApplyConstraintAction actionEnum, string? constraintOrIndexName)> Commands { get; protected set; }
 
     /// <summary>
     /// Turns actions into cypher queries.
     /// </summary>
     /// <returns></returns>
-    internal virtual List<string> ToCypher()
+    internal override List<string> ToCypher()
     {
         // TODO: What about if the constraint is for a property on a relationship
         Entity entity = (Entity)Parent.Entity;
@@ -69,14 +51,6 @@ public class ApplyConstraintProperty
                     if (PersistenceProvider.NodePropertyFeatures.Exists)
                         commands.Add($"DROP CONSTRAINT ON (node:{entity.Label.Name}) ASSERT exists(node.{Property})");
                     break;
-                case ApplyConstraintAction.CreateCompositeUniqueConstraint:
-                    if (PersistenceProvider.NodePropertyFeatures.Exists)
-                        commands.Add(CreateCompositeUniqueConstraintCommand(entity.Label.Name, Property));
-                    break;
-                case ApplyConstraintAction.DeleteCompositeUniqueConstraint:
-                    if (PersistenceProvider.NodePropertyFeatures.Exists)
-                        commands.Add(DropCompositeUniqueConstraintCommand(entity.Label.Name, Property));
-                    break;
                 default:
                     break;
             }
@@ -85,16 +59,6 @@ public class ApplyConstraintProperty
         foreach (var command in commands)
             Parser.Log(command);
         return commands;
-    }
-    private string CreateCompositeUniqueConstraintCommand(string label, params string[] propertyNames)
-    {
-        var withAlias = propertyNames.Select(p => $"n.{p}");
-        return $"CREATE CONSTRAINT ON (n:{label}) ASSERT {string.Join(",", withAlias)} IS UNIQUE";
-    }
-    private string DropCompositeUniqueConstraintCommand(string targetEntityType, string alias, params string[] propertyNames)
-    {
-        var withAlias = propertyNames.Select(p => $"{alias}.{p}");
-        return $"DROP CONSTRAINT ON {targetEntityType} ASSERT {string.Join(",", withAlias)} IS UNIQUE";
     }
     public override string ToString()
     {

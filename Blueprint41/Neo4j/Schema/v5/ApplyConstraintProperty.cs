@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Blueprint41.Neo4j.Refactoring;
 using Blueprint41.Neo4j.Schema.v4;
 
@@ -117,14 +116,6 @@ public class ApplyConstraintProperty_v5 : ApplyConstraintProperty_v4
                             commands.Add($"DROP CONSTRAINT {constraintOrIndexName}");
                     }
                     break;
-                case ApplyConstraintAction.CreateCompositeUniqueConstraint:
-                    if (PersistenceProvider.NodePropertyFeatures.Exists)
-                        commands.Add(CreateCompositeUniqueConstraintCommand(entity.Neo4jName, Property));
-                    break;
-                case ApplyConstraintAction.DeleteCompositeUniqueConstraint:
-                    if (PersistenceProvider.NodePropertyFeatures.Exists)
-                        commands.Add(DropCompositeUniqueConstraintCommand(entity.Neo4jName, Property));
-                    break;
                 default:
                     break;
             }
@@ -134,14 +125,5 @@ public class ApplyConstraintProperty_v5 : ApplyConstraintProperty_v4
             Parser.Log(command);
 
         return commands;
-    }
-    private string BuildConstraintName(string label, string constraintType, params string[] propertyNames) => 
-        $"{label}_" + string.Join("_", propertyNames) + $"_{constraintType}Constraint";
-    private string CreateCompositeUniqueConstraintCommand(string label, params string[] propertyNames)
-    {
-        var withAlias = propertyNames.Select(p => $"n.{p}");
-        return $"CREATE CONSTRAINT {BuildConstraintName(label, "Unique", Property)} FOR (n:{label}) REQUIRE ({string.Join(",", withAlias)}) IS UNIQUE";
-    }
-    private string DropCompositeUniqueConstraintCommand(string label, params string[] propertyNames) => 
-        $"DROP CONSTRAINT {BuildConstraintName(label, "Unique", propertyNames)}";
+    }    
 }

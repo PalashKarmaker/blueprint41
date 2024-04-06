@@ -62,6 +62,9 @@ namespace Blueprint41.Neo4j.Schema.v5
         protected override IndexInfo NewIndexInfo(RawRecord rawRecord, Neo4jPersistenceProvider persistenceProvider) => new IndexInfo_v5(rawRecord, persistenceProvider);
         internal override ApplyConstraintProperty NewApplyConstraintProperty(ApplyConstraintEntity parent, Property property, List<(ApplyConstraintAction, string?)> commands) => new ApplyConstraintProperty_v5(parent, property, commands);
         internal override ApplyConstraintProperty NewApplyConstraintProperty(ApplyConstraintEntity parent, string property, List<(ApplyConstraintAction, string?)> commands) => new ApplyConstraintProperty_v5(parent, property, commands);
+        internal override ApplyCompositeConstraint NewApplyCompositeConstraint(ApplyConstraintEntity parent, string[] names, List<(ApplyConstraintAction, string?)> acts) =>
+            new ApplyCompositeConstraint_v5(parent, names, acts);
+
         internal override List<(ApplyConstraintAction, string?)> ComputeCommands(IEntity entity, IndexType indexType, bool nullable, bool isKey, IEnumerable<ConstraintInfo> constraints, IEnumerable<IndexInfo> indexes)
         {
             // TODO: Fix case where constraint is for a property on a relationship

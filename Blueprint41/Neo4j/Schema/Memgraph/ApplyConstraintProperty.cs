@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Blueprint41.Neo4j.Persistence.Void;
 using Blueprint41.Neo4j.Refactoring;
 using Blueprint41.Neo4j.Schema.v5;
 

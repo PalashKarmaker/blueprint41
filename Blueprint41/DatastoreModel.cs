@@ -202,15 +202,11 @@ public abstract partial class DatastoreModel : IRefactorGlobal, IDatastoreUnitTe
                         Parser.Log("Finished script in {0} ms.", sw.ElapsedMilliseconds);
                     }
                     else
-                    {
                         RunScriptChecked(script);
-                    }
                 }
             }
             else
-            {
                 RunScriptChecked(script);
-            }
 
             if (upgradeDatastore && scriptCommitted)
             {

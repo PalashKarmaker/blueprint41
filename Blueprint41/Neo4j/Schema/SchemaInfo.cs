@@ -96,9 +96,7 @@ namespace Blueprint41.Neo4j.Schema
                 return ids.Count == 0 ? 0 : ids.Max() + 1;
             }
             else
-            {
                 return LoadData(string.Format(actualFidValue, functionalId.Label), record => record.Values["sequence"].As<int?>()).FirstOrDefault() ?? 0;
-            }
         }
 
         internal virtual IReadOnlyList<ApplyFunctionalId> GetFunctionalIdDifferences()
@@ -144,9 +142,7 @@ namespace Blueprint41.Neo4j.Schema
                 {
                     Parser.Log(diff.ToString());
                     foreach (var query in diff.ToCypher())
-                    {
                         Transaction.RunningTransaction.Run(query);
-                    }
                 }
                 Transaction.Commit();
             }
@@ -175,7 +171,7 @@ namespace Blueprint41.Neo4j.Schema
                 foreach (var entity in property.Parent.GetSubclassesOrSelf())
                 {
                     ApplyConstraintEntity applyConstraint = NewApplyConstraintEntity(entity);
-                    foreach (var action in applyConstraint.Actions.Where(c => c.Property == property.Name))
+                    foreach (var action in applyConstraint.Actions.Where(c => c is ApplyConstraintProperty property1 && property1.Property == property.Name))
                         foreach (string query in action.ToCypher())
                             Parser.Execute(query, null, !PersistenceProvider.IsMemgraph);
                 }
@@ -187,10 +183,12 @@ namespace Blueprint41.Neo4j.Schema
         protected virtual IndexInfo NewIndexInfo(RawRecord rawRecord, Neo4jPersistenceProvider persistenceProvider) => new(rawRecord, persistenceProvider);
 
         internal virtual ApplyConstraintEntity NewApplyConstraintEntity(IEntity entity) => new(this, entity);
-        internal virtual ApplyFunctionalId NewApplyFunctionalId(string label, string prefix, long startFrom, ApplyFunctionalIdAction action) => new ApplyFunctionalId(this, label, prefix, startFrom, action);
-        internal virtual ApplyConstraintProperty NewApplyConstraintProperty(ApplyConstraintEntity parent, Property property, List<(ApplyConstraintAction, string?)> commands) => new ApplyConstraintProperty(parent, property, commands);
-        internal virtual ApplyConstraintProperty NewApplyConstraintProperty(ApplyConstraintEntity parent, string property, List<(ApplyConstraintAction, string?)> commands) => new ApplyConstraintProperty(parent, property, commands);
-
+        internal virtual ApplyFunctionalId NewApplyFunctionalId(string label, string prefix, long startFrom, ApplyFunctionalIdAction action) => new(this, label, prefix, startFrom, action);
+        internal virtual ApplyConstraintProperty NewApplyConstraintProperty(ApplyConstraintEntity parent, Property property, List<(ApplyConstraintAction, string?)> commands) => new(parent, property, commands);
+        internal virtual ApplyConstraintProperty NewApplyConstraintProperty(ApplyConstraintEntity parent, string property, List<(ApplyConstraintAction, string?)> commands) => 
+            new(parent, property, commands);
+        internal virtual ApplyCompositeConstraint NewApplyCompositeConstraint(ApplyConstraintEntity parent, string[] names, List<(ApplyConstraintAction, string?)> acts) =>
+            new(parent, names, acts);
         internal virtual List<(ApplyConstraintAction, string?)> ComputeCommands(IEntity entity, IndexType indexType, bool nullable, bool isKey, IEnumerable<ConstraintInfo> constraints, IEnumerable<IndexInfo> indexes)
         {
             bool isUnique = !entity.IsVirtual && constraints.Any(item => item.IsUnique);
@@ -201,7 +199,7 @@ namespace Blueprint41.Neo4j.Schema
             string? existsConstraintName = constraints.FirstOrDefault(item => item.IsMandatory)?.Name;
             string? indexName = indexes.FirstOrDefault(item => item.IsIndexed)?.Name;
 
-            List<(ApplyConstraintAction, string?)> commands = new List<(ApplyConstraintAction, string?)>();
+            List<(ApplyConstraintAction, string?)> commands = new();
 
             if (entity.IsAbstract && indexType == IndexType.Unique)
                 indexType = IndexType.Indexed;

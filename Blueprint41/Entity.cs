@@ -93,7 +93,7 @@ public partial class Entity : IRefactorEntity, IEntityEvents, ISetRuntimeType, I
             FunctionalId? FindFunctionalId()
             {
                 Entity? entity = this.Inherits;
-                while(entity is not null)
+                while (entity is not null)
                 {
                     if (entity.functionalId is not null)
                         return entity.functionalId;
@@ -144,8 +144,15 @@ public partial class Entity : IRefactorEntity, IEntityEvents, ISetRuntimeType, I
         fullTextIndexProperties.Remove(property);
         return this;
     }
+    public List<(string[], IndexType)> CompositeConstraints { get; private set; } = new();
 
-
+    public Entity AddCompositeConstraint(string[] names, IndexType indexType = IndexType.Unique)
+    {
+        foreach (var name in names)
+            VerifyFromInheritedProperties(name);
+        CompositeConstraints.Add((names, indexType));
+        return this;
+    }
     public Entity AddProperty(string name, Type type) => AddProperty(name, type, true, IndexType.None);
     public Entity AddProperty(string name, string[] enumeration, bool nullable = true, IndexType indexType = IndexType.None)
     {
@@ -1132,10 +1139,8 @@ public partial class Entity : IRefactorEntity, IEntityEvents, ISetRuntimeType, I
     {
         return InitSubList(ref propertiesOfBaseTypesAndSelf, delegate (List<EntityProperty> allProperties)
         {
-            foreach (Entity entity in this.GetBaseTypesAndSelf())
-            {
+            foreach (Entity entity in GetBaseTypesAndSelf())
                 allProperties.AddRange(entity.Properties);
-            }
         });
     }
 
@@ -1318,7 +1323,7 @@ public partial class Entity : IRefactorEntity, IEntityEvents, ISetRuntimeType, I
 
         if (activator is null)
         {
-            lock(this)
+            lock (this)
             {
                 activator ??= Expression.Lambda<Func<OGM>>(Expression.New(RuntimeReturnType)).Compile();
             }
@@ -1383,7 +1388,7 @@ public partial class Entity : IRefactorEntity, IEntityEvents, ISetRuntimeType, I
 
     internal OGM? Map(RawNode node, string cypher, Dictionary<string, object?>? parameters, NodeMapping mappingMode)
     {
-        if(mapMethod is null)
+        if (mapMethod is null)
         {
             lock (this)
             {
