@@ -311,30 +311,40 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
             inItem.GetEntity().Key.Name,
             outItem.GetEntity().Label.Name,
             outItem.GetEntity().Key.Name);
-        string MergeOrCreate = toMerge ? "MERGE" : "CREATE";
-        string create = $"""
-                {MergeOrCreate} (in)-[outr:{relationship.Neo4JRelationshipType}]->(out)
+        long createdDate = Conversion<DateTime, long>.Convert(Transaction.RunningTransaction.TransactionDate);
+        Dictionary<string, object> map = properties ?? new Dictionary<string, object>();
+        map.AddOrSet(relationship.CreationDate, createdDate);
+        Dictionary<string, object?> parameters = new()
+        {
+            { "inKey", inItem.GetKey() },
+            { "outKey", outItem.GetKey() }
+        };
+        string create = string.Empty;
+        if (toMerge)
+        {
+            var attrs = "{" + string.Join(", ", map.Select(p => $"{p.Key}: ${p.Key}")) + "}";
+            create = $"CREATE (in)-[outr:{relationship.Neo4JRelationshipType} {attrs}]->(out)";
+            foreach (var attr in map)
+                parameters.Add(attr.Key, attr.Value);
+        }
+        else
+        {
+
+            create = $"""
+                MERGE (in)-[outr:{relationship.Neo4JRelationshipType}]->(out)
                 ON CREATE SET outr = $map
                 ON MATCH SET outr = $map, outr.CreationDate = $created
                 """;
-
-        long createdDate = Conversion<DateTime, long>.Convert(Transaction.RunningTransaction.TransactionDate);
-
-        Dictionary<string, object> map = properties ?? new Dictionary<string, object>();
-        map.AddOrSet(relationship.CreationDate, createdDate);
-
-        Dictionary<string, object?> parameters = new Dictionary<string, object?>();
-        parameters.Add("inKey", inItem.GetKey());
-        parameters.Add("outKey", outItem.GetKey());
-        parameters.Add("map", map);
-        parameters.Add("created", createdDate);
+            parameters.Add("map", map);
+            parameters.Add("created", createdDate);
+        }
 
         string query = match + "\r\n" + create;
         relationship.RaiseOnRelationCreate(trans);
 
         RawResult result = trans.Run(query, parameters);
     }
-    protected virtual void Add(Transaction trans, Relationship relationship, OGM inItem, OGM outItem, Dictionary<string, object>? properties, DateTime moment) 
+    protected virtual void Add(Transaction trans, Relationship relationship, OGM inItem, OGM outItem, Dictionary<string, object>? properties, DateTime moment)
     {
         long momentConv = Conversion<DateTime, long>.Convert(moment);
         if (momentConv >= Conversion.MaxDateTimeInMS)
@@ -463,7 +473,7 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
         Dictionary<string, object?> parameters = new Dictionary<string, object?>();
         if (inItem is not null)
             parameters.Add("inKey", inItem!.GetKey());
-        if (outItem is not null) 
+        if (outItem is not null)
             parameters.Add("outKey", outItem!.GetKey());
 
         Entity inEntity = inItem?.GetEntity() ?? relationship.InEntity;
@@ -471,7 +481,7 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
 
         string inLabel = (inItem is null) ? $"in:{inEntity.Label.Name}" : $"in:{inEntity.Label.Name} {{ {inEntity.Key.Name}: $inKey }}";
         string outLabel = (outItem is null) ? $"out:{outEntity.Label.Name}" : $"out:{outEntity.Label.Name} {{ {outEntity.Key.Name}: $outKey }}";
-        
+
         cypher = $"MATCH ({inLabel})-[r:{relationship.Neo4JRelationshipType}]->({outLabel}) DELETE r";
 
         relationship.RaiseOnRelationDelete(trans);
@@ -527,7 +537,7 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
 
     public override void AddUnmanaged(Relationship relationship, OGM inItem, OGM outItem, DateTime? startDate, DateTime? endDate, Dictionary<string, object> properties, bool fullyUnmanaged = false)
     {
-        if (properties is not null && properties.Count > 0) 
+        if (properties is not null && properties.Count > 0)
             throw new NotImplementedException("Support for setting properties via the unmanaged relationship interface is not implemented yet.");
 
         Transaction trans = Transaction.RunningTransaction;

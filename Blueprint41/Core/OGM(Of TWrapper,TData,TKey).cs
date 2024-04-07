@@ -113,18 +113,12 @@ namespace Blueprint41.Core
         {
             return Transaction.RunningTransaction.NodePersistenceProvider.LoadWhere<TWrapper>(Entity, conditions, parameters, page, pageSize, ascending, orderBy);
         }
-        public static List<TWrapper> LoadWhere(ICompiled query)
-        {
-            return LoadWhere(query, new Parameter[0]);
-        }
-        public static List<TWrapper> LoadWhere(ICompiled query, params Parameter[] parameters)
-        {
-            return Transaction.RunningTransaction.NodePersistenceProvider.LoadWhere<TWrapper>(Entity, query, parameters);
-        }
-        public static List<TWrapper> LoadWhere(ICompiled query, Parameter[] parameters, int page, int pageSize, params Property[] orderBy)
-        {
-            return LoadWhere(query, parameters, page, pageSize, true, orderBy);
-        }
+        public static List<TWrapper> LoadWhere(ICompiled query) => 
+            LoadWhere(query, new Parameter[0]);
+        public static List<TWrapper> LoadWhere(ICompiled query, params Parameter[] parameters) => 
+            Transaction.RunningTransaction.NodePersistenceProvider.LoadWhere<TWrapper>(Entity, query, parameters);
+        public static List<TWrapper> LoadWhere(ICompiled query, Parameter[] parameters, int page, int pageSize, params Property[] orderBy) => 
+            LoadWhere(query, parameters, page, pageSize, true, orderBy);
         public static List<TWrapper> LoadWhere(ICompiled query, Parameter[] parameters, int page, int pageSize, bool ascending = true, params Property[] orderBy)
         {
             return Transaction.RunningTransaction.NodePersistenceProvider.LoadWhere<TWrapper>(Entity, query, parameters, page, pageSize, ascending, orderBy);

@@ -58,5 +58,5 @@ public class ApplyCompositeConstraint_v5 : ApplyCompositeConstraint
         }
     }
     protected override string DropCompositeUniqueConstraintCommand(string label, params string[] propertyNames) =>
-        $"DROP CONSTRAINT {BuildConstraintName(label, "Unique", propertyNames)}";
+        $"DROP CONSTRAINT {BuildConstraintName(label, "Unique", propertyNames)} IF EXISTS";
 }
