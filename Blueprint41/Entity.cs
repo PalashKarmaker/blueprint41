@@ -148,8 +148,8 @@ public partial class Entity : IRefactorEntity, IEntityEvents, ISetRuntimeType, I
 
     public Entity AddCompositeConstraint(string[] names, IndexType indexType = IndexType.Unique)
     {
-        foreach (var name in names)
-            VerifyFromInheritedProperties(name);
+        //foreach (var name in names)
+        //    VerifyFromInheritedProperties(name);
         CompositeConstraints.Add((names, indexType));
         return this;
     }

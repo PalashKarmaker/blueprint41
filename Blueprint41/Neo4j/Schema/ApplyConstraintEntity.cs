@@ -60,7 +60,7 @@ public class ApplyConstraintEntity
                 continue; //TODO: Yet to be implemented
             var acts = new List<(ApplyConstraintAction, string?)>()
             {
-                new(ApplyConstraintAction.CreateCompositeUniqueConstraint, null),
+                new(ApplyConstraintAction.DeleteCompositeUniqueConstraint, null),
                 new(ApplyConstraintAction.CreateCompositeUniqueConstraint, null)
             };
             actions.Add(Parent.NewApplyCompositeConstraint(this, names, acts));
