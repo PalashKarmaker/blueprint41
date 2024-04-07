@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 using Blueprint41.Neo4j.Model;
 using Blueprint41.Neo4j.Persistence.Void;

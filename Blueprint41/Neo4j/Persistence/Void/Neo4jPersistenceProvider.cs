@@ -36,6 +36,7 @@ namespace Blueprint41.Neo4j.Persistence.Void
                 Index = true,
                 Exists = IsEnterpriseEdition || IsMemgraph,
                 Unique = true,
+                CompositeUnique = true,//TODO: Check for v4
                 Key = !IsMemgraph && IsEnterpriseEdition && VersionGreaterOrEqual(5, 7),
                 Type = !IsMemgraph && IsEnterpriseEdition && VersionGreaterOrEqual(5, 9),
             });
@@ -43,6 +44,7 @@ namespace Blueprint41.Neo4j.Persistence.Void
             {
                 Index = !IsMemgraph && VersionGreaterOrEqual(4, 3),
                 Exists = !IsMemgraph && IsEnterpriseEdition,
+                CompositeUnique = !IsMemgraph && VersionGreaterOrEqual(5, 7),//TODO: Check for v4
                 Unique = !IsMemgraph && VersionGreaterOrEqual(5, 7),
                 Key = !IsMemgraph && IsEnterpriseEdition && VersionGreaterOrEqual(5, 7),
                 Type = !IsMemgraph && IsEnterpriseEdition && VersionGreaterOrEqual(5, 9),
@@ -98,17 +100,11 @@ namespace Blueprint41.Neo4j.Persistence.Void
             return false;
         }
 
-        public bool HasFunction(string function)
-        {
-            return functions.Contains(function);
-        }
-        protected HashSet<string> functions = new HashSet<string>();
+        public bool HasFunction(string function) => functions.Contains(function);
+        protected HashSet<string> functions = new();
 
-        public bool HasProcedure(string procedure)
-        {
-            return procedures.Contains(procedure);
-        }
-        protected HashSet<string> procedures = new HashSet<string>();
+        public bool HasProcedure(string procedure) => procedures.Contains(procedure);
+        protected HashSet<string> procedures = new();
         private QueryTranslator? translator = null;
 
         internal override QueryTranslator Translator
@@ -136,11 +132,8 @@ namespace Blueprint41.Neo4j.Persistence.Void
             }
         }
 
-        private bool ShouldUseVoidTranslator()
-        {
-            return this.GetType() == typeof(Void.Neo4jPersistenceProvider)
-                || (Uri is null && Username is null && Password is null);
-        }
+        private bool ShouldUseVoidTranslator() => 
+            GetType() == typeof(Neo4jPersistenceProvider) || (Uri is null && Username is null && Password is null);
 
         private void FetchDatabaseInfo()
         {

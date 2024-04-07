@@ -198,10 +198,7 @@ public partial class Relationship : IRefactorRelationship, IRelationshipEvents
         return this;
     }
 
-    public Relationship AddProperty(string name, Type type)
-    {
-        return AddProperty(name, type, true, IndexType.None);
-    }
+    public Relationship AddProperty(string name, Type type) => AddProperty(name, type, true, IndexType.None);
     public Relationship AddProperty(string name, string[] enumeration, bool nullable = true, IndexType indexType = IndexType.None)
     {
         VerifyPropertiesCanBeAdded();
@@ -569,7 +566,7 @@ public partial class Relationship : IRefactorRelationship, IRelationshipEvents
     public List<(string[], IndexType)> CompositeConstraints => new();
     public Relationship AddCompositeConstraint(string[] names, IndexType indexType = IndexType.Unique)
     {
-            VerifyPropertiesCanBeAdded();
+        VerifyPropertiesCanBeAdded();
         CompositeConstraints.Add((names, indexType));
         return this;
     }

@@ -28,7 +28,7 @@ public class ApplyCompositeConstraint : ApplyConstraintBase
             {
                 case ApplyConstraintAction.CreateCompositeUniqueConstraint:
                     if (PersistenceProvider.NodePropertyFeatures.Exists)
-                        commands.Add(CreateCompositeUniqueConstraintCommand(entity.Label.Name, PropertyNames));
+                        commands.Add(CreateCompositeUniqueConstraintCommand(entity.Label.Name, propertyNames: PropertyNames));
                     break;
                 case ApplyConstraintAction.DeleteCompositeUniqueConstraint:
                     if (PersistenceProvider.NodePropertyFeatures.Exists)
@@ -43,7 +43,7 @@ public class ApplyCompositeConstraint : ApplyConstraintBase
             Parser.Log(command);
         return commands;
     }
-    protected virtual string CreateCompositeUniqueConstraintCommand(string label, params string[] propertyNames)
+    protected virtual string CreateCompositeUniqueConstraintCommand(string label, bool forRelationShip = false, params string[] propertyNames)
     {
         var withAlias = propertyNames.Select(p => $"n.{p}");
         return $"CREATE CONSTRAINT ON (n:{label}) ASSERT {string.Join(",", withAlias)} IS UNIQUE";

@@ -23,21 +23,12 @@ namespace Blueprint41
             PersistenceProviderFactory = factory;
         }
 
-        
+
         #region Transaction Logic
 
-        public static Transaction Begin()
-        {
-            return Begin(true, OptimizeFor.PartialSubGraphAccess);
-        }
-        public static Transaction Begin(bool readWriteMode)
-        {
-            return Begin(readWriteMode, OptimizeFor.PartialSubGraphAccess);
-        }
-        public static Transaction Begin(OptimizeFor mode)
-        {
-            return Begin(true, mode);
-        }
+        public static Transaction Begin() => Begin(true, OptimizeFor.PartialSubGraphAccess);
+        public static Transaction Begin(bool readWriteMode) => Begin(readWriteMode, OptimizeFor.PartialSubGraphAccess);
+        public static Transaction Begin(OptimizeFor mode) => Begin(true, mode);
         public static Transaction Begin(bool readWriteMode, OptimizeFor mode)
         {
             if (PersistenceProvider.CurrentPersistenceProvider is null)
@@ -203,14 +194,19 @@ namespace Blueprint41
         public static void Flush()
         {
             Transaction trans = RunningTransaction;
-
             trans.FlushInternal();
         }
         public static void Commit()
         {
             Transaction trans = RunningTransaction;
+            Commit(trans);
+        }
+
+        public static void Commit(Transaction trans)
+        {
             bool repeat = false;
-            do {
+            do
+            {
                 try
                 {
                     repeat = false;
@@ -249,14 +245,20 @@ namespace Blueprint41
             trans.Invalidate();
             trans.InTransaction = false;
         }
+
         public static void Rollback()
         {
             Transaction trans = RunningTransaction;
+            Rollback(trans);
+        }
 
+        public static void Rollback(Transaction trans)
+        {
             trans.RollbackInternal();
             trans.Invalidate();
             trans.InTransaction = false;
         }
+
         public static Transaction RunningTransaction
         {
             get

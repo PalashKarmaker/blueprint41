@@ -13,10 +13,10 @@ public class ApplyConstraintProperty_v5 : ApplyConstraintProperty_v4
     {
         // TODO: Fix case where constraint is for a property on a relationship
         //       https://neo4j.com/docs/cypher-manual/current/constraints/
-        IEntity entity = Parent.Entity;
+        var entity = Parent.Entity;
 
         List<string> commands = new();
-        foreach ((ApplyConstraintAction actionEnum, string? constraintOrIndexName) in Commands)
+        foreach ((var actionEnum, string? constraintOrIndexName) in Commands)
         {
             switch (actionEnum)
             {
@@ -86,11 +86,8 @@ public class ApplyConstraintProperty_v5 : ApplyConstraintProperty_v4
                         if (PersistenceProvider.NodePropertyFeatures.Unique)
                             commands.Add($"DROP CONSTRAINT {constraintOrIndexName}");
                     }
-                    else if (Parent.Entity is Relationship)
-                    {
-                        if (PersistenceProvider.RelationshipPropertyFeatures.Unique)
-                            commands.Add($"DROP CONSTRAINT {constraintOrIndexName}");
-                    }
+                    else if (Parent.Entity is Relationship && PersistenceProvider.RelationshipPropertyFeatures.Unique)
+                        commands.Add($"DROP CONSTRAINT {constraintOrIndexName}");
                     break;
                 case ApplyConstraintAction.DeleteKeyConstraint:
                     if (Parent.Entity is Entity)
@@ -98,11 +95,8 @@ public class ApplyConstraintProperty_v5 : ApplyConstraintProperty_v4
                         if (PersistenceProvider.NodePropertyFeatures.Key)
                             commands.Add($"DROP CONSTRAINT {constraintOrIndexName}");
                     }
-                    else if (Parent.Entity is Relationship)
-                    {
-                        if (PersistenceProvider.RelationshipPropertyFeatures.Key)
-                            commands.Add($"DROP CONSTRAINT {constraintOrIndexName}");
-                    }
+                    else if (Parent.Entity is Relationship && PersistenceProvider.RelationshipPropertyFeatures.Key)
+                        commands.Add($"DROP CONSTRAINT {constraintOrIndexName}");
                     break;
                 case ApplyConstraintAction.DeleteExistsConstraint:
                     if (Parent.Entity is Entity)
@@ -110,11 +104,8 @@ public class ApplyConstraintProperty_v5 : ApplyConstraintProperty_v4
                         if (PersistenceProvider.NodePropertyFeatures.Exists)
                             commands.Add($"DROP CONSTRAINT {constraintOrIndexName}");
                     }
-                    else if (Parent.Entity is Relationship)
-                    {
-                        if (PersistenceProvider.RelationshipPropertyFeatures.Exists)
-                            commands.Add($"DROP CONSTRAINT {constraintOrIndexName}");
-                    }
+                    else if (Parent.Entity is Relationship && PersistenceProvider.RelationshipPropertyFeatures.Exists)
+                        commands.Add($"DROP CONSTRAINT {constraintOrIndexName}");
                     break;
                 default:
                     break;
@@ -125,5 +116,5 @@ public class ApplyConstraintProperty_v5 : ApplyConstraintProperty_v4
             Parser.Log(command);
 
         return commands;
-    }    
+    }
 }

@@ -565,9 +565,7 @@ namespace Blueprint41
                             """;
                     }
                     else
-                    {
                         throw new NotSupportedException();
-                    }
 
                     do
                     {
