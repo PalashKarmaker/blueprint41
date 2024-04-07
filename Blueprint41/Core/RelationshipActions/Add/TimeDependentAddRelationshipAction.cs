@@ -17,10 +17,8 @@ namespace Blueprint41.Core
 
         public Dictionary<string, object>? Properties { get; private set; }
 
-        protected override void InDatastoreLogic(Relationship relationship)
-        {
-            PersistenceProvider.Add(relationship, InItem!, OutItem!, Moment, true, Properties);
-        }
+        protected override void InDatastoreLogic(Relationship relationship) => 
+            PersistenceProvider.Add(relationship, InItem!, OutItem!, Moment, true, Properties, true);
 
         protected override void InMemoryLogic(EntityCollectionBase target)
         {

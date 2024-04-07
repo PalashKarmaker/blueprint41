@@ -47,9 +47,7 @@ namespace Blueprint41.Core
         public void ExecuteInDatastore()
         {
             if (Relationship is not null)
-            {
                 InDatastoreLogic(Relationship);
-            }
             else
             {
                 /*

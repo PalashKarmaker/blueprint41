@@ -1,59 +1,51 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Blueprint41.Core;
-using System.Reflection;
 
-namespace Blueprint41.Core
+namespace Blueprint41.Core;
+
+internal abstract partial class RelationshipPersistenceProvider
 {
-    internal abstract partial class RelationshipPersistenceProvider
+    protected RelationshipPersistenceProvider(PersistenceProvider factory) => this.PersistenceProviderFactory = factory;
+
+    public PersistenceProvider PersistenceProviderFactory { get; private set; }
+
+    public abstract IEnumerable<CollectionItem> Load(OGM parent, EntityCollectionBase target);
+    public abstract Dictionary<OGM, CollectionItemList> Load(IEnumerable<OGM> parents, Core.EntityCollectionBase target);
+    public abstract void Add(Relationship relationship, OGM inItem, OGM outItem, DateTime? moment, bool timedependent, Dictionary<string, object>? properties, bool toMerge);
+    public abstract void Remove(Relationship relationship, OGM? inItem, OGM? outItem, DateTime? moment, bool timedependent);
+    public abstract void AddUnmanaged(Relationship relationship, OGM inItem, OGM outItem, DateTime? startDate, DateTime? endDate, Dictionary<string, object>? properties, bool fullyUnmanaged = false);
+    public abstract void RemoveUnmanaged(Relationship relationship, OGM inItem, OGM outItem, DateTime? startDate);
+
+    public class CollectionItemList
     {
-        protected RelationshipPersistenceProvider(PersistenceProvider factory)
+        private CollectionItemList(OGM parent)
         {
-            this.PersistenceProviderFactory = factory;
+            Parent = parent;
+            Items = new LinkedList<Core.CollectionItem>();
         }
 
-        public PersistenceProvider PersistenceProviderFactory { get; private set; }
-
-        public abstract IEnumerable<CollectionItem> Load(OGM parent, EntityCollectionBase target);
-        public abstract Dictionary<OGM, CollectionItemList> Load(IEnumerable<OGM> parents, Core.EntityCollectionBase target);
-        public abstract void Add(Relationship relationship, OGM inItem, OGM outItem, DateTime? moment, bool timedependent, Dictionary<string, object>? properties);
-        public abstract void Remove(Relationship relationship, OGM? inItem, OGM? outItem, DateTime? moment, bool timedependent);
-        public abstract void AddUnmanaged(Relationship relationship, OGM inItem, OGM outItem, DateTime? startDate, DateTime? endDate, Dictionary<string, object>? properties, bool fullyUnmanaged = false);
-        public abstract void RemoveUnmanaged(Relationship relationship, OGM inItem, OGM outItem, DateTime? startDate);
-
-        public class CollectionItemList
+        public static Dictionary<OGM, CollectionItemList> Get(IEnumerable<CollectionItem> items)
         {
-            private CollectionItemList(OGM parent)
-            {
-                Parent = parent;
-                Items = new LinkedList<Core.CollectionItem>();
-            }
+            Dictionary<OGM, CollectionItemList> result = new Dictionary<OGM, CollectionItemList>();
+            IEnumerable<CollectionItem> sorted = items.OrderBy(item => item.Parent.GetKey());
 
-            public static Dictionary<OGM, CollectionItemList> Get(IEnumerable<CollectionItem> items)
+            CollectionItemList? current = null;
+            foreach (CollectionItem item in sorted)
             {
-                Dictionary<OGM, CollectionItemList> result = new Dictionary<OGM, CollectionItemList>();
-                IEnumerable<CollectionItem> sorted = items.OrderBy(item => item.Parent.GetKey());
-
-                CollectionItemList? current = null;
-                foreach (CollectionItem item in sorted)
+                if (current is null || current.Parent != item.Parent)
                 {
-                    if (current is null || current.Parent != item.Parent)
-                    {
-                        current = new CollectionItemList(item.Parent);
-                        result.Add(current.Parent, current);
-                    }
-
-                    current.Items.AddLast(item);
+                    current = new CollectionItemList(item.Parent);
+                    result.Add(current.Parent, current);
                 }
 
-                return result;
+                current.Items.AddLast(item);
             }
 
-            public OGM Parent { get; private set; }
-            public LinkedList<CollectionItem> Items { get; private set; }
+            return result;
         }
+
+        public OGM Parent { get; private set; }
+        public LinkedList<CollectionItem> Items { get; private set; }
     }
 }
