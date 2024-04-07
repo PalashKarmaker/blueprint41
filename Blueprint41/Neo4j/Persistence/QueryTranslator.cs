@@ -825,7 +825,7 @@ namespace Blueprint41.Neo4j.Model
             // write version nr
             string create = "MERGE (n:RefactorVersion) ON CREATE SET n = $node ON MATCH SET n = $node";
 
-            Dictionary<string, object> node = new Dictionary<string, object>
+            Dictionary<string, object> node = new()
             {
                 { "Major", script.Major },
                 { "Minor", script.Minor },

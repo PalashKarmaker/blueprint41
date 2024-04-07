@@ -702,34 +702,26 @@ public partial class Entity : IRefactorEntity, IEntityEvents, ISetRuntimeType, I
     internal void DynamicEntityPropertyRenamed(string oldname, Property property, MergeAlgorithm mergeAlgorithm = MergeAlgorithm.NotApplicable)
     {
         foreach (Entity entity in GetConcreteClasses())
-        {
             foreach (KeyValuePair<object, DynamicEntity> item in entity.staticData)
                 item.Value.RefactorActionPropertyRenamed(oldname, property, mergeAlgorithm);
-        }
     }
     internal void DynamicEntityPropertyConverted(Property property, Type target)
     {
         foreach (Entity entity in GetConcreteClasses())
-        {
             foreach (KeyValuePair<object, DynamicEntity> item in entity.staticData)
                 item.Value.RefactorActionPropertyConverted(property, target);
-        }
     }
     internal void DynamicEntityPropertyRerouted(string oldname, Entity to, Property property)
     {
         foreach (Entity entity in GetConcreteClasses())
-        {
             foreach (KeyValuePair<object, DynamicEntity> item in entity.staticData)
                 item.Value.RefactorActionPropertyRerouted(oldname, to, property);
-        }
     }
     internal void DynamicEntityPropertyRemoved(Property property)
     {
         foreach (Entity entity in GetConcreteClasses())
-        {
             foreach (KeyValuePair<object, DynamicEntity> item in entity.staticData)
                 item.Value.RefactorActionPropertyRemoved(property);
-        }
     }
 
     #endregion

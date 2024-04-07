@@ -209,7 +209,7 @@ namespace Blueprint41.Core
                 RelationshipPersistenceProvider;
         private protected void ExecuteAction(RelationshipAction action)
         {
-            if (Parent is OGMImpl || (Parent is DynamicEntity && ((DynamicEntity)Parent).ShouldExecute))
+            if (Parent is OGMImpl || (Parent is DynamicEntity entity && entity.ShouldExecute))
                 DbTransaction?.Register(action);
         }
         private protected void ExecuteAction(LinkedList<RelationshipAction> actions)
