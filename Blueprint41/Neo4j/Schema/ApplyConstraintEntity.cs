@@ -9,7 +9,6 @@ public class ApplyConstraintEntity
     {
         Parent = parent;
         Entity = entity;
-
         Actions = Initialize();
     }
 

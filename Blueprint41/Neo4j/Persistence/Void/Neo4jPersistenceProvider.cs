@@ -64,6 +64,7 @@ namespace Blueprint41.Neo4j.Persistence.Void
                 Index = true,
                 Exists = IsEnterpriseEdition || IsMemgraph,
                 Unique = true,
+                CompositeUnique = true,
                 Key = !IsMemgraph && IsEnterpriseEdition && VersionGreaterOrEqual(5, 7),
                 Type = !IsMemgraph && IsEnterpriseEdition && VersionGreaterOrEqual(5, 9),
             });
@@ -72,6 +73,7 @@ namespace Blueprint41.Neo4j.Persistence.Void
                 Index = !IsMemgraph && VersionGreaterOrEqual(4, 3),
                 Exists = !IsMemgraph && IsEnterpriseEdition,
                 Unique = !IsMemgraph && VersionGreaterOrEqual(5, 7),
+                CompositeUnique = !IsMemgraph && VersionGreaterOrEqual(5, 7),
                 Key = !IsMemgraph && IsEnterpriseEdition && VersionGreaterOrEqual(5, 7),
                 Type = !IsMemgraph && IsEnterpriseEdition && VersionGreaterOrEqual(5, 9),
             });

@@ -29,7 +29,7 @@ public class ApplyCompositeConstraint_v5 : ApplyCompositeConstraint
                         commands.Add(CreateCompositeUniqueConstraintCommand(entity.Neo4jName, true, PropertyNames));
                     break;
                 case ApplyConstraintAction.DeleteCompositeUniqueConstraint:
-                    if (PersistenceProvider.NodePropertyFeatures.Exists)
+                    if (PersistenceProvider.NodePropertyFeatures.CompositeUnique)
                         commands.Add(DropCompositeUniqueConstraintCommand(entity.Neo4jName, PropertyNames));
                     break;
                 default:

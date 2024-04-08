@@ -255,8 +255,6 @@ public partial class Relationship : IRefactorRelationship, IRelationshipEvents
             OutProperty = null;
     }
 
-
-
     public Relationship CascadedDelete(params Entity[] nodes)
     {
         return this;
@@ -563,11 +561,12 @@ public partial class Relationship : IRefactorRelationship, IRelationshipEvents
     {
         return entity.IsSelfOrSubclassOf(InEntity) ? DirectionEnum.In : DirectionEnum.Out;
     }
-    public List<(string[], IndexType)> CompositeConstraints => new();
+    public List<(string[], IndexType)> CompositeConstraints => _compositeConstraints;
+    private readonly List<(string[], IndexType)> _compositeConstraints = new();
     public Relationship AddCompositeConstraint(string[] names, IndexType indexType = IndexType.Unique)
     {
-        VerifyPropertiesCanBeAdded();
-        CompositeConstraints.Add((names, indexType));
+        //VerifyPropertiesCanBeAdded();
+        _compositeConstraints.Add((names, indexType));
         return this;
     }
 }
