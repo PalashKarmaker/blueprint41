@@ -13,7 +13,7 @@
 
 
 	<PropertyGroup Label="Package">
-		<PackageVersion>1.0.0</PackageVersion>
+		<PackageVersion>1.0.1</PackageVersion>
 		<PackageId>CypherOGM.Build</PackageId>
 		<Title>CypherOGM.Build</Title>
 		<Authors>Palash Karmaker, Circles Arrows Limited</Authors>
