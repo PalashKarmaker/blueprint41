@@ -1,6 +1,6 @@
 The MIT License
 
-Copyright 2024 (c) Palash Karmaker
+Copyright 2017 (c) CIRCLES ARROWS LIMITED
 
 All rights reserved.
 

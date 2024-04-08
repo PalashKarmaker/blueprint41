@@ -1,4 +1,7 @@
+*It's an extension of actual Blueprint41 library. Added features are listed below:
 
+ - Add Composite Unique Constraints for Node and Relationships
+ - Exposing Explicit Transaction Commit*
  
 <div>
    <div><img align="left" src="https://github.com/circles-arrows/blueprint41/assets/121929116/88c219d4-403b-4e98-81a6-f1f3055a0a33" alt="Blueprint41" width="180" height="180"></div> 

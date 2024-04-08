@@ -1,0 +1,6 @@
+It's an extension of actual Blueprint41 library. Added features are listed below:
+
+ - Add Composite Unique Constraints for Node and Relationships
+ - Exposing Explicit Transaction Commit
+ - The actual MIT license from Blueprint41 is also included as "LICENSE - Blueprint41.txt"
+ - The actual Blueprint41 repository is available via https://github.com/circles-arrows/blueprint41/
