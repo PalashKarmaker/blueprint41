@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 
 namespace Blueprint41.Core
@@ -16,11 +15,9 @@ namespace Blueprint41.Core
             Initialize();
             isInitialized = true;
 
-            if (current is null)
-                current = new AsyncLocal<Stack<T>?>();
+            current ??= new AsyncLocal<Stack<T>?>();
 
-            if (current.Value is null)
-                current.Value = new Stack<T>();
+            current.Value ??= new Stack<T>();
 
             current.Value.Push((T)this);
 
@@ -42,7 +39,7 @@ namespace Blueprint41.Core
         }
 
         [ThreadStatic]
-        private static AsyncLocal<Stack<T>?> current = new AsyncLocal<Stack<T>?>();
+        private static AsyncLocal<Stack<T>?> current = new();
 
         private bool isInitialized;
         private bool isDisposed;

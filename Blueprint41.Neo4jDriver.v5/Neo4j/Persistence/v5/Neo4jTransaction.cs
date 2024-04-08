@@ -13,10 +13,8 @@ namespace Blueprint41.Neo4j.Persistence.Driver.v5
 
     public class Neo4jTransaction : Void.Neo4jTransaction
     {
-        internal Neo4jTransaction(Neo4jPersistenceProvider provider, bool readWriteMode, TransactionLogger? logger) : base(readWriteMode, logger)
-        {
-            Provider = provider;
-        }
+        internal Neo4jTransaction(Neo4jPersistenceProvider provider, bool readWriteMode, TransactionLogger? logger) : 
+            base(readWriteMode, logger) => Provider = provider;
 
         public override Transaction WithConsistency(string consistencyToken)
         {
@@ -30,8 +28,7 @@ namespace Blueprint41.Neo4j.Persistence.Driver.v5
             Neo4jBookmark? neo4JConsistency = consistency as Neo4jBookmark;
             if (neo4JConsistency is not null && consistency != Bookmark.NullBookmark)
             {
-                Consistency ??= new List<Neo4jBookmark>();
-
+                Consistency ??= [];
                 Consistency.Add(neo4JConsistency);
             }
 

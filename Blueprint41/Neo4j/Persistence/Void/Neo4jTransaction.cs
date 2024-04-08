@@ -46,10 +46,7 @@ namespace Blueprint41.Neo4j.Persistence.Void
 
         protected bool ReadWriteMode { get; set; }
 
-        protected override void CommitInternal()
-        {
-            RaiseOnCommit();
-        }
+        protected override void CommitInternal() => RaiseOnCommit();
         protected override void RollbackInternal()
         {
         }
@@ -59,10 +56,8 @@ namespace Blueprint41.Neo4j.Persistence.Void
 
         public static void Log(string message)
         {
-            Neo4jTransaction? trans = RunningTransaction as Neo4jTransaction;
-            if (trans is null)
+            if (RunningTransaction is not Neo4jTransaction trans)
                 throw new InvalidOperationException("The current transaction is not a Neo4j transaction.");
-
             trans.Logger?.Log(message);
         }
 
