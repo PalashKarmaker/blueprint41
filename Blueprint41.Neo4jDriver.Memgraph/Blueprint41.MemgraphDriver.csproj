@@ -12,7 +12,7 @@
 
 		<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
 		<GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
-		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<Platforms>AnyCPU;x86;x64</Platforms>
 		<LangVersion>9.0</LangVersion>
 		<Nullable>enable</Nullable>
