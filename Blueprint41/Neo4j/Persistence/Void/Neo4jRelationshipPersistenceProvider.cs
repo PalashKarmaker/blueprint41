@@ -291,7 +291,7 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
     }
     private static AtomicDictionary<string, Type> typeCache = new AtomicDictionary<string, Type>();
 
-    public override void Add(Relationship relationship, OGM inItem, OGM outItem, DateTime? moment, bool timedependent, Dictionary<string, object>? properties, bool toMerge)
+    public override void Add(Relationship relationship, OGM inItem, OGM outItem, DateTime? moment, bool timedependent, Dictionary<string, object>? properties, bool notToMerge)
     {
         Transaction trans = Transaction.RunningTransaction;
 
@@ -300,11 +300,11 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
         if (timedependent)
             Add(trans, relationship, inItem, outItem, properties, moment ?? Conversion.MinDateTime);
         else
-            Add(trans, relationship, inItem, outItem, properties, toMerge);
+            Add(trans, relationship, inItem, outItem, properties, notToMerge);
 
         relationship.RaiseOnRelationCreated(trans);
     }
-    protected virtual void Add(Transaction trans, Relationship relationship, OGM inItem, OGM outItem, Dictionary<string, object>? properties, bool toMerge)
+    protected virtual void Add(Transaction trans, Relationship relationship, OGM inItem, OGM outItem, Dictionary<string, object>? properties, bool notToMerge)
     {
         string match = string.Format("MATCH (in:{0}) WHERE in.{1} = $inKey \r\n MATCH (out:{2}) WHERE out.{3} = $outKey",
             inItem.GetEntity().Label.Name,
@@ -320,7 +320,7 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
             { "outKey", outItem.GetKey() }
         };
         string create = string.Empty;
-        if (toMerge)
+        if (notToMerge)
         {
             var attrs = "{" + string.Join(", ", map.Select(p => $"{p.Key}: ${p.Key}")) + "}";
             create = $"CREATE (in)-[outr:{relationship.Neo4JRelationshipType} {attrs}]->(out)";

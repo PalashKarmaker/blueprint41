@@ -144,13 +144,14 @@ public partial class Entity : IRefactorEntity, IEntityEvents, ISetRuntimeType, I
         fullTextIndexProperties.Remove(property);
         return this;
     }
-    public List<(string[], IndexType)> CompositeConstraints { get; private set; } = new();
+    public IReadOnlyList<string[]> CompositeUniqueConstraints => _compositeUniqueConstraints;
+    public List<string[]> _compositeUniqueConstraints = new();
 
-    public Entity AddCompositeConstraint(string[] names, IndexType indexType = IndexType.Unique)
+    public Entity AddCompositeUniqueConstraint(params string[] names)
     {
         //foreach (var name in names)
         //    VerifyFromInheritedProperties(name);
-        CompositeConstraints.Add((names, indexType));
+        _compositeUniqueConstraints.Add(names);
         return this;
     }
     public Entity AddProperty(string name, Type type) => AddProperty(name, type, true, IndexType.None);

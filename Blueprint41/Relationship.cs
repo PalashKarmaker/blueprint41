@@ -113,7 +113,7 @@ public partial class Relationship : IRefactorRelationship, IRelationshipEvents
     {
         get { return fullTextIndexProperties; }
     }
-    private List<RelationshipProperty> fullTextIndexProperties = new List<RelationshipProperty>();
+    private readonly List<RelationshipProperty> fullTextIndexProperties = new();
 
     #endregion
 
@@ -561,12 +561,12 @@ public partial class Relationship : IRefactorRelationship, IRelationshipEvents
     {
         return entity.IsSelfOrSubclassOf(InEntity) ? DirectionEnum.In : DirectionEnum.Out;
     }
-    public List<(string[], IndexType)> CompositeConstraints => _compositeConstraints;
-    private readonly List<(string[], IndexType)> _compositeConstraints = new();
-    public Relationship AddCompositeConstraint(string[] names, IndexType indexType = IndexType.Unique)
+    public IReadOnlyList<string[]> CompositeUniqueConstraints => _compositeUniqueConstraints;
+    private readonly List<string[]> _compositeUniqueConstraints = new();
+    public Relationship AddCompositeUniqueConstraint(params string[] names)
     {
-        //VerifyPropertiesCanBeAdded();
-        _compositeConstraints.Add((names, indexType));
+        VerifyPropertiesCanBeAdded();
+        _compositeUniqueConstraints.Add(names);
         return this;
     }
 }

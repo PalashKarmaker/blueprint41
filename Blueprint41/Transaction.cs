@@ -222,18 +222,13 @@ namespace Blueprint41
 
                         trans.actions.Clear();
                         foreach (var item in trans.forRetry)
-                        {
                             trans.actions.AddLast(item);
-                        }
                         trans.forRetry.Clear();
 
-                        foreach (OGMImpl entity in trans.registeredEntities.Values.SelectMany(item => item.Values).Where(item => item is OGMImpl).ToList())
-                        {
+                        foreach (OGMImpl entity in trans.registeredEntities.Values.SelectMany(item => item.Values).Where(item => item is OGMImpl).ToList().Cast<OGMImpl>())
                             if (trans.beforeCommitEntityState.TryGetValue(entity, out var state))
                                 entity.PersistenceState = state;
-                        }
                         trans.beforeCommitEntityState.Clear();
-
                         trans.RetryInternal();
                     }
                     else

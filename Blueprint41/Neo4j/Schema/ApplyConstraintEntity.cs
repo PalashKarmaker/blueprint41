@@ -53,10 +53,10 @@ public class ApplyConstraintEntity
 
     private void ApplyCompositeConstraints(List<ApplyConstraintBase> actions)
     {
-        foreach ((var names, var cIndexType) in Entity.CompositeConstraints)
+        foreach (var names in Entity.CompositeUniqueConstraints)
         {
-            if (cIndexType != IndexType.Unique)
-                continue; //TODO: Yet to be implemented
+            //if (cIndexType != IndexType.Unique)
+            //    continue; //TODO: Yet to be implemented
             var acts = new List<(ApplyConstraintAction, string?)>()
             {
                 new(ApplyConstraintAction.DeleteCompositeUniqueConstraint, null),

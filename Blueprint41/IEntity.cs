@@ -16,7 +16,7 @@ public interface IEntity
 
     PropertyCollection Properties { get; }
     IReadOnlyList<Property> FullTextIndexProperties { get; }
-    List<(string[], IndexType)> CompositeConstraints { get; }
+    IReadOnlyList<string[]> CompositeUniqueConstraints { get; }
 
     IEntity SetFullTextProperty(string propertyName);
     IEntity RemoveFullTextProperty(string propertyName);

@@ -12,7 +12,7 @@ internal abstract partial class RelationshipPersistenceProvider
 
     public abstract IEnumerable<CollectionItem> Load(OGM parent, EntityCollectionBase target);
     public abstract Dictionary<OGM, CollectionItemList> Load(IEnumerable<OGM> parents, Core.EntityCollectionBase target);
-    public abstract void Add(Relationship relationship, OGM inItem, OGM outItem, DateTime? moment, bool timedependent, Dictionary<string, object>? properties, bool toMerge);
+    public abstract void Add(Relationship relationship, OGM inItem, OGM outItem, DateTime? moment, bool timedependent, Dictionary<string, object>? properties, bool notToMerge);
     public abstract void Remove(Relationship relationship, OGM? inItem, OGM? outItem, DateTime? moment, bool timedependent);
     public abstract void AddUnmanaged(Relationship relationship, OGM inItem, OGM outItem, DateTime? startDate, DateTime? endDate, Dictionary<string, object>? properties, bool fullyUnmanaged = false);
     public abstract void RemoveUnmanaged(Relationship relationship, OGM inItem, OGM outItem, DateTime? startDate);
