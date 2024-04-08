@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup Label="Build">
-		<TargetFrameworks>netstandard2.1</TargetFrameworks>
+		<TargetFrameworks>net8.0</TargetFrameworks>
 		<RootNamespace>Blueprint41</RootNamespace>
-    <AssemblyName>Blueprint41.MemgraphDriver</AssemblyName>
+		<AssemblyName>Blueprint41.MemgraphDriver</AssemblyName>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 
 		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>

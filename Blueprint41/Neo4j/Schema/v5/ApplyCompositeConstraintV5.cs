@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace Blueprint41.Neo4j.Schema.v5;
 
-public class ApplyCompositeConstraint_v5 : ApplyCompositeConstraint
+public class ApplyCompositeConstraintV5 : ApplyCompositeConstraint
 {
-    internal ApplyCompositeConstraint_v5(ApplyConstraintEntity parent, string[] propertyNames, List<(ApplyConstraintAction actionEnum, string? constraintOrIndexName)> commands)
+    internal ApplyCompositeConstraintV5(ApplyConstraintEntity parent, string[] propertyNames, List<(ApplyConstraintAction actionEnum, string? constraintOrIndexName)> commands)
      : base(parent, propertyNames, commands) { }
     internal override List<string> ToCypher()
     {
@@ -15,8 +15,7 @@ public class ApplyCompositeConstraint_v5 : ApplyCompositeConstraint
         var entity = Parent.Entity;
 
         List<string> commands = new();
-        foreach ((var actionEnum, string? constraintOrIndexName) in Commands)
-        {
+        foreach ((var actionEnum, _) in Commands)
             switch (actionEnum)
             {
                 case ApplyConstraintAction.CreateCompositeUniqueConstraint:
@@ -35,7 +34,6 @@ public class ApplyCompositeConstraint_v5 : ApplyCompositeConstraint
                 default:
                     break;
             }
-        }
 
         foreach (var command in commands)
             Parser.Log(command);

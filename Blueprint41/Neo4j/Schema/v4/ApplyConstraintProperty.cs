@@ -3,10 +3,10 @@ using Blueprint41.Neo4j.Refactoring;
 
 namespace Blueprint41.Neo4j.Schema.v4;
 
-public class ApplyConstraintProperty_v4 : ApplyConstraintProperty
+public class ApplyConstraintPropertyV4 : ApplyConstraintProperty
 {
-    internal ApplyConstraintProperty_v4(ApplyConstraintEntity parent, Property property, List<(ApplyConstraintAction actionEnum, string? constraintOrIndexName)> commands) : base(parent, property, commands) { }
-    internal ApplyConstraintProperty_v4(ApplyConstraintEntity parent, string property, List<(ApplyConstraintAction actionEnum, string? constraintOrIndexName)> commands) : base(parent, property, commands) { }
+    internal ApplyConstraintPropertyV4(ApplyConstraintEntity parent, Property property, List<(ApplyConstraintAction actionEnum, string? constraintOrIndexName)> commands) : base(parent, property, commands) { }
+    internal ApplyConstraintPropertyV4(ApplyConstraintEntity parent, string property, List<(ApplyConstraintAction actionEnum, string? constraintOrIndexName)> commands) : base(parent, property, commands) { }
 
     internal override List<string> ToCypher()
     {

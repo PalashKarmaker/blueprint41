@@ -5,6 +5,7 @@ using System.Linq;
 using Blueprint41.Core;
 using Blueprint41.Neo4j.Persistence.Void;
 using Blueprint41.Neo4j.Refactoring;
+using Blueprint41.Neo4j.Schema.v5;
 
 namespace Blueprint41.Neo4j.Schema.Memgraph
 {
@@ -27,13 +28,12 @@ namespace Blueprint41.Neo4j.Schema.Memgraph
 
         protected override ConstraintInfo NewConstraintInfo(RawRecord rawRecord, Neo4jPersistenceProvider neo4JPersistenceProvider) => new ConstraintInfo_Memgraph(rawRecord, neo4JPersistenceProvider);
         protected override IndexInfo NewIndexInfo(RawRecord rawRecord, Neo4jPersistenceProvider neo4JPersistenceProvider) => new IndexInfo_Memgraph(rawRecord, neo4JPersistenceProvider);
-        internal override ApplyConstraintProperty NewApplyConstraintProperty(ApplyConstraintEntity parent, Property property, List<(ApplyConstraintAction, string?)> commands) => new ApplyConstraintProperty_Memgraph(parent, property, commands);
-        internal override ApplyConstraintProperty NewApplyConstraintProperty(ApplyConstraintEntity parent, string property, List<(ApplyConstraintAction, string?)> commands) => new ApplyConstraintProperty_Memgraph(parent, property, commands);
+        internal override ApplyConstraintProperty NewApplyConstraintProperty(ApplyConstraintEntity parent, Property property, List<(ApplyConstraintAction, string?)> commands) => new ApplyConstraintPropertyMemgraph(parent, property, commands);
+        internal override ApplyConstraintProperty NewApplyConstraintProperty(ApplyConstraintEntity parent, string property, List<(ApplyConstraintAction, string?)> commands) => new ApplyConstraintPropertyMemgraph(parent, property, commands);
+        internal override ApplyCompositeConstraint NewApplyCompositeConstraint(ApplyConstraintEntity parent, string[] names, List<(ApplyConstraintAction, string?)> acts) =>
+            new ApplyCompositeConstraintMemgraph(parent, names, acts);
 
-        internal override IReadOnlyList<ApplyFunctionalId> GetFunctionalIdDifferences()
-        {
-            return new List<Schema.ApplyFunctionalId>();
-        }
+        internal override IReadOnlyList<ApplyFunctionalId> GetFunctionalIdDifferences() => new List<ApplyFunctionalId>();
         internal override void UpdateFunctionalIds()
         {
             using (Session.Begin())
@@ -42,9 +42,7 @@ namespace Blueprint41.Neo4j.Schema.Memgraph
                 {
                     Parser.Log(diff.ToString());
                     foreach (var query in diff.ToCypher())
-                    {
                         Session.RunningSession.Run(query);
-                    }
                 }
             }
         }
