@@ -85,6 +85,6 @@ namespace Blueprint41.Core
                     Dispose();
             }
         }
-        private static readonly Lazy<bool> IsDebug = new Lazy<bool>(() => System.Diagnostics.Debugger.IsAttached, true);
+        private static readonly Lazy<bool> IsDebug = new(() => System.Diagnostics.Debugger.IsAttached, true);
     }
 }

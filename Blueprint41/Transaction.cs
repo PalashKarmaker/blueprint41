@@ -12,6 +12,15 @@ using persistence = Blueprint41.Neo4j.Persistence;
 
 namespace Blueprint41
 {
+    [Flags]
+    public enum EventOptions
+    {
+        SupressEvents = 0,
+        EntityEvents = 1,
+        GraphEvents = 2,
+        AllEvents = 3,
+    }
+
     public abstract class Transaction : DisposableScope<Transaction>, IStatementRunner
     {
         protected Transaction()
@@ -23,12 +32,36 @@ namespace Blueprint41
             PersistenceProviderFactory = factory;
         }
 
-
         #region Transaction Logic
 
+        private static readonly Bookmark NullConsistency = new();
+
+        public static Transaction RunningTransaction
+        {
+            get
+            {
+                Transaction? trans = Current ?? throw new InvalidOperationException("There is no transaction, you should create one first -> using (Transaction.Begin()) { ... Transaction.Commit(); }");
+                if (!trans.InTransaction)
+                    throw new InvalidOperationException("The transaction was already committed or rolled back.");
+
+                return trans;
+            }
+        }
+
+        public bool DisableForeignKeyChecks { get; set; }
+
+        public bool InTransaction { get; private set; }
+
+        public OptimizeFor Mode { get; set; }
+
+        public DateTime TransactionDate { get; private set; }
+
         public static Transaction Begin() => Begin(true, OptimizeFor.PartialSubGraphAccess);
+
         public static Transaction Begin(bool readWriteMode) => Begin(readWriteMode, OptimizeFor.PartialSubGraphAccess);
+
         public static Transaction Begin(OptimizeFor mode) => Begin(true, mode);
+
         public static Transaction Begin(bool readWriteMode, OptimizeFor mode)
         {
             if (PersistenceProvider.CurrentPersistenceProvider is null)
@@ -44,14 +77,86 @@ namespace Blueprint41
             return trans;
         }
 
+        public static void Commit()
+        {
+            Transaction trans = RunningTransaction;
+            Commit(trans);
+        }
+
+        public static void Commit(Transaction trans)
+        {
+            bool repeat = false;
+            do
+            {
+                try
+                {
+                    repeat = false;
+                    trans.FlushInternal();
+                    trans.ApplyFunctionalIds();
+                    trans.CommitInternal();
+                }
+                catch (Exception e)
+                {
+                    if (e.Message.ToLowerInvariant().Contains("can't acquire ExclusiveLock".ToLowerInvariant()) || e.Message.ToLowerInvariant().Contains("can't acquire UpdateLock".ToLowerInvariant()))
+                    {
+                        repeat = true;
+
+                        trans.actions.Clear();
+                        foreach (var item in trans.forRetry)
+                            trans.actions.AddLast(item);
+                        trans.forRetry.Clear();
+
+                        foreach (OGMImpl entity in trans.registeredEntities.Values.SelectMany(item => item.Values).Where(item => item is OGMImpl).ToList().Cast<OGMImpl>())
+                            if (trans.beforeCommitEntityState.TryGetValue(entity, out var state))
+                                entity.PersistenceState = state;
+                        trans.beforeCommitEntityState.Clear();
+                        trans.RetryInternal();
+                    }
+                    else
+                        throw e;
+                }
+            }
+            while (repeat);
+
+            trans.Invalidate();
+            trans.InTransaction = false;
+        }
+
+        public static void Flush()
+        {
+            Transaction trans = RunningTransaction;
+            trans.FlushInternal();
+        }
+
+        public static void Rollback()
+        {
+            Transaction trans = RunningTransaction;
+            Rollback(trans);
+        }
+
+        public static void Rollback(Transaction trans)
+        {
+            trans.RollbackInternal();
+            trans.Invalidate();
+            trans.InTransaction = false;
+        }
+
+        public virtual Bookmark GetConsistency() => NullConsistency;
+
+        public abstract RawResult Run(string cypher, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
+
+        public abstract RawResult Run(string cypher, Dictionary<string, object?>? parameters, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
+
         public virtual Transaction WithConsistency(Bookmark consistency)
         {
             return this;
         }
+
         public virtual Transaction WithConsistency(string consistencyToken)
         {
             return this;
         }
+
         public Transaction WithConsistency(params Bookmark[] consistency)
         {
             if (consistency is not null)
@@ -62,6 +167,7 @@ namespace Blueprint41
 
             return this;
         }
+
         public Transaction WithConsistency(params string[] consistencyTokens)
         {
             if (consistencyTokens is not null)
@@ -72,22 +178,37 @@ namespace Blueprint41
 
             return this;
         }
-
-        public abstract RawResult Run(string cypher, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
-        public abstract RawResult Run(string cypher, Dictionary<string, object?>? parameters, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
         protected abstract void ApplyFunctionalId(FunctionalId functionalId);
+
+        protected void ApplyFunctionalIds()
+        {
+            foreach (FunctionalId functionalId in DatastoreModel.RegisteredModels.SelectMany(model => model.FunctionalIds).Where(item => item is not null))
+            {
+                ApplyFunctionalId(functionalId);
+            }
+        }
+
+        protected override void Cleanup()
+        {
+            if (InTransaction)
+                Rollback();
+        }
+
+        protected abstract void CommitInternal();
+
         // Flush is private for now, until RelationshipActions will have their own persistence state.
         protected virtual void FlushInternal()
         {
             List<OGM> entities = registeredEntities.Values.SelectMany(item => item.Values).Where(item => item is OGMImpl).ToList();
-            foreach (OGMImpl entity in entities)
+            for (int i = 0; i < entities.Count; i++)
             {
+                OGMImpl entity = (OGMImpl)entities[i];
                 if (entity.PersistenceState == PersistenceState.Persisted || entity.PersistenceState == PersistenceState.Deleted)
                     continue;
 
                 if (HasChanges(entity))
                 {
-                    if(!beforeCommitEntityState.ContainsKey(entity))
+                    if (!beforeCommitEntityState.ContainsKey(entity))
                         beforeCommitEntityState.Add(entity, entity.PersistenceState);
 
                     entity.GetEntity().RaiseOnSave((OGMImpl)entity, this);
@@ -105,7 +226,6 @@ namespace Blueprint41
                     {
                         if (entity.PersistenceState == PersistenceState.Persisted || entity.PersistenceState == PersistenceState.Deleted)
                             continue;
-
 
                         if (HasChanges(entity))
                             entity.ValidateSave();
@@ -153,7 +273,6 @@ namespace Blueprint41
             }
 
             foreach (var entitySet in sortedItems)
-            {
                 foreach (OGM entity in entitySet.Value.Values.OrderBy(item => item.GetKey()))
                 {
                     if (entity.PersistenceState == PersistenceState.Persisted || entity.PersistenceState == PersistenceState.Deleted)
@@ -163,146 +282,52 @@ namespace Blueprint41
                     {
                         entity.Save();
                         object? key = entity.GetKey();
-                        Dictionary<object, OGM>? cache;
-                        if (!(key is null) && entitiesByKey.TryGetValue(entity.GetEntity().Name, out cache))
+                        if (key is not null && entitiesByKey.TryGetValue(entity.GetEntity().Name, out Dictionary<object, OGM>? cache))
                             cache.Remove(key);
                         //entitySet.Remove(entity);
                     }
                 }
-            }
 
-            static bool HasChanges(OGM entity)
-            {
-                return entity.PersistenceState != PersistenceState.New && entity.PersistenceState != PersistenceState.Delete && entity.PersistenceState != PersistenceState.HasUid && entity.PersistenceState != PersistenceState.DoesntExist && entity.PersistenceState != PersistenceState.ForceDelete && entity.PersistenceState != PersistenceState.Loaded;
-            }
+            static bool HasChanges(OGM entity) =>
+                entity.PersistenceState != PersistenceState.New && entity.PersistenceState != PersistenceState.Delete && entity.PersistenceState != PersistenceState.HasUid && entity.PersistenceState != PersistenceState.DoesntExist && entity.PersistenceState != PersistenceState.ForceDelete && entity.PersistenceState != PersistenceState.Loaded;
 
             foreach (Core.EntityCollectionBase collection in registeredCollections.Values.SelectMany(item => item.Values).SelectMany(item => item))
-            {
                 collection.AfterFlush();
-            }
 
-            foreach (OGMImpl entity in entities)
+            foreach (var entity in from OGMImpl entity in entities
+                                   where entity.PersistenceState == PersistenceState.Persisted || entity.PersistenceState == PersistenceState.Deleted
+                                   select entity)
             {
-                if (entity.PersistenceState == PersistenceState.Persisted || entity.PersistenceState == PersistenceState.Deleted)
-                {
-                    entity.GetEntity().RaiseOnAfterSave((OGMImpl)entity, this);
-                    foreach (EntityEventArgs item in entity.EventHistory)
-                        item.Flush();
-                }
+                entity.GetEntity().RaiseOnAfterSave((OGMImpl)entity, this);
+                foreach (EntityEventArgs item in entity.EventHistory)
+                    item.Flush();
             }
         }
-        public static void Flush()
-        {
-            Transaction trans = RunningTransaction;
-            trans.FlushInternal();
-        }
-        public static void Commit()
-        {
-            Transaction trans = RunningTransaction;
-            Commit(trans);
-        }
-
-        public static void Commit(Transaction trans)
-        {
-            bool repeat = false;
-            do
-            {
-                try
-                {
-                    repeat = false;
-                    trans.FlushInternal();
-                    trans.ApplyFunctionalIds();
-                    trans.CommitInternal();
-                }
-                catch (Exception e)
-                {
-                    if (e.Message.ToLowerInvariant().Contains("can't acquire ExclusiveLock".ToLowerInvariant()) || e.Message.ToLowerInvariant().Contains("can't acquire UpdateLock".ToLowerInvariant()))
-                    {
-                        repeat = true;
-
-                        trans.actions.Clear();
-                        foreach (var item in trans.forRetry)
-                            trans.actions.AddLast(item);
-                        trans.forRetry.Clear();
-
-                        foreach (OGMImpl entity in trans.registeredEntities.Values.SelectMany(item => item.Values).Where(item => item is OGMImpl).ToList().Cast<OGMImpl>())
-                            if (trans.beforeCommitEntityState.TryGetValue(entity, out var state))
-                                entity.PersistenceState = state;
-                        trans.beforeCommitEntityState.Clear();
-                        trans.RetryInternal();
-                    }
-                    else
-                        throw e;
-                }
-            }
-            while (repeat);
-
-            trans.Invalidate();
-            trans.InTransaction = false;
-        }
-
-        public static void Rollback()
-        {
-            Transaction trans = RunningTransaction;
-            Rollback(trans);
-        }
-
-        public static void Rollback(Transaction trans)
-        {
-            trans.RollbackInternal();
-            trans.Invalidate();
-            trans.InTransaction = false;
-        }
-
-        public static Transaction RunningTransaction
-        {
-            get
-            {
-                Transaction? trans = Current;
-
-                if (trans is null)
-                    throw new InvalidOperationException("There is no transaction, you should create one first -> using (Transaction.Begin()) { ... Transaction.Commit(); }");
-
-                if (!trans.InTransaction)
-                    throw new InvalidOperationException("The transaction was already committed or rolled back.");
-
-                return trans;
-            }
-        }
-
-        public bool InTransaction { get; private set; }
-        public DateTime TransactionDate { get; private set; }
-        public OptimizeFor Mode { get; set; }
-
-        public virtual Bookmark GetConsistency() => NullConsistency;
-        private static readonly Bookmark NullConsistency = new Bookmark();
-
-        public bool DisableForeignKeyChecks { get; set; }
-
-        protected void ApplyFunctionalIds()
-        {
-            foreach (FunctionalId functionalId in DatastoreModel.RegisteredModels.SelectMany(model => model.FunctionalIds).Where(item=> item is not null))
-            {
-                ApplyFunctionalId(functionalId);
-            }
-        }
-        protected abstract void CommitInternal();
-        protected abstract void RollbackInternal();
         protected abstract void RetryInternal();
 
-        protected override void Cleanup()
-        {
-            if (InTransaction)
-                Rollback();
-        }
-
-        #endregion
+        protected abstract void RollbackInternal();
+        #endregion Transaction Logic
 
         #region Registration
 
-        private Dictionary<OGM, PersistenceState> beforeCommitEntityState = new Dictionary<OGM, PersistenceState>();
-        private Dictionary<string, Dictionary<OGM, OGM>> registeredEntities = new Dictionary<string, Dictionary<OGM, OGM>>(50);
-        private Dictionary<string, Dictionary<string, HashSet<Core.EntityCollectionBase>>> registeredCollections = new Dictionary<string, Dictionary<string, HashSet<Core.EntityCollectionBase>>>(100);
+        private readonly Dictionary<OGM, PersistenceState> beforeCommitEntityState = new();
+        private readonly Dictionary<string, Dictionary<string, HashSet<EntityCollectionBase>>> registeredCollections = new(100);
+        private readonly Dictionary<string, Dictionary<OGM, OGM>> registeredEntities = new(50);
+        private readonly Dictionary<string, Dictionary<object, OGM>> entitiesByKey = new(50);
+
+        public OGM? GetEntityByKey(string type, object key)
+        {
+            if (key is null)
+                return null;
+
+            if (!entitiesByKey.TryGetValue(type, out Dictionary<object, OGM>? values))
+                return null;
+
+            if (!values.TryGetValue(key, out OGM? item))
+                return null;
+
+            return item;
+        }
 
         internal void Register(OGM item)
         {
@@ -313,15 +338,13 @@ namespace Blueprint41
 
             string entityName = item.GetEntity().Name;
 
-            Dictionary<OGM, OGM>? values;
-            if (!registeredEntities.TryGetValue(entityName, out values))
+            if (!registeredEntities.TryGetValue(entityName, out Dictionary<OGM, OGM>? values))
             {
                 values = new Dictionary<OGM, OGM>(1000);
                 registeredEntities.Add(entityName, values);
             }
 
-            OGM? inSet;
-            if (values.TryGetValue(item, out inSet))
+            if (values.TryGetValue(item, out OGM? inSet))
             {
                 if (inSet.PersistenceState != PersistenceState.DoesntExist && inSet == item)
                     throw new InvalidOperationException("You cannot register an already loaded object.");
@@ -338,8 +361,7 @@ namespace Blueprint41
             if (key is null)
                 return;
 
-            Dictionary<object, OGM>? values;
-            if (!entitiesByKey.TryGetValue(type, out values))
+            if (!entitiesByKey.TryGetValue(type, out Dictionary<object, OGM>? values))
             {
                 values = new Dictionary<object, OGM>(1000);
                 entitiesByKey.Add(type, values);
@@ -366,8 +388,7 @@ namespace Blueprint41
 
             string relationshipName = item.Relationship.Name;
 
-            Dictionary<string, HashSet<Core.EntityCollectionBase>>? properties;
-            if (!registeredCollections.TryGetValue(relationshipName, out properties))
+            if (!registeredCollections.TryGetValue(relationshipName, out Dictionary<string, HashSet<EntityCollectionBase>>? properties))
             {
                 properties = new Dictionary<string, HashSet<Core.EntityCollectionBase>>();
                 registeredCollections.Add(relationshipName, properties);
@@ -375,8 +396,7 @@ namespace Blueprint41
 
             string propertyName = string.Concat(item.Parent.GetEntity().Name, ".", item.ParentProperty?.Name ?? "NonExisting");
 
-            HashSet<Core.EntityCollectionBase>? values;
-            if (!properties.TryGetValue(propertyName, out values))
+            if (!properties.TryGetValue(propertyName, out HashSet<EntityCollectionBase>? values))
             {
                 values = new HashSet<Core.EntityCollectionBase>();
                 properties.Add(propertyName, values);
@@ -404,55 +424,12 @@ namespace Blueprint41
 
             registeredCollections.Clear();
         }
-
-
-        private Dictionary<string, Dictionary<object, OGM>> entitiesByKey = new Dictionary<string, Dictionary<object, OGM>>(50);
-
-        public OGM? GetEntityByKey(string type, object key)
-        {
-            if (key is null)
-                return null;
-
-            Dictionary<object, OGM>? values;
-            if (!entitiesByKey.TryGetValue(type, out values))
-                return null;
-
-            OGM? item;
-            if (!values.TryGetValue(key, out item))
-                return null;
-
-            return item;
-        }
-
-        #endregion
+        #endregion Registration
 
         #region Action Distribution
 
-        private LinkedList<RelationshipAction> actions = new LinkedList<RelationshipAction>();
-        private LinkedList<RelationshipAction> forRetry = new LinkedList<RelationshipAction>();
-
-        internal void Register(RelationshipAction action)
-        {
-            actions.AddLast(action);
-            Distribute(action);
-        }
-        internal void Register(LinkedList<RelationshipAction> actions)
-        {
-            foreach (RelationshipAction action in actions)
-                Register(action);
-        }
-
-        internal void Replay(Core.EntityCollectionBase collection)
-        {
-            foreach (RelationshipAction action in actions)
-                action.ExecuteInMemory(collection);
-        }
-        private void Distribute(RelationshipAction action)
-        {
-            List<EntityCollectionBase>? collections = registeredCollections.SelectMany(item => item.Value).SelectMany(item => item.Value).ToList();
-            foreach (Core.EntityCollectionBase collection in collections)
-                action.ExecuteInMemory(collection);
-        }
+        private readonly LinkedList<RelationshipAction> actions = new();
+        private readonly LinkedList<RelationshipAction> forRetry = new();
 
         internal void LoadAll(Core.EntityCollectionBase collection)
         {
@@ -461,8 +438,7 @@ namespace Blueprint41
 
             string relationshipName = collection.Relationship.Name;
 
-            Dictionary<string, HashSet<Core.EntityCollectionBase>>? properties;
-            if (!registeredCollections.TryGetValue(relationshipName, out properties))
+            if (!registeredCollections.TryGetValue(relationshipName, out Dictionary<string, HashSet<EntityCollectionBase>>? properties))
             {
                 properties = new Dictionary<string, HashSet<Core.EntityCollectionBase>>();
                 registeredCollections.Add(relationshipName, properties);
@@ -470,8 +446,7 @@ namespace Blueprint41
 
             string propertyName = string.Concat(collection.Parent.GetEntity().Name, ".", collection.ParentProperty?.Name ?? "NonExisting");
 
-            HashSet<Core.EntityCollectionBase>? values;
-            if (properties.TryGetValue(propertyName, out values))
+            if (properties.TryGetValue(propertyName, out HashSet<EntityCollectionBase>? values))
             {
                 List<Core.EntityCollectionBase> collections = values.Where(item => !item.IsLoaded).ToList();
 
@@ -479,7 +454,7 @@ namespace Blueprint41
                 int initialSize = Math.Min(chunkSize, collections.Count);
                 foreach (var chunk in collections.Chunks(chunkSize))
                 {
-                    List<OGM> parents = new List<OGM>(initialSize);
+                    List<OGM> parents = new(initialSize);
                     foreach (Core.EntityCollectionBase item in chunk)
                         if (item.Parent.PersistenceState != PersistenceState.New && item.Parent.PersistenceState != PersistenceState.NewAndChanged)
                             parents.Add(item.Parent);
@@ -488,8 +463,7 @@ namespace Blueprint41
 
                     foreach (Core.EntityCollectionBase item in chunk)
                     {
-                        CollectionItemList? items = null;
-                        if (allItems.TryGetValue(item.Parent, out items))
+                        if (allItems.TryGetValue(item.Parent, out CollectionItemList? items))
                             item.InitialLoad(items.Items);
                         else
                             item.InitialLoad(new List<CollectionItem>());
@@ -501,7 +475,31 @@ namespace Blueprint41
                 collection.InitialLoad(new List<CollectionItem>());
         }
 
-        #endregion
+        internal void Register(RelationshipAction action)
+        {
+            actions.AddLast(action);
+            Distribute(action);
+        }
+
+        internal void Register(LinkedList<RelationshipAction> actions)
+        {
+            foreach (RelationshipAction action in actions)
+                Register(action);
+        }
+
+        internal void Replay(Core.EntityCollectionBase collection)
+        {
+            foreach (RelationshipAction action in actions)
+                action.ExecuteInMemory(collection);
+        }
+
+        private void Distribute(RelationshipAction action)
+        {
+            List<EntityCollectionBase>? collections = registeredCollections.SelectMany(item => item.Value).SelectMany(item => item.Value).ToList();
+            foreach (Core.EntityCollectionBase collection in collections)
+                action.ExecuteInMemory(collection);
+        }
+        #endregion Action Distribution
 
         #region PersistenceProviderFactory
 
@@ -509,7 +507,7 @@ namespace Blueprint41
         internal NodePersistenceProvider NodePersistenceProvider => PersistenceProviderFactory.NodePersistenceProvider;
         internal RelationshipPersistenceProvider RelationshipPersistenceProvider => PersistenceProviderFactory.RelationshipPersistenceProvider;
 
-        #endregion
+        #endregion PersistenceProviderFactory
 
         #region Query
 
@@ -529,9 +527,56 @@ namespace Blueprint41
             }
         }
 
-        #endregion
+        #endregion Query
 
         #region Events
+
+        private static EventHandler<TransactionEventArgs>? onBegin;
+
+        private Dictionary<string, object?>? customState = null;
+
+        private EventHandler<TransactionEventArgs>? onCommit;
+
+        public static event EventHandler<TransactionEventArgs> OnBegin
+        {
+            add { onBegin += value; }
+            remove { onBegin -= value; }
+        }
+
+        public event EventHandler<TransactionEventArgs> OnCommit
+        {
+            add { onCommit += value; }
+            remove { onCommit -= value; }
+        }
+
+        public static bool HasRegisteredOnBeginHandlers
+        { get { return onBegin is not null; } }
+
+        public IDictionary<string, object?> CustomState
+        {
+            get
+            {
+                if (customState is null)
+                {
+                    lock (this)
+                    {
+                        customState ??= new Dictionary<string, object?>();
+                    }
+                }
+                return customState;
+            }
+        }
+
+        public EventOptions FireEvents { get; private set; }
+
+        public bool HasRegisteredOnCommitHandlers
+        { get { return onCommit is not null; } }
+
+        internal bool FireEntityEvents
+        { get { return (FireEvents & EventOptions.EntityEvents) == EventOptions.EntityEvents; } }
+
+        internal bool FireGraphEvents
+        { get { return (FireEvents & EventOptions.GraphEvents) == EventOptions.GraphEvents; } }
 
         public static void Execute(Action action, EventOptions withEvents = EventOptions.GraphEvents)
         {
@@ -548,6 +593,7 @@ namespace Blueprint41
                 trans.FireEvents = oldValue;
             }
         }
+
         public static T Execute<T>(Func<T> action, EventOptions withEvents = EventOptions.GraphEvents)
         {
             if (action is null)
@@ -569,70 +615,22 @@ namespace Blueprint41
 
             return result;
         }
-        public EventOptions FireEvents { get; private set; }
-
-        internal bool FireEntityEvents { get { return (FireEvents & EventOptions.EntityEvents) == EventOptions.EntityEvents; } }
-        internal bool FireGraphEvents { get { return (FireEvents & EventOptions.GraphEvents) == EventOptions.GraphEvents; } }
-
         internal void RaiseOnBegin()
         {
             TransactionEventArgs args = TransactionEventArgs.CreateInstance(EventTypeEnum.OnBegin, this);
             onBegin?.Invoke(this, args);
         }
-        public static bool HasRegisteredOnBeginHandlers { get { return onBegin is not null; } }
-        private static EventHandler<TransactionEventArgs>? onBegin;
-        public static event EventHandler<TransactionEventArgs> OnBegin
-        {
-            add { onBegin += value; }
-            remove { onBegin -= value; }
-        }
-
-
         internal void RaiseOnCommit()
         {
             if (!this.FireEntityEvents)
                 return;
-            
+
             TransactionEventArgs args = TransactionEventArgs.CreateInstance(EventTypeEnum.OnCommit, this);
             onCommit?.Invoke(this, args);
-            
+
             // Wipe custom-state so the garbage collection can collect it. If anyone thinks this causes a bug for them, feel free to remove this line of code :o)
             customState = null;
         }
-        public bool HasRegisteredOnCommitHandlers { get { return onCommit is not null; } }
-        private EventHandler<TransactionEventArgs>? onCommit;
-        public event EventHandler<TransactionEventArgs> OnCommit
-        {
-            add { onCommit += value; }
-            remove { onCommit -= value; }
-        }
-
-        private Dictionary<string, object?>? customState = null;
-        public IDictionary<string, object?> CustomState
-        {
-            get
-            {
-                if (customState is null)
-                {
-                    lock (this)
-                    {
-                        if (customState is null)
-                            customState = new Dictionary<string, object?>();
-                    }
-                }
-                return customState;
-            }
-        }
-
-        #endregion
-    }
-
-    [Flags]
-    public enum EventOptions
-    {
-        SupressEvents = 0,
-        EntityEvents = 1,
-        GraphEvents = 2,
-        AllEvents = 3,
+        #endregion Events
     }
 }

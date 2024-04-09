@@ -175,7 +175,7 @@ namespace Blueprint41.Neo4j.Persistence.Driver.v5
 
             Provider.TaskScheduler.ClearHistory();
         }
-        public void DebugQueryString(string cypherQuery, Dictionary<string, object?>? parameterValues = null)
+        public static void DebugQueryString(string cypherQuery, Dictionary<string, object?>? parameterValues = null)
         {
             if (parameterValues is not null)
             {

@@ -44,18 +44,11 @@ namespace Blueprint41.Neo4j.Persistence.Driver.v5
             }
         }
 
-        private class HostResolver : IServerAddressResolver
+        private class HostResolver(AdvancedConfig config) : IServerAddressResolver
         {
-            public HostResolver(AdvancedConfig config)
-            {
-                Config = config;
-            }
-
-            private readonly AdvancedConfig Config;
-
             public ISet<ServerAddress> Resolve(ServerAddress address)
             {
-                return new HashSet<ServerAddress>(Config.DNSResolverHook!(new Neo4jHost() { Host = address.Host, Port = address.Port }).Select(host => ServerAddress.From(host.Host, host.Port)));
+                return new HashSet<ServerAddress>(config.DNSResolverHook!(new Neo4jHost() { Host = address.Host, Port = address.Port }).Select(host => ServerAddress.From(host.Host, host.Port)));
             }
         }
 
