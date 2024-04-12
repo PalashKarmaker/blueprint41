@@ -22,10 +22,10 @@ namespace System.Linq
         public static (List<TLeft> Removed, List<(TLeft, TRight)> Matched, List<TRight> Added) Compare<TLeft, TRight>(this IEnumerable<TLeft> left, IEnumerable<TRight> right, Func<TLeft, IComparable>? leftField = null, Func<TRight, IComparable>? rightField = null)
         {
             if (left is null)
-                left = new List<TLeft>(0);
+                left = [];
 
             if (right is null)
-                right = new List<TRight>(0);
+                right = [];
 
             if (rightField is null)
             {
@@ -38,9 +38,9 @@ namespace System.Linq
             if (leftField is null)
                 leftField = (item) => item as IComparable ?? throw new InvalidCastException("Cannot cast item to IComparable");
 
-            List<TLeft> Removed = new List<TLeft>();
-            List<(TLeft, TRight)> Matched = new List<(TLeft, TRight)>();
-            List<TRight> Added = new List<TRight>();
+            List<TLeft> Removed = [];
+            List<(TLeft, TRight)> Matched = [];
+            List<TRight> Added = [];
 
             List<(TLeft item, IComparable comparable)> l = left.Select(item => (item, leftField.Invoke(item))).ToList();
             List<(TRight item, IComparable comparable)> r = right.Select(item => (item, rightField.Invoke(item))).ToList();
@@ -119,7 +119,7 @@ namespace System.Linq
         {
             if (action is null)
                 return;
-            
+
             foreach (T item in items)
                 action.Invoke(item);
         }
@@ -266,18 +266,16 @@ namespace System.Linq
         }
 
 
-        public static TValue GetValue<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue defaultValue = default!)
+        public static TValue GetValue<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue defaultValue = default!) where TKey : notnull
         {
-            if (dictionary.TryGetValue(key, out TValue value))
+            if (dictionary.TryGetValue(key, out var value))
                 return value;
-
             return defaultValue;
         }
         public static TValue GetValue<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue defaultValue = default!)
         {
-            if (dictionary.TryGetValue(key, out TValue value))
+            if (dictionary.TryGetValue(key, out var value))
                 return value;
-
             return defaultValue;
         }
 
@@ -318,7 +316,7 @@ namespace System
                 return sb.ToString() + "?";
             return sb.ToString();
         }
-        
+
         /// <summary>
         /// Compare an IComparable{T} with a {T}. If both are null, zero is returned. If this object is
         /// null, -1 is returned. If the object to compare with is null, 1 is returned. Otherwise, this
@@ -328,16 +326,13 @@ namespace System
         /// <param name="a">The object to compare against <c>b</c></param>
         /// <param name="b">The object to compare with</param>
         /// <typeparam name="T">The type of object to compare with</typeparam>
-        public static int NullSafeCompareTo<T>(this IComparable<T> a, T b)
-        {
-            return a is null
+        public static int NullSafeCompareTo<T>(this IComparable<T> a, T b) => a is null
                 ? b is null
                 ? 0
                     : -1
                     : b is null
                 ? 1
                     : a.CompareTo(b);
-        }
 
         /// <summary>
         /// Compare an IComparable with an object. If both are null, zero is returned. If this object is
@@ -347,16 +342,13 @@ namespace System
         /// <returns>The comparison of this object with the parameter</returns>
         /// <param name="a">The object to compare against <c>b</c></param>
         /// <param name="b">The object to compare with</param>
-        public static int NullSafeCompareTo(this IComparable a, object b)
-        {
-            return a is null
+        public static int NullSafeCompareTo(this IComparable a, object b) => a is null
                 ? b is null
                 ? 0
                     : -1
                     : b is null
                 ? 1
                     : Compare(a, b);
-        }
 
         private static int Compare(IComparable a, object b)
         {
@@ -383,7 +375,7 @@ namespace System
 
             return Serializer.Serialize(self);
         }
-        
+
         [return: MaybeNull]
         public static T FromJson<T>(this string self)
         {
@@ -403,35 +395,17 @@ namespace System
         }
 
         public static IEnumerable<T> NotNull<T>(this IEnumerable<T?> self)
-            where T : class
-        {
-            return self.Where(item => !(item is null))!;
-        }
+            where T : class => self.Where(item => item is not null)!;
 
-        public static IEnumerable<object> NotNull(this IEnumerable self)
-        {
-            return self.Cast<object?>().Where(item => !(item is null))!;
-        }
+        public static IEnumerable<object> NotNull(this IEnumerable self) => self.Cast<object?>().Where(item => item is not null)!;
 
         public static T GetTaskResult<T>(this Task<T> self) => self.WaitEx().ResultEx();
         //public static T GetTaskResult<T>(this Task<T> self) => AsyncHelper.RunSync(() => self);
 
-        public static Task Continue(this Task self, Action callback)
-        {
-            return self.ContinueWith(task => callback.Invoke());
-        }
-        public static Task<TReturn> Continue<TReturn>(this Task self, Func<TReturn> callback)
-        {
-            return self.ContinueWith(task => callback.Invoke());
-        }
-        public static Task Continue<T>(this Task<T> self, Action<T> callback)
-        {
-            return self.ContinueWith(task => callback.Invoke(task.GetAwaiter().GetResult()));
-        }
-        public static Task<TReturn> Continue<T, TReturn>(this Task<T> self, Func<T, TReturn> callback)
-        {
-            return self.ContinueWith(task => callback.Invoke(task.GetAwaiter().GetResult()));
-        }
+        public static Task Continue(this Task self, Action callback) => self.ContinueWith(task => callback.Invoke());
+        public static Task<TReturn> Continue<TReturn>(this Task self, Func<TReturn> callback) => self.ContinueWith(task => callback.Invoke());
+        public static Task Continue<T>(this Task<T> self, Action<T> callback) => self.ContinueWith(task => callback.Invoke(task.GetAwaiter().GetResult()));
+        public static Task<TReturn> Continue<T, TReturn>(this Task<T> self, Func<T, TReturn> callback) => self.ContinueWith(task => callback.Invoke(task.GetAwaiter().GetResult()));
 
         public static string? GetAsyncTaskDescription(this Task task)
         {
@@ -455,10 +429,10 @@ namespace System
         }
         private static Lazy<Func<Task, Delegate?>> getActionDelegate = new Lazy<Func<Task, Delegate?>>(delegate ()
         {
-            FieldInfo field = typeof(Task).GetField("m_action", BindingFlags.Instance | BindingFlags.NonPublic);
+            var field = typeof(Task).GetField("m_action", BindingFlags.Instance | BindingFlags.NonPublic);
 
             ParameterExpression parameter = Expression.Parameter(typeof(Task), "task");
-            Expression accessField = Expression.Convert(Expression.Field(parameter, field), typeof(Delegate));
+            Expression accessField = Expression.Convert(Expression.Field(parameter, field!), typeof(Delegate));
 
             return Expression.Lambda<Func<Task, Delegate?>>(accessField, parameter).Compile();
 
@@ -495,126 +469,82 @@ namespace Blueprint41.Core
             Type type = value.GetType();
             Type type2 = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
             if (type2 == typeof(string))
-            {
-                return value.ToString().AsItIs<T>();
-            }
+                return value.ToString()!.AsItIs<T>();
             if (type2 == typeof(short))
-            {
-                return Convert.ToInt16(value).AsItIs<T>();
-            }
+                return Convert.ToInt16(value)!.AsItIs<T>();
             if (type2 == typeof(int))
-            {
                 return Convert.ToInt32(value).AsItIs<T>();
-            }
             if (type2 == typeof(long))
-            {
                 return Convert.ToInt64(value).AsItIs<T>();
-            }
             if (type2 == typeof(float))
-            {
                 return Convert.ToSingle(value, CultureInfo.InvariantCulture).AsItIs<T>();
-            }
             if (type2 == typeof(double))
-            {
                 return Convert.ToDouble(value, CultureInfo.InvariantCulture).AsItIs<T>();
-            }
             if (type2 == typeof(sbyte))
-            {
                 return Convert.ToSByte(value).AsItIs<T>();
-            }
             if (type2 == typeof(ulong))
-            {
                 return Convert.ToUInt64(value).AsItIs<T>();
-            }
             if (type2 == typeof(uint))
-            {
                 return Convert.ToUInt32(value).AsItIs<T>();
-            }
             if (type2 == typeof(ushort))
-            {
                 return Convert.ToUInt16(value).AsItIs<T>();
-            }
             if (type2 == typeof(byte))
-            {
                 return Convert.ToByte(value).AsItIs<T>();
-            }
             if (type2 == typeof(char))
-            {
                 return Convert.ToChar(value).AsItIs<T>();
-            }
             if (type2 == typeof(bool))
-            {
                 return Convert.ToBoolean(value).AsItIs<T>();
-            }
             if (value is IConvertible)
-            {
                 return Convert.ChangeType(value, type2).AsItIs<T>();
-            }
             TypeInfo typeInfo = type2.GetTypeInfo();
             IDictionary? dict;
             if (DictionaryTypeInfo.IsAssignableFrom(typeInfo) && typeInfo.IsGenericType && (dict = (value as IDictionary)) is not null)
-            {
                 return dict.AsDictionary<T>(typeInfo);
-            }
             IEnumerable? value2;
             if (EnumerableTypeInfo.IsAssignableFrom(typeInfo) && typeInfo.IsGenericType && (value2 = (value as IEnumerable)) is not null)
-            {
                 return value2.AsList<T>(typeInfo);
-            }
             throw new InvalidCastException($"Unable to cast object of type `{type}` to type `{typeof(T)}`.");
         }
 
         [return: NotNullIfNotNull("value")]
-        internal static T ValueAs<T>(this object value)
-        {
-            return value.As<T>();
-        }
+        internal static T ValueAs<T>(this object value) => value.As<T>();
 
         [return: NotNullIfNotNull("dict")]
         private static T AsDictionary<T>(this IDictionary dict, TypeInfo typeInfo)
         {
             Type[] genericTypeArguments = typeInfo.GenericTypeArguments;
-            IDictionary dictionary = (IDictionary)Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(genericTypeArguments));
+            var obj = Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(genericTypeArguments));
+            var dictionary = obj as IDictionary;
             MethodInfo invocableAsMethod = GetInvocableAsMethod(genericTypeArguments[0]);
             MethodInfo invocableAsMethod2 = GetInvocableAsMethod(genericTypeArguments[1]);
             IDictionaryEnumerator enumerator = dict.GetEnumerator();
             while (enumerator.MoveNext())
-            {
-                dictionary.Add(invocableAsMethod.InvokeStatic(enumerator.Key), invocableAsMethod2.InvokeStatic(enumerator.Value));
-            }
-            return dictionary.AsItIs<T>();
+                dictionary!.Add(invocableAsMethod.InvokeStatic(enumerator.Key)!, invocableAsMethod2.InvokeStatic(enumerator.Value!));
+            return dictionary!.AsItIs<T>();
         }
 
         [return: NotNullIfNotNull("value")]
         private static T AsList<T>(this IEnumerable value, TypeInfo typeInfo)
         {
             Type[] genericTypeArguments = typeInfo.GenericTypeArguments;
-            IList list = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(genericTypeArguments));
+            var list = Activator.CreateInstance(typeof(List<>).MakeGenericType(genericTypeArguments)) as IList;
             MethodInfo invocableAsMethod = GetInvocableAsMethod(genericTypeArguments[0]);
             foreach (object item in value)
-            {
-                list.Add(invocableAsMethod.InvokeStatic(item));
-            }
-            return list.AsItIs<T>();
+                list!.Add(invocableAsMethod.InvokeStatic(item));
+            return list!.AsItIs<T>();
         }
 
         [return: MaybeNull]
-        private static object InvokeStatic(this MethodInfo method, params object[] parameters)
-        {
-            return method.Invoke(null, parameters);
-        }
+        private static object InvokeStatic(this MethodInfo method, params object[] parameters) => method.Invoke(null, parameters);
 
-        private static MethodInfo GetInvocableAsMethod(params Type[] genericParameters)
-        {
-            return typeof(ExtensionMethods).GetRuntimeMethod("As", genericParameters).MakeGenericMethod(genericParameters);
-        }
+        private static MethodInfo GetInvocableAsMethod(params Type[] genericParameters) =>
+            typeof(ExtensionMethods).GetRuntimeMethod("As", genericParameters)!.MakeGenericMethod(genericParameters);
 
         [return: NotNullIfNotNull("value")]
         private static T AsItIs<T>(this object value)
         {
             if (value is T)
                 return (T)value;
-
             throw new InvalidOperationException($"The expected value `{typeof(T)}` is different from the actual value `{value.GetType()}`");
         }
 
@@ -641,14 +571,14 @@ namespace Blueprint41.Core
             return false;
         }
 
-        private static AtomicDictionary<Type, List<(Type provider, Func<object, object?> conversion)>> specificConversions = new AtomicDictionary<Type, List<(Type provider, Func<object, object?> conversion)>>();
+        private static AtomicDictionary<Type, List<(Type provider, Func<object, object?> conversion)>> specificConversions = [];
 
         public static void RegisterAsConversion(Type persistenceProvider, Type type, Func<object, object?> conversion)
         {
             List<(Type provider, Func<object, object?> conversion)> conversions;
             if (type is not null)
             {
-                conversions = specificConversions.TryGetOrAdd(type, key => new List<(Type provider, Func<object, object?> conversion)>());
+                conversions = specificConversions.TryGetOrAdd(type, key => new List<(Type provider, Func<object, object?> conversion)>()) ?? [];
                 if (!conversions.Any(item => item.provider == persistenceProvider))
                     conversions.Add((persistenceProvider, conversion));
             }

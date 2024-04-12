@@ -41,9 +41,9 @@ public partial class Entity : IRefactorEntity, IEntityEvents, ISetRuntimeType, I
 
         this.functionalId = functionalId;
 
-        key = new Lazy<EntityProperty>(delegate () { return GetPropertiesOfBaseTypesAndSelf().SingleOrDefault(x => x.IsKey); }, true);
-        nodeType = new Lazy<EntityProperty>(delegate () { return GetPropertiesOfBaseTypesAndSelf().SingleOrDefault(x => x.IsNodeType); }, true);
-        rowVersion = new Lazy<EntityProperty>(delegate () { return GetPropertiesOfBaseTypesAndSelf().SingleOrDefault(x => x.IsRowVersion); }, true);
+        key = new Lazy<EntityProperty?>(delegate () { return GetPropertiesOfBaseTypesAndSelf().SingleOrDefault(x => x.IsKey); }, true);
+        nodeType = new Lazy<EntityProperty?>(delegate () { return GetPropertiesOfBaseTypesAndSelf().SingleOrDefault(x => x.IsNodeType); }, true);
+        rowVersion = new Lazy<EntityProperty?>(delegate () { return GetPropertiesOfBaseTypesAndSelf().SingleOrDefault(x => x.IsRowVersion); }, true);
 
         Parent.SubModels["Main"].AddEntityInternal(this);
     }
@@ -121,14 +121,8 @@ public partial class Entity : IRefactorEntity, IEntityEvents, ISetRuntimeType, I
             return Parent.Relations.Any(relationship => relationship.InEntity == this || relationship.OutEntity == this);
         }
     }
-    public IEnumerable<Relationship> GetRelationships()
-    {
-        return Parent.Relations.Where(relationship => relationship.InEntity == this || relationship.OutEntity == this);
-    }
-    public IEnumerable<Relationship> GetRelationshipsRecursive()
-    {
-        return Parent.Relations.Where(relationship => IsSelfOrSubclassOf(relationship.InEntity) || IsSelfOrSubclassOf(relationship.OutEntity));
-    }
+    public IEnumerable<Relationship> GetRelationships() => Parent.Relations.Where(relationship => relationship.InEntity == this || relationship.OutEntity == this);
+    public IEnumerable<Relationship> GetRelationshipsRecursive() => Parent.Relations.Where(relationship => IsSelfOrSubclassOf(relationship.InEntity) || IsSelfOrSubclassOf(relationship.OutEntity));
 
     #endregion
 
@@ -145,7 +139,7 @@ public partial class Entity : IRefactorEntity, IEntityEvents, ISetRuntimeType, I
         return this;
     }
     public IReadOnlyList<string[]> CompositeUniqueConstraints => _compositeUniqueConstraints;
-    public List<string[]> _compositeUniqueConstraints = new();
+    public List<string[]> _compositeUniqueConstraints = [];
 
     public Entity AddCompositeUniqueConstraint(params string[] names)
     {
@@ -226,7 +220,7 @@ public partial class Entity : IRefactorEntity, IEntityEvents, ISetRuntimeType, I
     {
         get { return fullTextIndexProperties; }
     }
-    private readonly List<EntityProperty> fullTextIndexProperties = new();
+    private readonly List<EntityProperty> fullTextIndexProperties = [];
 
     public EntityPropertyCollection<EntityProperty, Entity> Properties { get; private set; }
     private readonly PropertyCollection _properties;
@@ -242,8 +236,8 @@ public partial class Entity : IRefactorEntity, IEntityEvents, ISetRuntimeType, I
     }
 
 
-    private readonly Lazy<EntityProperty> key;
-    public EntityProperty Key
+    private readonly Lazy<EntityProperty?> key;
+    public EntityProperty? Key
     {
         get
         {
@@ -253,8 +247,8 @@ public partial class Entity : IRefactorEntity, IEntityEvents, ISetRuntimeType, I
             return GetPropertiesOfBaseTypesAndSelf().SingleOrDefault(x => x.IsKey);
         }
     }
-    private readonly Lazy<EntityProperty> nodeType;
-    public EntityProperty NodeType
+    private readonly Lazy<EntityProperty?> nodeType;
+    public EntityProperty? NodeType
     {
         get
         {
@@ -271,8 +265,8 @@ public partial class Entity : IRefactorEntity, IEntityEvents, ISetRuntimeType, I
             return (NodeType is null) ? "NodeType" : NodeType.Name;
         }
     }
-    private readonly Lazy<EntityProperty> rowVersion;
-    public EntityProperty RowVersion
+    private readonly Lazy<EntityProperty?> rowVersion;
+    public EntityProperty? RowVersion
     {
         get
         {
@@ -337,7 +331,7 @@ public partial class Entity : IRefactorEntity, IEntityEvents, ISetRuntimeType, I
         return this;
     }
 
-    private readonly Dictionary<object, DynamicEntity> staticData = new();
+    private readonly Dictionary<object, DynamicEntity> staticData = [];
     public ICollection<DynamicEntity> StaticData { get { return staticData.Values; } }
 
     private string? summary = null;
@@ -374,10 +368,10 @@ public partial class Entity : IRefactorEntity, IEntityEvents, ISetRuntimeType, I
         if (IsVirtual)
             return GetNearestNonVirtualSubclass().Select(item => string.Concat(alias, ":", item.Label.Name)).ToArray();
         else
-            return new string[] { string.Concat(alias, ":", Label.Name) };
+            return [string.Concat(alias, ":", Label.Name)];
     }
 
-    private string AddDot(string text)
+    private static string AddDot(string text)
     {
         if (string.IsNullOrEmpty(text))
             return text;
@@ -560,16 +554,15 @@ public partial class Entity : IRefactorEntity, IEntityEvents, ISetRuntimeType, I
     {
         //Parent.EnsureSchemaMigration();
 
-        if (key is null)
-            throw new ArgumentNullException("key");
+        ArgumentNullException.ThrowIfNull(key);
 
-        if (!Key.SystemReturnType!.IsAssignableFrom(key.GetType()))
+        if (Key?.SystemReturnType?.IsAssignableFrom(key.GetType()) == false)
             throw new InvalidCastException(string.Format("The key for entity '{0}' is of type '{1}', but the supplied key is of type '{2}'.", Name, Key.SystemReturnType.Name, key.GetType().Name));
 
         if (Parent.IsDataMigration)
             return DynamicEntity.Load(this, key);
 
-        if (!staticData.TryGetValue(key, out DynamicEntity value))
+        if (!staticData.TryGetValue(key, out var value))
             throw new ArgumentOutOfRangeException($"Only statically created data (via the upgrade script) can be loaded here.");
 
         if (Parser.ShouldExecute)
@@ -581,10 +574,9 @@ public partial class Entity : IRefactorEntity, IEntityEvents, ISetRuntimeType, I
     {
         //Parent.EnsureSchemaMigration();
 
-        if (key is null)
-            throw new ArgumentNullException("key");
+        ArgumentNullException.ThrowIfNull(key);
 
-        if (!Key.SystemReturnType!.IsAssignableFrom(key.GetType()))
+        if (Key?.SystemReturnType!.IsAssignableFrom(key.GetType()) == false)
             throw new InvalidCastException(string.Format("The key for entity '{0}' is of type '{1}', but the supplied key is of type '{2}'.", Name, Key.SystemReturnType.Name, key.GetType().Name));
 
         if (Parent.IsDataMigration)
@@ -829,7 +821,7 @@ public partial class Entity : IRefactorEntity, IEntityEvents, ISetRuntimeType, I
         remove { onNodeLoading -= value; }
     }
 
-    internal NodeEventArgs RaiseOnNodeLoaded(Transaction trans, NodeEventArgs previousArgs, long id, IReadOnlyList<string> labels, Dictionary<string, object?> properties)
+    internal NodeEventArgs RaiseOnNodeLoaded(Transaction trans, NodeEventArgs? previousArgs, long id, IReadOnlyList<string> labels, Dictionary<string, object?> properties)
     {
         NodeEventArgs args = new(EventTypeEnum.OnNodeLoaded, previousArgs, id, labels, properties);
         if (!trans.FireGraphEvents)
@@ -1038,121 +1030,97 @@ public partial class Entity : IRefactorEntity, IEntityEvents, ISetRuntimeType, I
 
 
     private List<Entity>? baseTypes = null;
-    public IReadOnlyList<Entity> GetBaseTypes()
-    {
-        return InitSubList(ref baseTypes, delegate (List<Entity> result)
-        {
-            WalkBaseTypes(Inherits, delegate (Entity item)
-            {
-                if (!result.Contains(item))
-                    result.Add(item);
-            });
-        });
-    }
+    public IReadOnlyList<Entity> GetBaseTypes() => InitSubList(ref baseTypes, delegate (List<Entity> result)
+                                                        {
+                                                            WalkBaseTypes(Inherits, delegate (Entity item)
+                                                            {
+                                                                if (!result.Contains(item))
+                                                                    result.Add(item);
+                                                            });
+                                                        });
 
     private List<Entity>? baseTypesAndSelf = null;
-    public IReadOnlyList<Entity> GetBaseTypesAndSelf()
-    {
-        return InitSubList(ref baseTypesAndSelf, delegate (List<Entity> result)
-        {
-            WalkBaseTypes(this, delegate (Entity item)
-            {
-                if (!result.Contains(item))
-                    result.Add(item);
-            });
-        });
-    }
+    public IReadOnlyList<Entity> GetBaseTypesAndSelf() => InitSubList(ref baseTypesAndSelf, delegate (List<Entity> result)
+                                                               {
+                                                                   WalkBaseTypes(this, delegate (Entity item)
+                                                                   {
+                                                                       if (!result.Contains(item))
+                                                                           result.Add(item);
+                                                                   });
+                                                               });
 
     private List<Entity>? subclassesOrSelf = null;
-    public IReadOnlyList<Entity> GetSubclassesOrSelf()
-    {
-        return InitSubList(ref subclassesOrSelf, delegate (List<Entity> classes)
-        {
-            foreach (Entity item in Parent.Entities)
-            {
-                if (item.IsSelfOrSubclassOf(this))
-                    if (!classes.Contains(item))
-                        classes.Add(item);
-            }
-        });
-    }
+    public IReadOnlyList<Entity> GetSubclassesOrSelf() => InitSubList(ref subclassesOrSelf, delegate (List<Entity> classes)
+                                                               {
+                                                                   foreach (Entity item in Parent.Entities)
+                                                                   {
+                                                                       if (item.IsSelfOrSubclassOf(this))
+                                                                           if (!classes.Contains(item))
+                                                                               classes.Add(item);
+                                                                   }
+                                                               });
 
     private List<Entity>? subclasses = null;
-    public IReadOnlyList<Entity> GetSubclasses()
-    {
-        return InitSubList(ref subclasses, delegate (List<Entity> classes)
-        {
-            foreach (Entity item in Parent.Entities)
-            {
-                if (item.IsSubsclassOf(this))
-                    if (!classes.Contains(item))
-                        classes.Add(item);
-            }
-        });
-    }
+    public IReadOnlyList<Entity> GetSubclasses() => InitSubList(ref subclasses, delegate (List<Entity> classes)
+                                                         {
+                                                             foreach (Entity item in Parent.Entities)
+                                                             {
+                                                                 if (item.IsSubsclassOf(this))
+                                                                     if (!classes.Contains(item))
+                                                                         classes.Add(item);
+                                                             }
+                                                         });
 
     private List<Entity>? directSubclasses = null;
-    public IReadOnlyList<Entity> GetDirectSubclasses()
-    {
-        return InitSubList(ref directSubclasses, delegate (List<Entity> classes)
-        {
-            foreach (Entity item in Parent.Entities)
-            {
-                if (item.Inherits == this)
-                {
-                    if (!classes.Contains(item))
-                    {
-                        classes.Add(item);
-                    }
-                }
-            }
-        });
-    }
+    public IReadOnlyList<Entity> GetDirectSubclasses() => InitSubList(ref directSubclasses, delegate (List<Entity> classes)
+                                                               {
+                                                                   foreach (Entity item in Parent.Entities)
+                                                                   {
+                                                                       if (item.Inherits == this)
+                                                                       {
+                                                                           if (!classes.Contains(item))
+                                                                           {
+                                                                               classes.Add(item);
+                                                                           }
+                                                                       }
+                                                                   }
+                                                               });
 
     private List<Entity>? nearestNonVirtualSubclasses = null;
-    public IReadOnlyList<Entity> GetNearestNonVirtualSubclass()
-    {
-        return InitSubList(ref nearestNonVirtualSubclasses, delegate (List<Entity> classes)
-        {
-            foreach (Entity item in GetDirectSubclasses())
-            {
-                if (!classes.Contains(item))
-                {
-                    if (item.IsVirtual)
-                        classes.AddRange(item.GetNearestNonVirtualSubclass());
-                    else
-                        classes.Add(item);
-                }
-            }
-        });
-    }
+    public IReadOnlyList<Entity> GetNearestNonVirtualSubclass() => InitSubList(ref nearestNonVirtualSubclasses, delegate (List<Entity> classes)
+                                                                        {
+                                                                            foreach (Entity item in GetDirectSubclasses())
+                                                                            {
+                                                                                if (!classes.Contains(item))
+                                                                                {
+                                                                                    if (item.IsVirtual)
+                                                                                        classes.AddRange(item.GetNearestNonVirtualSubclass());
+                                                                                    else
+                                                                                        classes.Add(item);
+                                                                                }
+                                                                            }
+                                                                        });
 
     private List<EntityProperty>? propertiesOfBaseTypesAndSelf = null;
-    public IReadOnlyList<EntityProperty> GetPropertiesOfBaseTypesAndSelf()
-    {
-        return InitSubList(ref propertiesOfBaseTypesAndSelf, delegate (List<EntityProperty> allProperties)
-        {
-            foreach (Entity entity in GetBaseTypesAndSelf())
-                allProperties.AddRange(entity.Properties);
-        });
-    }
+    public IReadOnlyList<EntityProperty> GetPropertiesOfBaseTypesAndSelf() => InitSubList(ref propertiesOfBaseTypesAndSelf, delegate (List<EntityProperty> allProperties)
+                                                                                   {
+                                                                                       foreach (Entity entity in GetBaseTypesAndSelf())
+                                                                                           allProperties.AddRange(entity.Properties);
+                                                                                   });
 
     private List<Entity>? concreteClasses = null;
-    public IReadOnlyList<Entity> GetConcreteClasses()
-    {
-        return InitSubList(ref concreteClasses, delegate (List<Entity> classes)
-        {
-            foreach (Entity item in Parent.Entities)
-            {
-                if (item.IsAbstract)
-                    continue;
+    public IReadOnlyList<Entity> GetConcreteClasses() => InitSubList(ref concreteClasses, delegate (List<Entity> classes)
+                                                              {
+                                                                  foreach (Entity item in Parent.Entities)
+                                                                  {
+                                                                      if (item.IsAbstract)
+                                                                          continue;
 
-                if (item.IsSelfOrSubclassOf(this))
-                    if (!classes.Contains(item))
-                        classes.Add(item);
-            }
-        });
-    }
+                                                                      if (item.IsSelfOrSubclassOf(this))
+                                                                          if (!classes.Contains(item))
+                                                                              classes.Add(item);
+                                                                  }
+                                                              });
 
     private List<T> InitSubList<T>(ref List<T>? listReference, Action<List<T>> initialize)
     {
@@ -1162,7 +1130,7 @@ public partial class Entity : IRefactorEntity, IEntityEvents, ISetRuntimeType, I
             {
                 if (listReference is null)
                 {
-                    List<T> list = new();
+                    List<T> list = [];
 
                     initialize.Invoke(list);
 
@@ -1206,7 +1174,7 @@ public partial class Entity : IRefactorEntity, IEntityEvents, ISetRuntimeType, I
         List<Entity>? shared = null;
         foreach (Entity entity in entities)
         {
-            List<Entity> inheritChain = new();
+            List<Entity> inheritChain = [];
             e = entity;
             while (e is not null)
             {
@@ -1250,7 +1218,7 @@ public partial class Entity : IRefactorEntity, IEntityEvents, ISetRuntimeType, I
         List<AliasResultInfo>? shared = null;
         foreach (AliasResultInfo info in aliases.Select(item => new AliasResultInfo(item)))
         {
-            List<AliasResultInfo> inheritChain = new();
+            List<AliasResultInfo> inheritChain = [];
             e = info;
             while (e is not null)
             {
@@ -1318,7 +1286,7 @@ public partial class Entity : IRefactorEntity, IEntityEvents, ISetRuntimeType, I
         {
             lock (this)
             {
-                activator ??= Expression.Lambda<Func<OGM>>(Expression.New(RuntimeReturnType)).Compile();
+                activator ??= Expression.Lambda<Func<OGM>>(Expression.New(RuntimeReturnType!)).Compile();
             }
         }
 
@@ -1374,10 +1342,7 @@ public partial class Entity : IRefactorEntity, IEntityEvents, ISetRuntimeType, I
         item.Delete(false);
     }
 
-    internal OGM? Map(RawNode node, NodeMapping mappingMode)
-    {
-        return Map(node, null!, null!, mappingMode);
-    }
+    internal OGM? Map(RawNode node, NodeMapping mappingMode) => Map(node, null!, null!, mappingMode);
 
     internal OGM? Map(RawNode node, string cypher, Dictionary<string, object?>? parameters, NodeMapping mappingMode)
     {
@@ -1387,8 +1352,8 @@ public partial class Entity : IRefactorEntity, IEntityEvents, ISetRuntimeType, I
             {
                 if (mapMethod is null)
                 {
-                    MethodInfo? method = RuntimeClassType!.GetMethod("Map", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.FlattenHierarchy, null, new Type[] { typeof(RawNode), typeof(string), typeof(Dictionary<string, object>), typeof(NodeMapping) }, null);
-                    mapMethod = (method is null) ? null : (Func<RawNode, string, Dictionary<string, object?>?, NodeMapping, OGM?>)Delegate.CreateDelegate(typeof(Func<RawNode, string, Dictionary<string, object?>?, NodeMapping, OGM?>), method, true);
+                    MethodInfo? method = RuntimeClassType!.GetMethod("Map", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.FlattenHierarchy, null, [typeof(RawNode), typeof(string), typeof(Dictionary<string, object>), typeof(NodeMapping)], null);
+                    mapMethod = (method is null) ? null : (Func<RawNode, string, Dictionary<string, object?>?, NodeMapping, OGM?>)Delegate.CreateDelegate(typeof(Func<RawNode, string, Dictionary<string, object?>?, NodeMapping, OGM?>), method, true)!;
                 }
             }
         }

@@ -22,7 +22,7 @@ public class ApplyConstraintProperty: ApplyConstraintBase
         // TODO: What about if the constraint is for a property on a relationship
         Entity entity = (Entity)Parent.Entity;
 
-        List<string> commands = new();
+        List<string> commands = [];
         foreach (var (actionEnum, constraintOrIndexName) in Commands)
         {
             switch (actionEnum)

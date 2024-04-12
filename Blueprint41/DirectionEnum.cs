@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Blueprint41
+namespace Blueprint41;
+
+public enum DirectionEnum
 {
-    public enum DirectionEnum
-    {
-        In,
-        Out,
-        None,
-    }
+    In,
+    Out,
+    None,
 }

@@ -12,215 +12,213 @@ using System.Collections;
 using Blueprint41.Core;
 using Blueprint41.Query;
 
-namespace Blueprint41
+namespace Blueprint41;
+
+[DebuggerDisplay("{DebuggerDisplay}")]
+public class QueryExecutionContext
 {
-    [DebuggerDisplay("{DebuggerDisplay}")]
-    public class QueryExecutionContext
+    internal QueryExecutionContext(CompiledQuery query)
     {
-        internal QueryExecutionContext(CompiledQuery query)
-        {
-            Transaction transaction = Transaction.RunningTransaction;
+        Transaction transaction = Transaction.RunningTransaction;
 
-            CompiledQuery = query;
-            Errors = query.Errors;
-            QueryParameters = new Dictionary<string, (object?, bool)>();
-            foreach (Parameter item in query.ConstantValues)
-                QueryParameters.Add(item.Name, (transaction.PersistenceProviderFactory.ConvertToStoredType(item.Type!, item.Value), true));
-            foreach (Parameter item in query.DefaultValues)
-                QueryParameters.Add(item.Name, (transaction.PersistenceProviderFactory.ConvertToStoredType(item.Type!, item.Value), false));
-        }
+        CompiledQuery = query;
+        Errors = query.Errors;
+        QueryParameters = [];
+        foreach (Parameter item in query.ConstantValues)
+            QueryParameters.Add(item.Name, (transaction.PersistenceProviderFactory.ConvertToStoredType(item.Type!, item.Value), true));
+        foreach (Parameter item in query.DefaultValues)
+            QueryParameters.Add(item.Name, (transaction.PersistenceProviderFactory.ConvertToStoredType(item.Type!, item.Value), false));
+    }
 
-        public void SetParameter(string parameterName, object? value)
+    public void SetParameter(string parameterName, object? value)
+    {
+        Transaction transaction = Transaction.RunningTransaction;
+        if (value is null)
+            AddOrSet(null);
+        else
+            AddOrSet(transaction.PersistenceProviderFactory.ConvertToStoredType(value.GetType(), value));
+
+        void AddOrSet(object? value)
         {
-            Transaction transaction = Transaction.RunningTransaction;
-            if (value is null)
-                AddOrSet(null);
+            if (QueryParameters.ContainsKey(parameterName))
+            {
+                if (QueryParameters[parameterName].isConstant)
+                    throw new NotSupportedException("You cannot set the value of a constant.");
+
+                QueryParameters[parameterName] = (value, false);
+            }
             else
-                AddOrSet(transaction.PersistenceProviderFactory.ConvertToStoredType(value.GetType(), value));
-
-            void AddOrSet(object? value)
             {
-                if (QueryParameters.ContainsKey(parameterName))
-                {
-                    if (QueryParameters[parameterName].isConstant)
-                        throw new NotSupportedException("You cannot set the value of a constant.");
-
-                    QueryParameters[parameterName] = (value, false);
-                }
-                else
-                {
-                    QueryParameters.Add(parameterName, (value, false));
-                }
+                QueryParameters.Add(parameterName, (value, false));
             }
         }
-        public List<dynamic> Execute(NodeMapping nodeMapping = NodeMapping.AsReadOnlyEntity)
+    }
+    public List<dynamic> Execute(NodeMapping nodeMapping = NodeMapping.AsReadOnlyEntity)
+    {
+        List<dynamic> items = [];
+
+        Transaction transaction = Transaction.RunningTransaction;
+        Dictionary<string, object?> parameters = new Dictionary<string, object?>(QueryParameters.Count);
+        foreach (KeyValuePair<string, (object? value, bool isConstant)> queryParameter in QueryParameters)
         {
-            List<dynamic> items = new List<dynamic>();
+            if (queryParameter.Value.value is null)
+                parameters.Add(queryParameter.Key, null);
+            else
+                parameters.Add(queryParameter.Key, transaction.PersistenceProviderFactory.ConvertToStoredType(queryParameter.Value.GetType(), queryParameter.Value.value));
+        }
 
-            Transaction transaction = Transaction.RunningTransaction;
-            Dictionary<string, object?> parameters = new Dictionary<string, object?>(QueryParameters.Count);
-            foreach (KeyValuePair<string, (object? value, bool isConstant)> queryParameter in QueryParameters)
+        var result = transaction.Run(CompiledQuery.QueryText, parameters);
+        foreach (var row in result)
+        {
+            IDictionary<string, object?> record = new ExpandoObject();
+            foreach (var field in CompiledQuery.CompiledResultColumns)
             {
-                if (queryParameter.Value.value is null)
-                    parameters.Add(queryParameter.Key, null);
-                else
-                    parameters.Add(queryParameter.Key, transaction.PersistenceProviderFactory.ConvertToStoredType(queryParameter.Value.GetType(), queryParameter.Value.value));
-            }
-
-            var result = transaction.Run(CompiledQuery.QueryText, parameters);
-            foreach (var row in result)
-            {
-                IDictionary<string, object?> record = new ExpandoObject();
-                foreach (var field in CompiledQuery.CompiledResultColumns)
+                if (row.Values.TryGetValue(field.FieldName, out object? value) && value is not null)
                 {
-                    object? value;
-                    if (row.Values.TryGetValue(field.FieldName, out value) && value is not null)
+                    object? target = (field.ConvertMethod is null) ? value : field.ConvertMethod.Invoke(value);
+                    if (target is not null)
                     {
-                        object? target = (field.ConvertMethod is null) ? value : field.ConvertMethod.Invoke(value);
-                        if (target is not null)
+                        if (field.Info.IsAlias)
                         {
-                            if (field.Info.IsAlias)
+                            if (!field.Info.IsList) // RETURNS INode
                             {
-                                if (!field.Info.IsList) // RETURNS INode
+                                RawNode node = target.As<RawNode>();
+                                target = (field.MapMethod is null || nodeMapping == NodeMapping.AsRawResult) ? (object?)node : field.MapMethod.Invoke(node, CompiledQuery.QueryText, parameters, nodeMapping);
+                            }
+                            else if (!field.Info.IsJaggedList) // RETURNS List<INode>
+                            {
+                                List<object?>? nodeList = ((List<object?>?)target);
+                                IList? newList = null;
+                                if (nodeList is not null)
                                 {
-                                    RawNode node = target.As<RawNode>();
-                                    target = (field.MapMethod is null || nodeMapping == NodeMapping.AsRawResult) ? (object?)node : field.MapMethod.Invoke(node, CompiledQuery.QueryText, parameters, nodeMapping);
-                                }
-                                else if (!field.Info.IsJaggedList) // RETURNS List<INode>
-                                {
-                                    List<object?>? nodeList = ((List<object?>?)target);
-                                    IList? newList = null;
-                                    if (nodeList is not null)
-                                    {
-                                        newList = (field.MapMethod is null || field.NewList is null || nodeMapping == NodeMapping.AsRawResult) ? new List<RawResult>(nodeList.Count) : field.NewList.Invoke(nodeList.Count);
+                                    newList = (field.MapMethod is null || field.NewList is null || nodeMapping == NodeMapping.AsRawResult) ? new List<RawResult>(nodeList.Count) : field.NewList.Invoke(nodeList.Count);
 
-                                        for (int index = 0; index < nodeList.Count; index++)
+                                    for (int index = 0; index < nodeList.Count; index++)
+                                    {
+                                        object? t = nodeList[index];
+                                        if (t is null)
                                         {
-                                            object? t = nodeList[index];
-                                            if (t is null)
-                                            {
-                                                newList!.Add(null);
-                                            }
-                                            else
-                                            {
-                                                RawNode node = t.As<RawNode>();
-                                                newList!.Add((field.MapMethod is null || field.NewList is null || nodeMapping == NodeMapping.AsRawResult) ? (object?)node : field.MapMethod.Invoke(node, CompiledQuery.QueryText, parameters, nodeMapping));
-                                            }
+                                            newList!.Add(null);
+                                        }
+                                        else
+                                        {
+                                            RawNode node = t.As<RawNode>();
+                                            newList!.Add((field.MapMethod is null || field.NewList is null || nodeMapping == NodeMapping.AsRawResult) ? (object?)node : field.MapMethod.Invoke(node, CompiledQuery.QueryText, parameters, nodeMapping));
                                         }
                                     }
-                                    target = newList;
                                 }
-                                else // RETURNS List<List<INode>>
+                                target = newList;
+                            }
+                            else // RETURNS List<List<INode>>
+                            {
+                                List<List<object?>?>? jaggedNodeList = ((List<List<object?>?>?)target);
+                                IList? newJaggedList = null;
+                                if (jaggedNodeList is not null)
                                 {
-                                    List<List<object?>?>? jaggedNodeList = ((List<List<object?>?>?)target);
-                                    IList? newJaggedList = null;
-                                    if (jaggedNodeList is not null)
+                                    newJaggedList = (field.MapMethod is null || field.NewList is null || field.NewJaggedList is null || nodeMapping == NodeMapping.AsRawResult) ? new List<List<RawResult?>?>(jaggedNodeList.Count) : field.NewJaggedList.Invoke(jaggedNodeList.Count);
+
+                                    for (int mainindex = 0; mainindex < jaggedNodeList.Count; mainindex++)
                                     {
-                                        newJaggedList = (field.MapMethod is null || field.NewList is null || field.NewJaggedList is null || nodeMapping == NodeMapping.AsRawResult) ? new List<List<RawResult?>?>(jaggedNodeList.Count) : field.NewJaggedList.Invoke(jaggedNodeList.Count);
-
-                                        for (int mainindex = 0; mainindex < jaggedNodeList.Count; mainindex++)
+                                        List<object?>? nodeList = jaggedNodeList[mainindex];
+                                        if (nodeList is null)
                                         {
-                                            List<object?>? nodeList = jaggedNodeList[mainindex];
-                                            if (nodeList is null)
-                                            {
-                                                newJaggedList!.Add(null);
-                                            }
-                                            else
-                                            {
-                                                IList newList = (field.MapMethod is null || field.NewList is null || nodeMapping == NodeMapping.AsRawResult) ? new List<RawResult>(nodeList.Count) : field.NewList.Invoke(nodeList.Count);
+                                            newJaggedList!.Add(null);
+                                        }
+                                        else
+                                        {
+                                            IList newList = (field.MapMethod is null || field.NewList is null || nodeMapping == NodeMapping.AsRawResult) ? new List<RawResult>(nodeList.Count) : field.NewList.Invoke(nodeList.Count);
 
-                                                for (int subindex = 0; subindex < nodeList.Count; subindex++)
+                                            for (int subindex = 0; subindex < nodeList.Count; subindex++)
+                                            {
+                                                object? t = nodeList[subindex];
+                                                if (t is null)
                                                 {
-                                                    object? t = nodeList[subindex];
-                                                    if (t is null)
-                                                    {
-                                                        newList.Add(null);
-                                                    }
-                                                    else
-                                                    {
-                                                        RawNode node = t.As<RawNode>();
-                                                        newList.Add((field.MapMethod is null || field.NewList is null || field.NewJaggedList is null || nodeMapping == NodeMapping.AsRawResult) ? (object?)node : field.MapMethod.Invoke(node, CompiledQuery.QueryText, parameters, nodeMapping));
-                                                    }
+                                                    newList.Add(null);
                                                 }
-
-                                                newJaggedList!.Add(newList);
+                                                else
+                                                {
+                                                    RawNode node = t.As<RawNode>();
+                                                    newList.Add((field.MapMethod is null || field.NewList is null || field.NewJaggedList is null || nodeMapping == NodeMapping.AsRawResult) ? (object?)node : field.MapMethod.Invoke(node, CompiledQuery.QueryText, parameters, nodeMapping));
+                                                }
                                             }
+
+                                            newJaggedList!.Add(newList);
                                         }
                                     }
-                                    target = newJaggedList;
                                 }
+                                target = newJaggedList;
                             }
                         }
-                        record.Add(field.FieldName, target);
                     }
-                    else
-                    {
-                        record.Add(field.FieldName, null);
-                    }
-                }
-                items.Add(record);
-            }
-            return items;
-        }
-
-        public CompiledQuery CompiledQuery { get; set; }
-        public IReadOnlyList<string> Errors { get; private set; }
-        internal Dictionary<string, (object? value, bool isConstant)> QueryParameters { get; private set; }
-        public override string ToString()
-        {
-            Transaction transaction = Transaction.RunningTransaction;
-            string cypherQuery = CompiledQuery.QueryText;
-            Dictionary<string, object?> parameterValues = new Dictionary<string, object?>();
-
-            foreach (KeyValuePair<string, (object? value, bool isConstant)> queryParameter in QueryParameters)
-            {
-                if (queryParameter.Value.value is null)
-                {
-                    parameterValues.Add(string.Format("{{{0}}}", queryParameter.Key), null);
-                    parameterValues.Add(string.Format("${0}", queryParameter.Key), null);
+                    record.Add(field.FieldName, target);
                 }
                 else
                 {
-                    parameterValues.Add(string.Format("{{{0}}}", queryParameter.Key), transaction.PersistenceProviderFactory.ConvertToStoredType(queryParameter.Value.GetType(), queryParameter.Value.value));
-                    parameterValues.Add(string.Format("${0}", queryParameter.Key), transaction.PersistenceProviderFactory.ConvertToStoredType(queryParameter.Value.GetType(), queryParameter.Value.value));
+                    record.Add(field.FieldName, null);
                 }
             }
-
-            foreach (KeyValuePair<string, object?> queryParam in parameterValues.OrderByDescending(item => item.Key.Length))
-            {
-                if (queryParam.Value is null)
-                    continue;
-
-                cypherQuery = cypherQuery.Replace(queryParam.Key, ToNeo4jParam(queryParam.Value));
-            }
-            return cypherQuery;
+            items.Add(record);
         }
-
-        private string ToNeo4jParam(object value)
-        {
-            Type type = value.GetType();
-            if (type == typeof(string))
-                return  string.Format("'{0}'", value.ToString());
-
-            if (value is IEnumerable enumerable)
-            {
-                List<string> items = new List<string>();
-                foreach (var item in enumerable)
-                {
-                    items.Add(ToNeo4jParam(item));
-                }
-
-                return $"[{string.Join(", ", items)}]";
-            }
-            
-            return value.ToString();
-        }
-        private string DebuggerDisplay { get => ToString(); }
+        return items;
     }
-    public enum NodeMapping
+
+    public CompiledQuery CompiledQuery { get; set; }
+    public IReadOnlyList<string> Errors { get; private set; }
+    internal Dictionary<string, (object? value, bool isConstant)> QueryParameters { get; private set; }
+    public override string ToString()
     {
-        AsRawResult,
-        AsReadOnlyEntity,
-        AsWritableEntity,
+        Transaction transaction = Transaction.RunningTransaction;
+        string cypherQuery = CompiledQuery.QueryText;
+        Dictionary<string, object?> parameterValues = [];
+
+        foreach (KeyValuePair<string, (object? value, bool isConstant)> queryParameter in QueryParameters)
+        {
+            if (queryParameter.Value.value is null)
+            {
+                parameterValues.Add(string.Format("{{{0}}}", queryParameter.Key), null);
+                parameterValues.Add(string.Format("${0}", queryParameter.Key), null);
+            }
+            else
+            {
+                parameterValues.Add(string.Format("{{{0}}}", queryParameter.Key), transaction.PersistenceProviderFactory.ConvertToStoredType(queryParameter.Value.GetType(), queryParameter.Value.value));
+                parameterValues.Add(string.Format("${0}", queryParameter.Key), transaction.PersistenceProviderFactory.ConvertToStoredType(queryParameter.Value.GetType(), queryParameter.Value.value));
+            }
+        }
+
+        foreach (KeyValuePair<string, object?> queryParam in parameterValues.OrderByDescending(item => item.Key.Length))
+        {
+            if (queryParam.Value is null)
+                continue;
+
+            cypherQuery = cypherQuery.Replace(queryParam.Key, ToNeo4jParam(queryParam.Value));
+        }
+        return cypherQuery;
     }
+
+    private static string ToNeo4jParam(object value)
+    {
+        Type type = value.GetType();
+        if (type == typeof(string))
+            return  string.Format("'{0}'", value.ToString());
+
+        if (value is IEnumerable enumerable)
+        {
+            List<string> items = [];
+            foreach (var item in enumerable)
+            {
+                items.Add(ToNeo4jParam(item));
+            }
+
+            return $"[{string.Join(", ", items)}]";
+        }
+        
+        return value.ToString()!;
+    }
+    private string DebuggerDisplay { get => ToString(); }
+}
+public enum NodeMapping
+{
+    AsRawResult,
+    AsReadOnlyEntity,
+    AsWritableEntity,
 }

@@ -4,19 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Blueprint41.Neo4j.Model
+namespace Blueprint41.Neo4j.Model;
+
+public class Label
 {
-    public class Label
+    internal Label(string name)
     {
-        internal Label(string name)
-        {
-            Name = name;
-        }
-
-        #region Properties
-
-        public string Name { get; internal set; }
-
-        #endregion
+        Name = name;
     }
+
+    #region Properties
+
+    public string Name { get; internal set; }
+
+    #endregion
 }

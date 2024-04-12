@@ -15,7 +15,7 @@ public class ApplyConstraintEntity
     internal virtual List<ApplyConstraintBase> Initialize()
     {
 
-        List<ApplyConstraintBase> actions = new();
+        List<ApplyConstraintBase> actions = [];
         IEnumerable<ConstraintInfo> entityConstraints = Parent.Constraints.Where(item => item.Entity.Count == 1 && item.Entity[0] == Entity.Neo4jName);
         IEnumerable<IndexInfo> entityIndexes = Parent.Indexes.Where(item => item.Entity.Count == 1 && item.Entity[0] == Entity.Neo4jName);
         IReadOnlyList<Property> properties = Entity.GetPropertiesOfBaseTypesAndSelf();
@@ -70,8 +70,5 @@ public class ApplyConstraintEntity
     public IEntity Entity { get; protected set; }
     public IReadOnlyList<ApplyConstraintBase> Actions { get; protected set; }
 
-    public override string ToString()
-    {
-        return $"Differences for {Entity.Name}";
-    }
+    public override string ToString() => $"Differences for {Entity.Name}";
 }

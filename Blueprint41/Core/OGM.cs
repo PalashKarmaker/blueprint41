@@ -1,29 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace Blueprint41.Core;
 
-using Blueprint41;
-
-namespace Blueprint41.Core
+public interface OGM
 {
-    public interface OGM
-    {
-        object? GetKey();
-        void SetKey(object key);
-        DateTime GetRowVersion();
-        void SetRowVersion(DateTime? value);
-        IDictionary<string, object?> GetData();
-        void SetData(IReadOnlyDictionary<string, object?> data);
-        void Delete(bool force);
-        void Save();
-        void ValidateSave();
-        void ValidateDelete();
+    object? GetKey();
 
-        PersistenceState OriginalPersistenceState { get; set; }
-        PersistenceState PersistenceState { get; set; }
-        Transaction? Transaction { get; set; }
+    void SetKey(object key);
 
-        Entity GetEntity();
+    DateTime GetRowVersion();
 
-        void SetChanged();
-    }
+    void SetRowVersion(DateTime? value);
+
+    IDictionary<string, object?> GetData();
+
+    void SetData(IReadOnlyDictionary<string, object?> data);
+
+    void Delete(bool force);
+
+    void Save();
+
+    void ValidateSave();
+
+    void ValidateDelete();
+
+    PersistenceState OriginalPersistenceState { get; set; }
+    PersistenceState PersistenceState { get; set; }
+    Transaction? Transaction { get; set; }
+
+    Entity GetEntity();
+
+    void SetChanged();
 }

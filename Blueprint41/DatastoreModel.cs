@@ -28,8 +28,8 @@ public abstract partial class DatastoreModel : IRefactorGlobal, IDatastoreUnitTe
         FunctionalIds = new FunctionalIdCollection(this);
         SubModels = new SubModelCollection(this);
 
-        Labels = new model.LabelCollection();
-        RelationshipTypes = new model.RelationshipTypeCollection();
+        Labels = [];
+        RelationshipTypes = [];
 
         DataMigration = new DataMigrationScope(this);
     }
@@ -43,7 +43,7 @@ public abstract partial class DatastoreModel : IRefactorGlobal, IDatastoreUnitTe
     public FunctionalIdCollection FunctionalIds { get; private set; }
     public SubModelCollection     SubModels     { get; private set; }
 
-    public static List<DatastoreModel> RegisteredModels { get; } = new List<DatastoreModel>();
+    public static List<DatastoreModel> RegisteredModels { get; } = [];
 
     public bool HasExecuted
     {
@@ -79,7 +79,7 @@ public abstract partial class DatastoreModel : IRefactorGlobal, IDatastoreUnitTe
 
     internal List<UpgradeScript> GetUpgradeScripts(MethodInfo? unitTestScript)
     {
-        List<UpgradeScript> scripts = new();
+        List<UpgradeScript> scripts = [];
 
         foreach (MethodInfo info in GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance))
         {
@@ -104,7 +104,7 @@ public abstract partial class DatastoreModel : IRefactorGlobal, IDatastoreUnitTe
 
         if (unitTestScript is not null)
         {
-            UpgradeScript prevScript = scripts.LastOrDefault();
+            var prevScript = scripts.LastOrDefault();
             long major = prevScript?.Major ?? 0;
             long minor = prevScript?.Minor ?? 0;
             long patch = prevScript?.Patch ?? 0;
@@ -257,7 +257,7 @@ public abstract partial class DatastoreModel : IRefactorGlobal, IDatastoreUnitTe
         executed = true;
     }
 
-    private void RunScriptChecked(UpgradeScript script)
+    private static void RunScriptChecked(UpgradeScript script)
     {
         try
         {
@@ -362,10 +362,7 @@ public abstract partial class DatastoreModel : IRefactorGlobal, IDatastoreUnitTe
         GetSchema().UpdateConstraints();
     }
 
-    void IRefactorGlobal.ApplyFullTextSearchIndexes()
-    {
-        Refactor.ApplyFullTextSearchIndexes(false);
-    }
+    void IRefactorGlobal.ApplyFullTextSearchIndexes() => Refactor.ApplyFullTextSearchIndexes(false);
 
     void IRefactorGlobal.ApplyFullTextSearchIndexes(bool shouldRun)
     {
@@ -417,7 +414,7 @@ public abstract partial class DatastoreModel : IRefactorGlobal, IDatastoreUnitTe
             Dictionary<string, object?> convertedParams;
 
             if (parameters is null)
-                convertedParams = new Dictionary<string, object?>();
+                convertedParams = [];
             else
                 convertedParams = parameters.ToDictionary(item => item.Key, item => (item.Value is null) ? null : Model.PersistenceProvider.ConvertToStoredType(item.Value.GetType(), item.Value));
 
@@ -471,16 +468,16 @@ public abstract partial class DatastoreModel : IRefactorGlobal, IDatastoreUnitTe
 
         return new Guid(i1, (ushort)i2, (ushort)(i2 >> 16), i3[0], i3[1], i3[2], i3[3], i4[0], i4[1], i4[2], i4[3]);
     }
-    private readonly HashSet<Guid> knownGuids = new HashSet<Guid>();
+    private readonly HashSet<Guid> knownGuids = [];
 
-    private readonly AtomicDictionary<string, Entity> entityByLabel = new AtomicDictionary<string, Entity>();
+    private readonly AtomicDictionary<string, Entity> entityByLabel = [];
     internal Entity? GetEntity(IEnumerable<string> labels)
     {
         Entity? entity = null;
         foreach (string label in labels)
         {
             entity = entityByLabel.TryGetOrAdd(label, key => Entities.FirstOrDefault(item => item.Label.Name == label));
-            if (!entity.IsAbstract)
+            if (entity != null && !entity.IsAbstract)
                 return entity;
         }
         return null;

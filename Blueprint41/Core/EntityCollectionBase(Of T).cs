@@ -94,20 +94,11 @@ public abstract class EntityCollectionBase<TEntity> : EntityCollectionBase, ICol
     }
     internal abstract void AddRange(IEnumerable<TEntity> items, bool fireEvents, Dictionary<string, object>? properties);
     public abstract bool Contains(TEntity item);
-    public void Remove(TEntity item)
-    {
-        Remove(item, typeof(TEntity) != typeof(Dynamic.DynamicEntity));
-    }
+    public void Remove(TEntity item) => Remove(item, typeof(TEntity) != typeof(Dynamic.DynamicEntity));
     internal abstract void Remove(TEntity item, bool fireEvents);
-    public void RemoveRange(IEnumerable<TEntity> items)
-    {
-        RemoveRange(items, typeof(TEntity) != typeof(Dynamic.DynamicEntity));
-    }
+    public void RemoveRange(IEnumerable<TEntity> items) => RemoveRange(items, typeof(TEntity) != typeof(Dynamic.DynamicEntity));
     internal abstract void RemoveRange(IEnumerable<TEntity> items, bool fireEvents);
-    public void Clear()
-    {
-        Clear(typeof(TEntity) != typeof(Dynamic.DynamicEntity));
-    }
+    public void Clear() => Clear(typeof(TEntity) != typeof(Dynamic.DynamicEntity));
     internal abstract void Clear(bool fireEvents);
     public void Delete(TEntity item, bool force = false)
     {
@@ -133,14 +124,8 @@ public abstract class EntityCollectionBase<TEntity> : EntityCollectionBase, ICol
 
     protected abstract IEnumerator<TEntity> GetEnumeratorInternal();
 
-    IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator()
-    {
-        return GetEnumeratorInternal();
-    }
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumeratorInternal();
-    }
+    IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator() => GetEnumeratorInternal();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumeratorInternal();
 
     bool ICollection<TEntity>.IsReadOnly { get { return false; } }
 
@@ -175,39 +160,18 @@ public abstract class EntityCollectionBase<TEntity> : EntityCollectionBase, ICol
     protected abstract bool IsNull(bool isUpdate);
     protected abstract void ClearLookup(DateTime? moment);
 
-    TEntity? ILookupHelper<TEntity>.GetOriginalItem(DateTime? moment)
-    {
-        return GetOriginalItem(moment);
-    }
+    TEntity? ILookupHelper<TEntity>.GetOriginalItem(DateTime? moment) => GetOriginalItem(moment);
 
-    TEntity? ILookupHelper<TEntity>.GetItem(DateTime? moment)
-    {
-        return GetItem(moment);
-    }
+    TEntity? ILookupHelper<TEntity>.GetItem(DateTime? moment) => GetItem(moment);
 
-    IEnumerable<CollectionItem<TEntity>> ILookupHelper<TEntity>.GetItems(DateTime? from, DateTime? till)
-    {
-        return GetItems(from, till);
-    }
+    IEnumerable<CollectionItem<TEntity>> ILookupHelper<TEntity>.GetItems(DateTime? from, DateTime? till) => GetItems(from, till);
 
-    void ILookupHelper<TEntity>.AddItem(TEntity item, DateTime? moment, Dictionary<string, object>? properties)
-    {
-        AddItem(item, moment, properties);
-    }
-    void ILookupHelper<TEntity>.SetItem(TEntity? item, DateTime? moment, Dictionary<string, object>? properties)
-    {
-        SetItem(item, moment, properties);
-    }
+    void ILookupHelper<TEntity>.AddItem(TEntity item, DateTime? moment, Dictionary<string, object>? properties) => AddItem(item, moment, properties);
+    void ILookupHelper<TEntity>.SetItem(TEntity? item, DateTime? moment, Dictionary<string, object>? properties) => SetItem(item, moment, properties);
 
-    bool ILookupHelper<TEntity>.IsNull(bool isUpdate)
-    {
-        return IsNull(isUpdate);
-    }
+    bool ILookupHelper<TEntity>.IsNull(bool isUpdate) => IsNull(isUpdate);
 
-    void ILookupHelper<TEntity>.ClearLookup(DateTime? moment)
-    {
-        ClearLookup(moment);
-    }
+    void ILookupHelper<TEntity>.ClearLookup(DateTime? moment) => ClearLookup(moment);
 
     bool ICollection<TEntity>.Remove(TEntity item)
     {

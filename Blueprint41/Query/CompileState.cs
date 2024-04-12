@@ -6,50 +6,49 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Blueprint41.Query
+namespace Blueprint41.Query;
+
+public class CompileState
 {
-    public class CompileState
+    internal CompileState(IEnumerable<TypeMapping> typeMappings, QueryTranslator translator)
     {
-        internal CompileState(IEnumerable<TypeMapping> typeMappings, QueryTranslator translator)
-        {
-            TypeMappings = typeMappings.ToDictionary(item => item.ReturnType, item => item);
-            Translator = translator;
-        }
-        internal CompileState(IReadOnlyDictionary<Type, TypeMapping> typeMappings, QueryTranslator translator)
-        {
-            TypeMappings = typeMappings;
-            Translator = translator;
-        }
+        TypeMappings = typeMappings.ToDictionary(item => item.ReturnType, item => item);
+        Translator = translator;
+    }
+    internal CompileState(IReadOnlyDictionary<Type, TypeMapping> typeMappings, QueryTranslator translator)
+    {
+        TypeMappings = typeMappings;
+        Translator = translator;
+    }
 
-        public StringBuilder Text = new StringBuilder();
-        public List<Parameter> Parameters = new List<Parameter>();
-        public List<Parameter> Values = new List<Parameter>();
-        public List<string> Errors = new List<string>();
-        public int patternSeq = 0;
-        public int paramSeq = 0;
+    public StringBuilder Text = new StringBuilder();
+    public List<Parameter> Parameters = [];
+    public List<Parameter> Values = [];
+    public List<string> Errors = [];
+    public int patternSeq = 0;
+    public int paramSeq = 0;
 
-        public IReadOnlyDictionary<Type, TypeMapping> TypeMappings;
-        public QueryTranslator Translator { get; private set; }
-        internal string Preview(Action<CompileState> compile, CompileState? state = null)
+    public IReadOnlyDictionary<Type, TypeMapping> TypeMappings;
+    public QueryTranslator Translator { get; private set; }
+    internal string Preview(Action<CompileState> compile, CompileState? state = null)
+    {
+        string compiled;
+
+        if (state is null)
         {
-            string compiled;
-
-            if (state is null)
-            {
-                CompileState tempState = new CompileState(TypeMappings, Translator);
-                compile.Invoke(tempState);
-                compiled = tempState.Text.ToString();
-            }
-            else
-            {
-                StringBuilder old = state.Text;
-                state.Text = new StringBuilder();
-                compile.Invoke(state);
-                compiled = state.Text.ToString();
-                state.Text = old;
-            }
-         
-            return compiled;
+            CompileState tempState = new CompileState(TypeMappings, Translator);
+            compile.Invoke(tempState);
+            compiled = tempState.Text.ToString();
         }
+        else
+        {
+            StringBuilder old = state.Text;
+            state.Text = new StringBuilder();
+            compile.Invoke(state);
+            compiled = state.Text.ToString();
+            state.Text = old;
+        }
+     
+        return compiled;
     }
 }

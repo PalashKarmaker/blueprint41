@@ -4,73 +4,72 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Blueprint41.Core
+namespace Blueprint41.Core;
+
+internal abstract class RelationshipAction
 {
-    internal abstract class RelationshipAction
+    protected RelationshipAction(RelationshipPersistenceProvider persistenceProvider, Relationship? relationship, OGM? inItem, OGM? outItem)
     {
-        protected RelationshipAction(RelationshipPersistenceProvider persistenceProvider, Relationship? relationship, OGM? inItem, OGM? outItem)
+        Relationship = relationship;
+        InItem = inItem;
+        OutItem = outItem;
+        PersistenceProvider = persistenceProvider;
+    }
+
+    public RelationshipPersistenceProvider PersistenceProvider { get; internal set; }
+
+    private Relationship? Relationship { get; set; }
+    public OGM? InItem { get; private set; }
+    public OGM? OutItem { get; private set; }
+    public bool IsExecutedInMemory { get; set; } = false;
+
+    public void ExecuteInMemory(Core.EntityCollectionBase target)
+    {
+        if (!target.IsLoaded)
+            return;
+
+        //if (IsExecutedInMemory)
+        //    return;
+
+        if (Relationship is not null && Relationship.Name != target.Relationship.Name)
+            return;
+
+        OGM? parent = target.ParentItem(this);
+        if (parent is not null && target.Parent != parent)
+            return;
+
+        InMemoryLogic(target);
+
+        IsExecutedInMemory = true;
+    }
+    protected abstract void InMemoryLogic(Core.EntityCollectionBase target);
+
+    public void ExecuteInDatastore()
+    {
+        if (Relationship is not null)
+            InDatastoreLogic(Relationship);
+        else
         {
-            Relationship = relationship;
-            InItem = inItem;
-            OutItem = outItem;
-            PersistenceProvider = persistenceProvider;
-        }
+            /*
+                     Parent Nullable       0 to Many
+                (Account)-[HAS_EXTERNAL_REF]->(ExternalReference)
 
-        public RelationshipPersistenceProvider PersistenceProvider { get; internal set; }
+                     0 to Many      NOT NULL
+                (Account)-[HAS_PARENT]-(Account)
 
-        private Relationship? Relationship { get; set; }
-        public OGM? InItem { get; private set; }
-        public OGM? OutItem { get; private set; }
-        public bool IsExecutedInMemory { get; set; } = false;
+            Transaction:
+                - Delete Account
+                - Delete External References
+                - Commit
+             */
 
-        public void ExecuteInMemory(Core.EntityCollectionBase target)
-        {
-            if (!target.IsLoaded)
-                return;
-
-            //if (IsExecutedInMemory)
-            //    return;
-
-            if (Relationship is not null && Relationship.Name != target.Relationship.Name)
-                return;
-
-            OGM? parent = target.ParentItem(this);
-            if (parent is not null && target.Parent != parent)
-                return;
-
-            InMemoryLogic(target);
-
-            IsExecutedInMemory = true;
-        }
-        protected abstract void InMemoryLogic(Core.EntityCollectionBase target);
-
-        public void ExecuteInDatastore()
-        {
-            if (Relationship is not null)
-                InDatastoreLogic(Relationship);
-            else
+            Entity? entity = InItem?.GetEntity();
+            if (entity is not null)
             {
-                /*
-                         Parent Nullable       0 to Many
-                    (Account)-[HAS_EXTERNAL_REF]->(ExternalReference)
-
-                         0 to Many      NOT NULL
-                    (Account)-[HAS_PARENT]-(Account)
-
-                Transaction:
-                    - Delete Account
-                    - Delete External References
-                    - Commit
-                 */
-
-                Entity? entity = InItem?.GetEntity();
-                if (entity is not null)
-                {
-                    foreach (var relationship in entity.Parent.Relations)
-                        InDatastoreLogic(relationship);
-                }
+                foreach (var relationship in entity.Parent.Relations)
+                    InDatastoreLogic(relationship);
             }
         }
-        protected abstract void InDatastoreLogic(Relationship relationship);
     }
+    protected abstract void InDatastoreLogic(Relationship relationship);
 }

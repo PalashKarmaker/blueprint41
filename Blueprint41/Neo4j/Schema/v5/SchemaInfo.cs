@@ -19,7 +19,7 @@ public class SchemaInfo_v5 : v4.SchemaInfo_v4
         //       https://neo4j.com/docs/cypher-manual/current/constraints/
         using var _ = Transaction.Begin();
         bool hasPlugin = Model.PersistenceProvider.Translator.HasBlueprint41FunctionalidFnNext.Value;
-        FunctionalIds = hasPlugin ? LoadData("CALL blueprint41.functionalid.list()", record => NewFunctionalIdInfo(record)) : new List<FunctionalIdInfo>(0);
+        FunctionalIds = hasPlugin ? LoadData("CALL blueprint41.functionalid.list()", record => NewFunctionalIdInfo(record)) : [];
         Constraints = LoadData("show constraints", record => NewConstraintInfo(record, PersistenceProvider)).Where(item => item.Entity is not null && item.Field is not null).ToArray();
         Indexes = LoadData("show indexes", record => NewIndexInfo(record, PersistenceProvider)).Where(item => item.Entity is not null && item.Field is not null).ToArray();
         Labels = LoadSimpleData("CALL db.labels()", "label");
@@ -74,7 +74,7 @@ public class SchemaInfo_v5 : v4.SchemaInfo_v4
         ConstraintInfo? keyConstraint = entity.IsVirtual ? null : constraints.FirstOrDefault(item => item.IsKey);
         IndexInfo? indexInfo = entity.IsVirtual ? null : indexes.FirstOrDefault(item => item.IsIndexed);
 
-        List<(ApplyConstraintAction, string?)> commands = new List<(ApplyConstraintAction, string?)>();
+        List<(ApplyConstraintAction, string?)> commands = [];
 
         if (entity.IsAbstract && indexType == IndexType.Unique)
             indexType = IndexType.Indexed;

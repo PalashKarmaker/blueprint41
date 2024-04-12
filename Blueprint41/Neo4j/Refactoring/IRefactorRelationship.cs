@@ -6,17 +6,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Blueprint41.Neo4j.Refactoring
+namespace Blueprint41.Neo4j.Refactoring;
+
+public partial interface IRefactorRelationship
 {
-    public partial interface IRefactorRelationship
-    {
-        void Rename(string newName, string newNeo4JRelationshipType);
+    void Rename(string newName, string newNeo4JRelationshipType);
 
-        void SetInEntity(Entity target, bool allowLosingData = false);
-        void SetOutEntity(Entity target, bool allowLosingData = false);
+    void SetInEntity(Entity target, bool allowLosingData = false);
+    void SetOutEntity(Entity target, bool allowLosingData = false);
 
-        void RemoveTimeDependance();
+    void RemoveTimeDependance();
 
-        void Deprecate();
-    }
+    void Deprecate();
 }

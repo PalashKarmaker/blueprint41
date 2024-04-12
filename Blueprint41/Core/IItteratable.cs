@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Blueprint41.Core
+namespace Blueprint41.Core;
+
+public interface IItteratable<T>
 {
-    public interface IItteratable<T>
-    {
-        void ForEach(Action<int, T> action);
-    }
+    void ForEach(Action<int, T> action);
 }

@@ -96,7 +96,7 @@ public partial class EntityCollection<TEntity> : EntityCollectionBase<TEntity>
 
         if (fireEvents)
         {
-            HashSet<CollectionItem> cancel = new HashSet<CollectionItem>();
+            HashSet<CollectionItem> cancel = [];
             ForEach(delegate (int index, CollectionItem item)
             {
                 if (item is null)
@@ -129,10 +129,7 @@ public partial class EntityCollection<TEntity> : EntityCollectionBase<TEntity>
 
         ExecuteAction(ClearAction(null));
     }
-    internal sealed override void RemoveRange(IEnumerable<TEntity> items, bool fireEvents)
-    {
-        RemoveRange(items, RunningTransaction.TransactionDate, fireEvents);
-    }
+    internal sealed override void RemoveRange(IEnumerable<TEntity> items, bool fireEvents) => RemoveRange(items, RunningTransaction.TransactionDate, fireEvents);
     internal void RemoveRange(IEnumerable<TEntity> items, DateTime? moment, bool fireEvents)
     {
         if (items.Count() == 0)
@@ -198,30 +195,18 @@ public partial class EntityCollection<TEntity> : EntityCollectionBase<TEntity>
             }
         }
 
-        public bool MoveNext()
-        {
-            return enumerator.MoveNext();
-        }
+        public bool MoveNext() => enumerator.MoveNext();
 
-        public void Reset()
-        {
-            enumerator.Reset();
-        }
+        public void Reset() => enumerator.Reset();
 
-        void IDisposable.Dispose()
-        {
-            enumerator.Dispose();
-        }
+        void IDisposable.Dispose() => enumerator.Dispose();
     }
 
     #endregion
 
     #region Relationship Action Helpers
 
-    internal override void EnsureLoaded()
-    {
-        LazyLoad(); 
-    }
+    internal override void EnsureLoaded() => LazyLoad();
     internal override void ForEach(Action<int, CollectionItem> action)
     {
         EnsureLoaded();
@@ -230,26 +215,11 @@ public partial class EntityCollection<TEntity> : EntityCollectionBase<TEntity>
             if (InnerData[index] is not null)
                 action.Invoke(index, InnerData[index]!);
     }
-    internal override void Add(CollectionItem item)
-    {
-        InnerData.Add((CollectionItem<TEntity>)item);
-    }
-    internal override CollectionItem? GetItem(int index)
-    {
-        return InnerData[index];
-    }
-    internal override void SetItem(int index, CollectionItem item)
-    {
-        InnerData[index] = (CollectionItem<TEntity>)item;
-    }
-    internal override void RemoveAt(int index)
-    {
-        InnerData.RemoveAt(index);
-    }
-    internal override int[] IndexOf(OGM item)
-    {
-        return InnerData.IndexOf((TEntity)item);
-    }
+    internal override void Add(CollectionItem item) => InnerData.Add((CollectionItem<TEntity>)item);
+    internal override CollectionItem? GetItem(int index) => InnerData[index];
+    internal override void SetItem(int index, CollectionItem item) => InnerData[index] = (CollectionItem<TEntity>)item;
+    internal override void RemoveAt(int index) => InnerData.RemoveAt(index);
+    internal override int[] IndexOf(OGM item) => InnerData.IndexOf((TEntity)item);
 
     protected override TEntity? GetItem(DateTime? moment)
     {
@@ -263,10 +233,7 @@ public partial class EntityCollection<TEntity> : EntityCollectionBase<TEntity>
 
         return InnerData.First().Item;
     }
-    protected override IEnumerable<CollectionItem<TEntity>> GetItems(DateTime? from, DateTime? till)
-    {
-        return InnerData;
-    }
+    protected override IEnumerable<CollectionItem<TEntity>> GetItems(DateTime? from, DateTime? till) => InnerData;
     protected override TEntity? GetOriginalItem(DateTime? moment)
     {
         if (ParentProperty?.PropertyType != PropertyType.Lookup)
@@ -279,10 +246,7 @@ public partial class EntityCollection<TEntity> : EntityCollectionBase<TEntity>
 
         return LoadedData.First().Item;
     }
-    protected override void AddItem(TEntity item, DateTime? moment, Dictionary<string, object>? properties)
-    {
-        Add(item, true, properties);
-    }
+    protected override void AddItem(TEntity item, DateTime? moment, Dictionary<string, object>? properties) => Add(item, true, properties);
     protected override void SetItem(TEntity? item, DateTime? moment, Dictionary<string, object>? properties)
     {
         if (ParentProperty?.PropertyType != PropertyType.Lookup)
@@ -294,7 +258,7 @@ public partial class EntityCollection<TEntity> : EntityCollectionBase<TEntity>
         if (item is not null && EagerLoadLogic is not null)
             EagerLoadLogic.Invoke(item);
 
-        List<CollectionItem<TEntity>> currentItem = InnerData.ToList();
+        List<CollectionItem<TEntity>> currentItem = [.. InnerData];
         if (NeedsToAssign(ParentProperty?.Relationship) || (!currentItem.FirstOrDefault()?.Item?.Equals(item) ?? !ReferenceEquals(item, null)))
         {
             if (ForeignProperty is not null && ForeignProperty.PropertyType == PropertyType.Lookup)

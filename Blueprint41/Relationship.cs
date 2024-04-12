@@ -58,10 +58,10 @@ public partial class Relationship : IRefactorRelationship, IRelationshipEvents
     public Interface        OutInterface          { get; private set; }
     public EntityProperty?  OutProperty           { get; private set; }
 
-    public string           CreationDate          { get { return "CreationDate"; } }
+    public static string           CreationDate          { get { return "CreationDate"; } }
 
-    public string           StartDate             { get { return "StartDate"; } }
-    public string           EndDate               { get { return "EndDate";  } }
+    public static string           StartDate             { get { return "StartDate"; } }
+    public static string           EndDate               { get { return "EndDate";  } }
     public bool             IsTimeDependent       { get; private set; }
 
     internal string InEntityName
@@ -93,19 +93,13 @@ public partial class Relationship : IRefactorRelationship, IRelationshipEvents
 
     public Relationship SetFullTextProperty(string propertyName)
     {
-        RelationshipProperty? property = Search(propertyName);
-        if (property is null)
-            throw new NotSupportedException("Property does not exist.");
-
+        RelationshipProperty? property = Search(propertyName) ?? throw new NotSupportedException("Property does not exist.");
         fullTextIndexProperties.Add(property);
         return this;
     }
     public Relationship RemoveFullTextProperty(string propertyName)
     {
-        RelationshipProperty? property = Search(propertyName);
-        if (property is null)
-            throw new NotSupportedException("Property does not exist.");
-
+        RelationshipProperty? property = Search(propertyName) ?? throw new NotSupportedException("Property does not exist.");
         fullTextIndexProperties.Remove(property);
         return this;
     }
@@ -113,7 +107,7 @@ public partial class Relationship : IRefactorRelationship, IRelationshipEvents
     {
         get { return fullTextIndexProperties; }
     }
-    private readonly List<RelationshipProperty> fullTextIndexProperties = new();
+    private readonly List<RelationshipProperty> fullTextIndexProperties = [];
 
     #endregion
 
@@ -217,10 +211,7 @@ public partial class Relationship : IRefactorRelationship, IRelationshipEvents
 
         return this;
     }
-    public Relationship AddProperty(string name, Type type, IndexType indexType)
-    {
-        return AddProperty(name, type, true, indexType);
-    }
+    public Relationship AddProperty(string name, Type type, IndexType indexType) => AddProperty(name, type, true, indexType);
     public Relationship AddProperty(string name, Type type, bool nullable, IndexType indexType = IndexType.None)
     {
         if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
@@ -255,10 +246,7 @@ public partial class Relationship : IRefactorRelationship, IRelationshipEvents
             OutProperty = null;
     }
 
-    public Relationship CascadedDelete(params Entity[] nodes)
-    {
-        return this;
-    }
+    public Relationship CascadedDelete(params Entity[] nodes) => this;
 
     #endregion
 
@@ -494,8 +482,7 @@ public partial class Relationship : IRefactorRelationship, IRelationshipEvents
             if (namedProperties is null)
                 namedProperties = Properties.ToDictionary(key => key.Name.ToLower(), value => value);
 
-            RelationshipProperty? foundProperty;
-            namedProperties.TryGetValue(name.ToLower(), out foundProperty);
+            namedProperties.TryGetValue(name.ToLower(), out RelationshipProperty? foundProperty);
             return foundProperty;
         }
         else
@@ -521,7 +508,7 @@ public partial class Relationship : IRefactorRelationship, IRelationshipEvents
 
         List<string> Get()
         {
-            List<string> excl = new List<string>();
+            List<string> excl = [];
             
             if (!string.IsNullOrEmpty(StartDate))
                 excl.Add(StartDate);
@@ -541,28 +528,25 @@ public partial class Relationship : IRefactorRelationship, IRelationshipEvents
 
     private string ComputeAliasName(string? name, string? neo4JRelationshipType, Property? outProperty)
     {
-        if (!(name is null))
+        if (name is not null)
             return name;
 
         return ComputeNeo4JName(name, neo4JRelationshipType, outProperty);
     }
     private string ComputeNeo4JName(string? name, string? neo4JRelationshipType, Property? outProperty)
     {
-        if (!(neo4JRelationshipType is null))
+        if (neo4JRelationshipType is not null)
             return neo4JRelationshipType;
 
-        if (!(name is null))
+        if (name is not null)
             return name;
 
         return string.Format("{0}_{1}", InEntity.Name.ToUpperInvariant(), OutEntity.Name.ToUpperInvariant());
    }
 
-    internal DirectionEnum ComputeDirection(Entity entity)
-    {
-        return entity.IsSelfOrSubclassOf(InEntity) ? DirectionEnum.In : DirectionEnum.Out;
-    }
+    internal DirectionEnum ComputeDirection(Entity entity) => entity.IsSelfOrSubclassOf(InEntity) ? DirectionEnum.In : DirectionEnum.Out;
     public IReadOnlyList<string[]> CompositeUniqueConstraints => _compositeUniqueConstraints;
-    private readonly List<string[]> _compositeUniqueConstraints = new();
+    private readonly List<string[]> _compositeUniqueConstraints = [];
     public Relationship AddCompositeUniqueConstraint(params string[] names)
     {
         VerifyPropertiesCanBeAdded();

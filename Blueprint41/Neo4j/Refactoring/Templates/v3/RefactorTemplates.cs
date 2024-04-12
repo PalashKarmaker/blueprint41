@@ -6,9 +6,8 @@ using System.Text;
 using Blueprint41.Core;
 using t = Blueprint41.Neo4j.Refactoring.Templates;
 
-namespace Blueprint41.Core
+namespace Blueprint41.Core;
+
+public class RefactorTemplates_v3 : RefactorTemplates
 {
-    public class RefactorTemplates_v3 : RefactorTemplates
-    {
-    }
 }

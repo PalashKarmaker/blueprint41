@@ -8,8 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using query = Blueprint41.Query;
 
-namespace Blueprint41.Query
-{
+namespace Blueprint41.Query;
+
 	public partial class Query
 	{
 		public IMatchQuery Unwind<TList, TResult, TType>(ListResult<TList, TResult, TType> list, string aliasName, out TResult alias)
@@ -35,11 +35,8 @@ namespace Blueprint41.Query
 			return New;
 		}
 
-        internal void SetFields(FieldResult[] combinedFields)
-        {
-			Fields = combinedFields;
-        }
-    }
+    internal void SetFields(FieldResult[] combinedFields) => Fields = combinedFields;
+}
 	public partial interface IOptionalMatchQuery
 	{
 		IMatchQuery Unwind<TList, TResult, TType>(ListResult<TList, TResult, TType> list, string aliasName, out TResult alias)
@@ -60,7 +57,7 @@ namespace Blueprint41.Query
 			where TResult : AliasResult, IAliasResult;
 	}
 	public partial interface ICallSubqueryMatch
-    {
+{
 		IMatchQuery Unwind<TList, TResult, TType>(ListResult<TList, TResult, TType> list, string aliasName, out TResult alias)
 			where TList : ListResult<TList, TResult, TType>, IPrimitiveListResult
 			where TResult : FieldResult, IPrimitiveResult;
@@ -69,4 +66,3 @@ namespace Blueprint41.Query
 		 where TList : ListResult<TList, TResult>, IAliasListResult
 			where TResult : AliasResult, IAliasResult;
 	}
-}

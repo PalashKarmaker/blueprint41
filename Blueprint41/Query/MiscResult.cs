@@ -5,9 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Blueprint41.Query
+namespace Blueprint41.Query;
+
+public partial class MiscResult
 {
-    public partial class MiscResult
-    {
-    }
 }

@@ -5,16 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Blueprint41.Neo4j.Model
-{
-    internal class LabelCollection : Core.CollectionBase<Label>
-    {
-        public Label New(string name)
-        {
-            Label value = new Label(name);
-            Add(name, value);
+namespace Blueprint41.Neo4j.Model;
 
-            return value;
-        }
+internal class LabelCollection : Core.CollectionBase<Label>
+{
+    public Label New(string name)
+    {
+        Label value = new Label(name);
+        Add(name, value);
+
+        return value;
     }
 }

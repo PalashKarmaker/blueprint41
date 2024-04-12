@@ -4,35 +4,34 @@ using System.Linq;
 using Blueprint41.Core;
 using Blueprint41.Neo4j.Persistence.Void;
 
-namespace Blueprint41.Neo4j.Schema.v5
+namespace Blueprint41.Neo4j.Schema.v5;
+
+public class ConstraintInfo_v5 : ConstraintInfo
 {
-    public class ConstraintInfo_v5 : ConstraintInfo
+    private bool isKey = false;
+    public override bool IsKey => isKey;
+
+    internal ConstraintInfo_v5(RawRecord record, Neo4jPersistenceProvider persistenceProvider) : base(record, persistenceProvider) { }
+
+    protected override void Initialize(RawRecord record)
     {
-        private bool isKey = false;
-        public override bool IsKey => isKey;
+        Name = record.Values["name"].As<string>();
+        EntityType = record.Values["entityType"].As<string>();
+        IsUnique = false;
+        IsMandatory = false;
 
-        internal ConstraintInfo_v5(RawRecord record, Neo4jPersistenceProvider persistenceProvider) : base(record, persistenceProvider) { }
+        string type = record.Values["type"]?.As<string>()?.ToLowerInvariant() ?? "";
 
-        protected override void Initialize(RawRecord record)
-        {
-            Name = record.Values["name"].As<string>();
-            EntityType = record.Values["entityType"].As<string>();
-            IsUnique = false;
-            IsMandatory = false;
+        if (type.Contains("node_key"))
+            isKey = true;
 
-            string type = record.Values["type"]?.As<string>()?.ToLowerInvariant() ?? "";
+        if (type.Contains("uniqueness"))
+            IsUnique = true;
 
-            if (type.Contains("node_key"))
-                isKey = true;
+        if (type.Contains("existence"))
+            IsMandatory = true;
 
-            if (type.Contains("uniqueness"))
-                IsUnique = true;
-
-            if (type.Contains("existence"))
-                IsMandatory = true;
-
-            Entity = record.Values["labelsOrTypes"]?.As<List<object>>()?.Cast<string>()?.ToArray()!;
-            Field = record.Values["properties"]?.As<List<object>>()?.Cast<string>()?.ToArray()!;
-        }
+        Entity = record.Values["labelsOrTypes"]?.As<List<object>>()?.Cast<string>()?.ToArray()!;
+        Field = record.Values["properties"]?.As<List<object>>()?.Cast<string>()?.ToArray()!;
     }
 }

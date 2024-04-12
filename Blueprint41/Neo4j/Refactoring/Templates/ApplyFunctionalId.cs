@@ -7,88 +7,88 @@
 //     the code is regenerated.
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace Blueprint41.Neo4j.Refactoring.Templates
+namespace Blueprint41.Neo4j.Refactoring.Templates;
+
+using System.Linq;
+using System.Linq.Expressions;
+using System.Text;
+using System.Collections.Generic;
+using System.Diagnostics;
+using Blueprint41;
+using System;
+
+/// <summary>
+/// Class to produce the template output
+/// </summary>
+
+#line 1 "C:\_CirclesArrows\blueprint41\Blueprint41\Neo4j\Refactoring\Templates\ApplyFunctionalId.tt"
+[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "17.0.0.0")]
+internal partial class ApplyFunctionalId : ApplyFunctionalIdBase
 {
-    using System.Linq;
-    using System.Linq.Expressions;
-    using System.Text;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using Blueprint41;
-    using System;
-    
-    /// <summary>
-    /// Class to produce the template output
-    /// </summary>
-    
-    #line 1 "C:\_CirclesArrows\blueprint41\Blueprint41\Neo4j\Refactoring\Templates\ApplyFunctionalId.tt"
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "17.0.0.0")]
-    internal partial class ApplyFunctionalId : ApplyFunctionalIdBase
-    {
 #line hidden
-        /// <summary>
-        /// Create the template output
-        /// </summary>
-        public override string TransformText()
-        {
-            this.Write("\n");
-            this.Write("\n");
-            this.Write("\n");
-            this.Write("\n");
-            this.Write("\n");
-            this.Write("\n");
-            this.Write("\n");
-            
-            #line 1 "C:\_CirclesArrows\blueprint41\Blueprint41\Neo4j\Refactoring\Templates\ApplyFunctionalId.tt"
+    /// <summary>
+    /// Create the template output
+    /// </summary>
+    public override string TransformText()
+    {
+        this.Write("\n");
+        this.Write("\n");
+        this.Write("\n");
+        this.Write("\n");
+        this.Write("\n");
+        this.Write("\n");
+        this.Write("\n");
 
-    Log("	executing {0} -> Apply FunctionalId on entity {1}", this.GetType().Name, Caller.Name);
+#line 1 "C:\_CirclesArrows\blueprint41\Blueprint41\Neo4j\Refactoring\Templates\ApplyFunctionalId.tt"
 
-            
-            #line default
-            #line hidden
-            this.Write("\nMATCH (node:");
-            
-            #line 1 "C:\_CirclesArrows\blueprint41\Blueprint41\Neo4j\Refactoring\Templates\ApplyFunctionalId.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Entity.Label.Name));
-            
-            #line default
-            #line hidden
-            this.Write(")\n");
-            
-            #line 1 "C:\_CirclesArrows\blueprint41\Blueprint41\Neo4j\Refactoring\Templates\ApplyFunctionalId.tt"
- if(! this.Full) 
-   {
+        Log("	executing {0} -> Apply FunctionalId on entity {1}", this.GetType().Name, Caller.Name);
 
-            
-            #line default
-            #line hidden
-            this.Write("\nWHERE NOT node.Uid STARTS WITH \'");
-            
-            #line 1 "C:\_CirclesArrows\blueprint41\Blueprint41\Neo4j\Refactoring\Templates\ApplyFunctionalId.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(FunctionalId.Prefix));
-            
-            #line default
-            #line hidden
-            this.Write("\'\n");
-            
-            #line 1 "C:\_CirclesArrows\blueprint41\Blueprint41\Neo4j\Refactoring\Templates\ApplyFunctionalId.tt"
- }
+        
+        #line default
+        #line hidden
+        this.Write("\nMATCH (node:");
+        
+        #line 1 "C:\_CirclesArrows\blueprint41\Blueprint41\Neo4j\Refactoring\Templates\ApplyFunctionalId.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(Entity.Label.Name));
+        
+        #line default
+        #line hidden
+        this.Write(")\n");
+        
+        #line 1 "C:\_CirclesArrows\blueprint41\Blueprint41\Neo4j\Refactoring\Templates\ApplyFunctionalId.tt"
+if(! this.Full) 
+{
 
-            
-            #line default
-            #line hidden
-            this.Write("\nWITH node limit 10000 \nCALL blueprint41.functionalid.next(\'");
-            
-            #line 1 "C:\_CirclesArrows\blueprint41\Blueprint41\Neo4j\Refactoring\Templates\ApplyFunctionalId.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(FunctionalId.Label));
-            
-            #line default
-            #line hidden
-            this.Write("\') YIELD value as key\nWITH node,key\nSET node.Uid=key\n");
-            return this.GenerationEnvironment.ToString();
-        }
-    }
-    
-    #line default
-    #line hidden
+        
+        #line default
+        #line hidden
+        this.Write("\nWHERE NOT node.Uid STARTS WITH \'");
+        
+        #line 1 "C:\_CirclesArrows\blueprint41\Blueprint41\Neo4j\Refactoring\Templates\ApplyFunctionalId.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(FunctionalId.Prefix));
+        
+        #line default
+        #line hidden
+        this.Write("\'\n");
+        
+        #line 1 "C:\_CirclesArrows\blueprint41\Blueprint41\Neo4j\Refactoring\Templates\ApplyFunctionalId.tt"
 }
+
+        
+        #line default
+        #line hidden
+        this.Write("\nWITH node limit 10000 \nCALL blueprint41.functionalid.next(\'");
+        
+        #line 1 "C:\_CirclesArrows\blueprint41\Blueprint41\Neo4j\Refactoring\Templates\ApplyFunctionalId.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(FunctionalId.Label));
+        
+        #line default
+        #line hidden
+        this.Write("\') YIELD value as key\nWITH node,key\nSET node.Uid=key\n");
+        return this.GenerationEnvironment.ToString();
+    }
+}
+
+#line default
+#line hidden
+

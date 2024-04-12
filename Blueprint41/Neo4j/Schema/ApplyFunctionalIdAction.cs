@@ -6,12 +6,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Blueprint41.Neo4j.Schema
+namespace Blueprint41.Neo4j.Schema;
+
+public enum ApplyFunctionalIdAction
 {
-    public enum ApplyFunctionalIdAction
-    {
-        CreateFunctionalId,
-        DeleteFunctionalId,
-        UpdateFunctionalId,
-    }
+    CreateFunctionalId,
+    DeleteFunctionalId,
+    UpdateFunctionalId,
 }

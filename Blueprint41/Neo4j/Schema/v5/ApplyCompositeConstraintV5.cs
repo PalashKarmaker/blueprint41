@@ -14,7 +14,7 @@ public class ApplyCompositeConstraintV5 : ApplyCompositeConstraint
         //       https://neo4j.com/docs/cypher-manual/current/constraints/
         var entity = Parent.Entity;
 
-        List<string> commands = new();
+        List<string> commands = [];
         foreach ((var actionEnum, _) in Commands)
             switch (actionEnum)
             {
@@ -40,7 +40,7 @@ public class ApplyCompositeConstraintV5 : ApplyCompositeConstraint
         return commands;
     }
 
-    private string BuildConstraintName(string label, string constraintType, params string[] propertyNames) =>
+    private static string BuildConstraintName(string label, string constraintType, params string[] propertyNames) =>
         $"{label}_" + string.Join("_", propertyNames) + $"_{constraintType}Constraint";
     protected override string CreateCompositeUniqueConstraintCommand(string label, bool forRelationShip = false, params string[] propertyNames)
     {

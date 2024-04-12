@@ -4,21 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Blueprint41.Core
+namespace Blueprint41.Core;
+
+public enum PersistenceState
 {
-    public enum PersistenceState
-    {
-        New,
-        NewAndChanged,
-        HasUid,
-        Loaded,
-        LoadedAndChanged,
-        Persisted,
-        Delete,
-        ForceDelete,
-        Deleted,
-        DoesntExist,
-        OutOfScope,
-        Error,
-    }
+    New,
+    NewAndChanged,
+    HasUid,
+    Loaded,
+    LoadedAndChanged,
+    Persisted,
+    Delete,
+    ForceDelete,
+    Deleted,
+    DoesntExist,
+    OutOfScope,
+    Error,
 }

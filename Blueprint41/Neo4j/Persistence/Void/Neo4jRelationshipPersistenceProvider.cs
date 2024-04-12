@@ -33,7 +33,7 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
         if (outItem is not null)
             Checks(relationship.OutEntity, outItem);
     }
-    private void Checks(Entity entity, OGM item)
+    private static void Checks(Entity entity, OGM item)
     {
         //if (!item.GetEntity().IsSelfOrSubclassOf(entity))
         //    throw new NotImplementedException($"{item.GetEntity().Name} should inherit {entity.Name}.");
@@ -54,7 +54,7 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
         if (nodeNames.Length > 1 && outNames.Length > 1)
             throw new InvalidOperationException("Both ends are virtual entities, this is too expensive to query...");
 
-        List<string> fullMatch = new List<string>();
+        List<string> fullMatch = [];
         for (int nodeIndex = 0; nodeIndex < nodeNames.Length; nodeIndex++)
         {
             for (int outIndex = 0; outIndex < outNames.Length; outIndex++)
@@ -67,7 +67,7 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
 
                 string match = string.Format(pattern,
                    nodeNames[nodeIndex],
-                   target.ParentEntity.Key.Name,
+                   target.ParentEntity.Key?.Name,
                    target.Relationship.Neo4JRelationshipType,
                    outNames[outIndex]);
 
@@ -75,10 +75,12 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
             }
         }
 
-        Dictionary<string, object?> parameters2 = new Dictionary<string, object?>();
-        parameters2.Add("key", parent.GetKey());
+        Dictionary<string, object?> parameters2 = new Dictionary<string, object?>
+        {
+            { "key", parent.GetKey() }
+        };
 
-        List<CollectionItem> items = new List<CollectionItem>();
+        List<CollectionItem> items = [];
         var result = Transaction.RunningTransaction.Run(string.Join(" UNION ", fullMatch), parameters2);
 
         foreach (var record in result)
@@ -95,10 +97,9 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
 
             if (target.Relationship.IsTimeDependent)
             {
-                object? value;
-                if (rel.Properties.TryGetValue(target.Relationship.StartDate, out value))
+                if (rel.Properties.TryGetValue(Relationship.StartDate, out object? value))
                     startDate = Conversion<long, DateTime>.Convert((long)value);
-                if (rel.Properties.TryGetValue(target.Relationship.EndDate, out value))
+                if (rel.Properties.TryGetValue(Relationship.EndDate, out value))
                     endDate = Conversion<long, DateTime>.Convert((long)value);
             }
 
@@ -111,7 +112,7 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
     public override Dictionary<OGM, CollectionItemList> Load(IEnumerable<OGM> parents, Core.EntityCollectionBase target)
     {
         if (parents.Count() == 0)
-            return new Dictionary<OGM, CollectionItemList>();
+            return [];
 
         HashSet<OGM> parentHashset = new HashSet<OGM>(parents);
 
@@ -124,7 +125,7 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
         string whereClause = " WHERE node.{1} in ($keys) ";
         string returnClause = " RETURN node as Parent, out as Item ";
         if (target.Relationship.IsTimeDependent)
-            returnClause = $" RETURN node as Parent, out as Item, rel.{target.Relationship.StartDate} as StartDate, rel.{target.Relationship.EndDate} as EndDate";
+            returnClause = $" RETURN node as Parent, out as Item, rel.{Relationship.StartDate} as StartDate, rel.{Relationship.EndDate} as EndDate";
 
         Entity targetEntity = target.ForeignEntity;
 
@@ -134,14 +135,14 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
         if (nodeNames.Length > 1 && outNames.Length > 1)
             throw new InvalidOperationException("Both ends are virtual entities, this is too expensive to query...");
 
-        List<string> fullMatch = new List<string>();
+        List<string> fullMatch = [];
         for (int nodeIndex = 0; nodeIndex < nodeNames.Length; nodeIndex++)
         {
             for (int outIndex = 0; outIndex < outNames.Length; outIndex++)
             {
                 string match = string.Format(string.Concat(matchClause, whereClause, returnClause),
                     nodeNames[nodeIndex],
-                    target.ParentEntity.Key.Name,
+                    target.ParentEntity.Key?.Name,
                     target.Relationship.Neo4JRelationshipType,
                     outNames[outIndex]);
 
@@ -149,15 +150,17 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
             }
         }
 
-        Dictionary<string, object?> parameters = new Dictionary<string, object?>();
-        parameters.Add("keys", parents.Select(item => item.GetKey()).ToArray());
+        Dictionary<string, object?> parameters = new Dictionary<string, object?>
+        {
+            { "keys", parents.Select(item => item.GetKey()).ToArray() }
+        };
 
         if (parents.Any(parent => parent.GetEntity() != target.Parent.GetEntity()))
             throw new InvalidOperationException("This code should only load collections of the same concrete parent class.");
 
         string cypher = string.Join(" UNION ", fullMatch);
         var result = Transaction.RunningTransaction.Run(cypher, parameters);
-        List<CollectionItem> items = new List<CollectionItem>();
+        List<CollectionItem> items = [];
         foreach (var record in result)
         {
             DateTime? startDate = null;
@@ -181,32 +184,33 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
         return CollectionItemList.Get(items);
     }
 
-    private Dictionary<object, List<RawNode>> Load(Entity targetEntity, IEnumerable<object> keys)
+    private static Dictionary<object, List<RawNode>> Load(Entity targetEntity, IEnumerable<object> keys)
     {
         string[] nodeNames = targetEntity.GetDbNames("node");
 
-        List<string> fullMatch = new List<string>();
+        List<string> fullMatch = [];
         for (int nodeIndex = 0; nodeIndex < nodeNames.Length; nodeIndex++)
         {
             string match = string.Format(
                 "MATCH ({0}) WHERE node.{1} in ($keys) RETURN DISTINCT node, node.{1} as key",
                 nodeNames[nodeIndex],
-                targetEntity.Key.Name
+                targetEntity.Key?.Name
             );
             fullMatch.Add(match);
         }
 
-        Dictionary<string, object?> parameters = new Dictionary<string, object?>();
-        parameters.Add("keys", keys.Distinct().ToList());
+        Dictionary<string, object?> parameters = new Dictionary<string, object?>
+        {
+            { "keys", keys.Distinct().ToList() }
+        };
         var result = Transaction.RunningTransaction.Run(string.Join(" UNION ", fullMatch), parameters);
 
-        Dictionary<object, List<RawNode>> retval = new Dictionary<object, List<RawNode>>();
+        Dictionary<object, List<RawNode>> retval = [];
         foreach (var record in result)
         {
-            List<RawNode>? items;
-            if (!retval.TryGetValue(record.Values["key"].As<object>(), out items))
+            if (!retval.TryGetValue(record.Values["key"].As<object>(), out List<RawNode>? items))
             {
-                items = new List<RawNode>();
+                items = [];
                 retval.Add(record.Values["key"].As<object>(), items);
             }
             items.Add(record.Values["node"].As<RawNode>());
@@ -214,7 +218,7 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
 
         return retval;
     }
-    private OGM ReadNode(OGM parent, Entity targetEntity, RawNode node)
+    private static OGM ReadNode(OGM parent, Entity targetEntity, RawNode node)
     {
         object? keyObject = null;
         if (targetEntity.Key is not null)
@@ -223,8 +227,7 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
         string? typeName = null;
         if (targetEntity.NodeType is not null)
         {
-            object? nodeType;
-            if (node.Properties.TryGetValue(targetEntity.NodeType.Name, out nodeType))
+            if (node.Properties.TryGetValue(targetEntity.NodeType.Name, out object? nodeType))
                 typeName = nodeType as string;
         }
 
@@ -259,7 +262,7 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
             {
                 if (targetEntity.Parent.IsUpgraded)
                 {
-                    Type type = typeCache.TryGetOrAdd(typeName, key =>
+                    Type? type = typeCache.TryGetOrAdd(typeName, key =>
                     {
                         type = parent.GetType().Assembly.GetTypes().FirstOrDefault(x => x.Name == typeName);
                         if (type is null)
@@ -269,7 +272,7 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
                     });
                     Transaction.Execute(() =>
                     {
-                        item = (OGM)Activator.CreateInstance(type)!;
+                        item = (OGM)Activator.CreateInstance(type!)!;
                     }, EventOptions.SupressEvents);
                 }
                 else
@@ -289,7 +292,7 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
 
         return item;
     }
-    private static AtomicDictionary<string, Type> typeCache = new AtomicDictionary<string, Type>();
+    private static AtomicDictionary<string, Type> typeCache = [];
 
     public override void Add(Relationship relationship, OGM inItem, OGM outItem, DateTime? moment, bool timedependent, Dictionary<string, object>? properties, bool notToMerge)
     {
@@ -308,12 +311,12 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
     {
         string match = string.Format("MATCH (in:{0}) WHERE in.{1} = $inKey \r\n MATCH (out:{2}) WHERE out.{3} = $outKey",
             inItem.GetEntity().Label.Name,
-            inItem.GetEntity().Key.Name,
+            inItem.GetEntity().Key?.Name,
             outItem.GetEntity().Label.Name,
-            outItem.GetEntity().Key.Name);
+            outItem.GetEntity().Key?.Name);
         long createdDate = Conversion<DateTime, long>.Convert(Transaction.RunningTransaction.TransactionDate);
-        Dictionary<string, object> map = properties ?? new Dictionary<string, object>();
-        map.AddOrSet(relationship.CreationDate, createdDate);
+        Dictionary<string, object> map = properties ?? [];
+        map.AddOrSet(Relationship.CreationDate, createdDate);
         Dictionary<string, object?> parameters = new()
         {
             { "inKey", inItem.GetKey() },
@@ -364,20 +367,20 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
         Entity outEntity = outItem.GetEntity();
 
         string delete = $$"""
-                MATCH (in:{{inEntity.Label.Name}} { {{inEntity.Key.Name}}: $inKey })-[rel:{{relationship.Neo4JRelationshipType}}]->(out:{{outEntity.Label.Name}} { {{outEntity.Key.Name}}: $outKey })
+                MATCH (in:{{inEntity.Label.Name}} { {{inEntity.Key?.Name}}: $inKey })-[rel:{{relationship.Neo4JRelationshipType}}]->(out:{{outEntity.Label.Name}} { {{outEntity.Key?.Name}}: $outKey })
                 WHERE COALESCE(rel.StartDate, $min) >= $moment
                 DELETE rel
                 """;
 
         string update = $$"""
-                MATCH (in:{{inEntity.Label.Name}} { {{inEntity.Key.Name}}: $inKey })-[rel:{{relationship.Neo4JRelationshipType}}]->(out:{{outEntity.Label.Name}} { {{outEntity.Key.Name}}: $outKey })
+                MATCH (in:{{inEntity.Label.Name}} { {{inEntity.Key?.Name}}: $inKey })-[rel:{{relationship.Neo4JRelationshipType}}]->(out:{{outEntity.Label.Name}} { {{outEntity.Key?.Name}}: $outKey })
                 WHERE COALESCE(rel.StartDate, $min) <= $moment AND COALESCE(rel.EndDate, $max) >= $moment
                 WITH rel, properties(rel) AS map1, $map AS map2
                 SET rel.EndDate = CASE WHEN {{MapRemoveKeys("map1", "$excl", relationship.ExcludedProperties())}} = {{MapRemoveKeys("map2", "$excl", relationship.ExcludedProperties())}} THEN $max ELSE $moment END
                 """;
 
         string create = $$"""
-                MATCH (in:{{inEntity.Label.Name}} { {{inEntity.Key.Name}}: $inKey }), (out:{{outEntity.Label.Name}} { {{outEntity.Key.Name}}: $outKey })
+                MATCH (in:{{inEntity.Label.Name}} { {{inEntity.Key?.Name}}: $inKey }), (out:{{outEntity.Label.Name}} { {{outEntity.Key?.Name}}: $outKey })
                 OPTIONAL MATCH (in)-[rel:{{relationship.Neo4JRelationshipType}}]->(out)
                 WHERE COALESCE(rel.StartDate, $min) <= $moment AND COALESCE(rel.EndDate, $max) > $moment
                 WITH in, out, rel
@@ -392,19 +395,21 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
         string peek = sb.ToString();
 #endif
 
-        Dictionary<string, object> map = properties ?? new Dictionary<string, object>();
-        map.AddOrSet(relationship.StartDate, momentConv);
-        map.AddOrSet(relationship.EndDate, Conversion.MaxDateTimeInMS);
-        map.AddOrSet(relationship.CreationDate, Conversion<DateTime, long>.Convert(Transaction.RunningTransaction.TransactionDate));
+        Dictionary<string, object> map = properties ?? [];
+        map.AddOrSet(Relationship.StartDate, momentConv);
+        map.AddOrSet(Relationship.EndDate, Conversion.MaxDateTimeInMS);
+        map.AddOrSet(Relationship.CreationDate, Conversion<DateTime, long>.Convert(Transaction.RunningTransaction.TransactionDate));
 
-        Dictionary<string, object?> parameters = new Dictionary<string, object?>();
-        parameters.Add("inKey", inItem.GetKey());
-        parameters.Add("outKey", outItem.GetKey());
-        parameters.Add("min", Conversion.MinDateTimeInMS);
-        parameters.Add("max", Conversion.MaxDateTimeInMS);
-        parameters.Add("moment", momentConv);
-        parameters.Add("map", map);
-        parameters.Add("excl", relationship.ExcludedProperties());
+        Dictionary<string, object?> parameters = new Dictionary<string, object?>
+        {
+            { "inKey", inItem.GetKey() },
+            { "outKey", outItem.GetKey() },
+            { "min", Conversion.MinDateTimeInMS },
+            { "max", Conversion.MaxDateTimeInMS },
+            { "moment", momentConv },
+            { "map", map },
+            { "excl", relationship.ExcludedProperties() }
+        };
 
         relationship.RaiseOnRelationCreate(trans);
 
@@ -470,7 +475,7 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
     protected virtual void Remove(Transaction trans, Relationship relationship, OGM? inItem, OGM? outItem)
     {
         string cypher;
-        Dictionary<string, object?> parameters = new Dictionary<string, object?>();
+        Dictionary<string, object?> parameters = [];
         if (inItem is not null)
             parameters.Add("inKey", inItem!.GetKey());
         if (outItem is not null)
@@ -479,8 +484,8 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
         Entity inEntity = inItem?.GetEntity() ?? relationship.InEntity;
         Entity outEntity = outItem?.GetEntity() ?? relationship.OutEntity;
 
-        string inLabel = (inItem is null) ? $"in:{inEntity.Label.Name}" : $"in:{inEntity.Label.Name} {{ {inEntity.Key.Name}: $inKey }}";
-        string outLabel = (outItem is null) ? $"out:{outEntity.Label.Name}" : $"out:{outEntity.Label.Name} {{ {outEntity.Key.Name}: $outKey }}";
+        string inLabel = (inItem is null) ? $"in:{inEntity.Label.Name}" : $"in:{inEntity.Label.Name} {{ {inEntity.Key?.Name}: $inKey }}";
+        string outLabel = (outItem is null) ? $"out:{outEntity.Label.Name}" : $"out:{outEntity.Label.Name} {{ {outEntity.Key?.Name}: $outKey }}";
 
         cypher = $"MATCH ({inLabel})-[r:{relationship.Neo4JRelationshipType}]->({outLabel}) DELETE r";
 
@@ -504,8 +509,8 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
         Entity inEntity = inItem?.GetEntity() ?? relationship.InEntity;
         Entity outEntity = outItem?.GetEntity() ?? relationship.OutEntity;
 
-        string inLabel = (inItem is null) ? $"in:{inEntity.Label.Name}" : $"in:{inEntity.Label.Name} {{ {inEntity.Key.Name}: $inKey }}";
-        string outLabel = (outItem is null) ? $"out:{outEntity.Label.Name}" : $"out:{outEntity.Label.Name} {{ {outEntity.Key.Name}: $outKey }}";
+        string inLabel = (inItem is null) ? $"in:{inEntity.Label.Name}" : $"in:{inEntity.Label.Name} {{ {inEntity.Key?.Name}: $inKey }}";
+        string outLabel = (outItem is null) ? $"out:{outEntity.Label.Name}" : $"out:{outEntity.Label.Name} {{ {outEntity.Key?.Name}: $outKey }}";
 
         StringBuilder sb = new StringBuilder();
         sb.AppendLine($"MATCH ({inLabel})-[rel:{relationship.Neo4JRelationshipType}]->({outLabel})");
@@ -519,7 +524,7 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
         sb.AppendLine("SET rel.EndDate = $moment");
         string update = sb.ToString();
 
-        Dictionary<string, object?> parameters = new Dictionary<string, object?>();
+        Dictionary<string, object?> parameters = [];
         if (inItem is not null)
             parameters.Add("inKey", inItem!.GetKey());
         if (outItem is not null)
@@ -551,21 +556,23 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
                 inItem.GetEntity().Label.Name,
                 relationship.Neo4JRelationshipType,
                 outItem.GetEntity().Label.Name,
-                inItem.GetEntity().Key.Name,
-                outItem.GetEntity().Key.Name,
-                relationship.StartDate,
-                relationship.EndDate);
+                inItem.GetEntity().Key?.Name,
+                outItem.GetEntity().Key?.Name,
+                Relationship.StartDate,
+                Relationship.EndDate);
 
-            Dictionary<string, object?> parameters = new Dictionary<string, object?>();
-            parameters.Add("inKey", inItem.GetKey());
-            parameters.Add("outKey", outItem.GetKey());
-            parameters.Add("startDate", Conversion<DateTime, long>.Convert(startDate ?? DateTime.MinValue));
-            parameters.Add("endDate", Conversion<DateTime, long>.Convert(endDate ?? DateTime.MaxValue));
-            parameters.Add("MinDateTime", Conversion<DateTime, long>.Convert(DateTime.MinValue));
-            parameters.Add("MaxDateTime", Conversion<DateTime, long>.Convert(DateTime.MaxValue));
+            Dictionary<string, object?> parameters = new()
+            {
+                { "inKey", inItem.GetKey() },
+                { "outKey", outItem.GetKey() },
+                { "startDate", Conversion<DateTime, long>.Convert(startDate ?? DateTime.MinValue) },
+                { "endDate", Conversion<DateTime, long>.Convert(endDate ?? DateTime.MaxValue) },
+                { "MinDateTime", Conversion<DateTime, long>.Convert(DateTime.MinValue) },
+                { "MaxDateTime", Conversion<DateTime, long>.Convert(DateTime.MaxValue) }
+            };
 
             RawResult result = trans.Run(find, parameters);
-            RawRecord record = result.FirstOrDefault();
+            RawRecord record = result.First();
             int count = record["Count"].As<int>();
             if (count > 0)
             {
@@ -583,33 +590,37 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
                 inItem.GetEntity().Label.Name,
                 relationship.Neo4JRelationshipType,
                 outItem.GetEntity().Label.Name,
-                inItem.GetEntity().Key.Name,
-                outItem.GetEntity().Key.Name,
-                relationship.StartDate,
-                relationship.EndDate);
+                inItem.GetEntity().Key?.Name,
+                outItem.GetEntity().Key?.Name,
+                Relationship.StartDate,
+                Relationship.EndDate);
 
             trans.Run(delete, parameters);
         }
 
         string match = string.Format("MATCH (in:{0}) WHERE in.{1} = $inKey MATCH (out:{2}) WHERE out.{3} = $outKey",
             inItem.GetEntity().Label.Name,
-            inItem.GetEntity().Key.Name,
+            inItem.GetEntity().Key?.Name,
             outItem.GetEntity().Label.Name,
-            outItem.GetEntity().Key.Name);
+            outItem.GetEntity().Key?.Name);
         string create = string.Format("CREATE (in)-[outr:{0} $node]->(out)", relationship.Neo4JRelationshipType);
 
-        Dictionary<string, object> node = new Dictionary<string, object>();
-        node.Add(relationship.CreationDate, Conversion<DateTime, long>.Convert(Transaction.RunningTransaction.TransactionDate));
+        Dictionary<string, object> node = new Dictionary<string, object>
+        {
+            { Relationship.CreationDate, Conversion<DateTime, long>.Convert(Transaction.RunningTransaction.TransactionDate) }
+        };
         if (relationship.IsTimeDependent)
         {
-            node.Add(relationship.StartDate, Conversion<DateTime, long>.Convert(startDate ?? DateTime.MinValue));
-            node.Add(relationship.EndDate, Conversion<DateTime, long>.Convert(endDate ?? DateTime.MaxValue));
+            node.Add(Relationship.StartDate, Conversion<DateTime, long>.Convert(startDate ?? DateTime.MinValue));
+            node.Add(Relationship.EndDate, Conversion<DateTime, long>.Convert(endDate ?? DateTime.MaxValue));
         }
 
-        Dictionary<string, object?> parameters2 = new Dictionary<string, object?>();
-        parameters2.Add("inKey", inItem.GetKey());
-        parameters2.Add("outKey", outItem.GetKey());
-        parameters2.Add("node", node);
+        Dictionary<string, object?> parameters2 = new Dictionary<string, object?>
+        {
+            { "inKey", inItem.GetKey() },
+            { "outKey", outItem.GetKey() },
+            { "node", node }
+        };
 
         string query = match + "\r\n" + create;
 
@@ -633,15 +644,17 @@ internal partial class Neo4jRelationshipPersistenceProvider : RelationshipPersis
             inItem.GetEntity().Label.Name,
             relationship.Neo4JRelationshipType,
             outItem.GetEntity().Label.Name,
-            inItem.GetEntity().Key.Name,
-            outItem.GetEntity().Key.Name,
-            relationship.StartDate);
+            inItem.GetEntity().Key?.Name,
+            outItem.GetEntity().Key?.Name,
+            Relationship.StartDate);
 
-        Dictionary<string, object?> parameters = new Dictionary<string, object?>();
-        parameters.Add("inKey", inItem.GetKey());
-        parameters.Add("outKey", outItem.GetKey());
-        parameters.Add("moment", Conversion<DateTime, long>.Convert(startDate ?? DateTime.MinValue));
-        parameters.Add("minDateTime", Conversion<DateTime, long>.Convert(DateTime.MinValue));
+        Dictionary<string, object?> parameters = new Dictionary<string, object?>
+        {
+            { "inKey", inItem.GetKey() },
+            { "outKey", outItem.GetKey() },
+            { "moment", Conversion<DateTime, long>.Convert(startDate ?? DateTime.MinValue) },
+            { "minDateTime", Conversion<DateTime, long>.Convert(DateTime.MinValue) }
+        };
 
         relationship.RaiseOnRelationDelete(trans);
 

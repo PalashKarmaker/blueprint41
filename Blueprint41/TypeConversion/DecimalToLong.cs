@@ -7,13 +7,9 @@ using System.Threading.Tasks;
 using Blueprint41.Core;
 using Blueprint41.Neo4j.Persistence.Void;
 
-namespace Blueprint41.TypeConversion
+namespace Blueprint41.TypeConversion;
+
+internal class DecimalToLong : Conversion<decimal, long>
 {
-    internal class DecimalToLong : Conversion<decimal, long>
-    {
-        protected override long Converter(decimal value)
-        {
-           return (long)Math.Round(value * Neo4jPersistenceProvider.DECIMAL_FACTOR, 0);
-        }
-    }
+    protected override long Converter(decimal value) => (long)Math.Round(value * Neo4jPersistenceProvider.DECIMAL_FACTOR, 0);
 }

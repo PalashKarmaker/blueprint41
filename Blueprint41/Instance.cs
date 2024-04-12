@@ -6,28 +6,27 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Blueprint41
+namespace Blueprint41;
+
+public class Instance
 {
-    public class Instance
+    internal Instance(Entity parent, object values)
     {
-        internal Instance(Entity parent, object values)
-        {
-            NodeType = parent;
-            Values = ToDynamic(values);
-        }
+        NodeType = parent;
+        Values = ToDynamic(values);
+    }
 
-        public Entity NodeType { get; private set; }
-        public ExpandoObject Values;
+    public Entity NodeType { get; private set; }
+    public ExpandoObject Values;
 
 
-        private static ExpandoObject ToDynamic(object value)
-        {
-            IDictionary<string, object> expando = new ExpandoObject();
+    private static ExpandoObject ToDynamic(object value)
+    {
+        var expando = new ExpandoObject();
 
-            foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(value.GetType()).NotNull())
-                expando.Add(property.Name, property.GetValue(value));
+        foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(value.GetType()).NotNull())
+            expando.AddOrSet(property.Name, property.GetValue(value)!);
 
-            return (ExpandoObject)expando;
-        }
+        return expando;
     }
 }

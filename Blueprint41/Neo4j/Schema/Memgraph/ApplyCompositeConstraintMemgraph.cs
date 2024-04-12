@@ -19,7 +19,7 @@ public class ApplyCompositeConstraintMemgraph : ApplyCompositeConstraint
         // TODO: What about if the constraint is for a property on a relationship
         var entity = Parent.Entity;
 
-        List<string> commands = new();
+        List<string> commands = [];
         foreach ((var actionEnum, _) in Commands)
             switch (actionEnum)
             {

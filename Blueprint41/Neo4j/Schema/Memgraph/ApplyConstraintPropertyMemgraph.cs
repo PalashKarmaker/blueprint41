@@ -13,7 +13,7 @@ public class ApplyConstraintPropertyMemgraph : ApplyConstraintPropertyV5
     internal override List<string> ToCypher()
     {
         IEntity entity = Parent.Entity;
-        List<string> commands = new();
+        List<string> commands = [];
         foreach ((ApplyConstraintAction action, _) in Commands)
             if (ShouldAddConstraint(action, entity))
             {
@@ -66,30 +66,27 @@ public class ApplyConstraintPropertyMemgraph : ApplyConstraintPropertyV5
     }
 
 
-    private string CreateIndexCommand(string neo4jName, string propertyName) => $"CREATE INDEX ON :{neo4jName}({propertyName})";
+    private static string CreateIndexCommand(string neo4jName, string propertyName) => $"CREATE INDEX ON :{neo4jName}({propertyName})";
     private string CreateKeyConstraintCommand(string targetEntityType, string alias, string propertyName) => 
         $"{CreateExistsConstraintCommand(targetEntityType, alias, propertyName)}; " +
         $"{CreateUniqueConstraintCommand(targetEntityType, alias, propertyName)}";
-    private string CreateUniqueConstraintCommand(string targetEntityType, string alias, string propertyName) =>
+    private static string CreateUniqueConstraintCommand(string targetEntityType, string alias, string propertyName) =>
         $"CREATE CONSTRAINT ON {targetEntityType} ASSERT {alias}.{propertyName} IS UNIQUE";
 
-    private string CreateExistsConstraintCommand(string targetEntityType, string alias, string propertyName) => $"CREATE CONSTRAINT ON {targetEntityType} ASSERT EXISTS ({alias}.{propertyName})";
-    private string DropUniqueConstraintCommand(string targetEntityType, string alias, string propertyName) => $"DROP CONSTRAINT ON {targetEntityType} ASSERT {alias}.{propertyName} IS UNIQUE";
-    private string CreateCompositeUniqueConstraintCommand(string targetEntityType, string alias, params string[] propertyNames)
+    private static string CreateExistsConstraintCommand(string targetEntityType, string alias, string propertyName) => $"CREATE CONSTRAINT ON {targetEntityType} ASSERT EXISTS ({alias}.{propertyName})";
+    private static string DropUniqueConstraintCommand(string targetEntityType, string alias, string propertyName) => $"DROP CONSTRAINT ON {targetEntityType} ASSERT {alias}.{propertyName} IS UNIQUE";
+    private static string CreateCompositeUniqueConstraintCommand(string targetEntityType, string alias, params string[] propertyNames)
     {
         var withAlias = propertyNames.Select(p => $"{alias}.{p}");
         return $"CREATE CONSTRAINT ON {targetEntityType} ASSERT {string.Join(",", withAlias)} IS UNIQUE";
     }
-    private string DropCompositeUniqueConstraintCommand(string targetEntityType, string alias, params string[] propertyNames)
+    private static string DropCompositeUniqueConstraintCommand(string targetEntityType, string alias, params string[] propertyNames)
     {
         var withAlias = propertyNames.Select(p => $"{alias}.{p}");
         return $"DROP CONSTRAINT ON {targetEntityType} ASSERT {string.Join(",", withAlias)} IS UNIQUE";
     }
-    private string DropExistsConstraintCommand(string targetEntityType, string alias, string propertyName) => $"DROP CONSTRAINT ON {targetEntityType} ASSERT EXISTS ({alias}.{propertyName})";
-    private string DropIndexCommand(string neo4jName, string propertyName) => $"DROP INDEX ON :{neo4jName}({propertyName})";
-    private string DropKeyConstraintCommand(string targetEntityType, string alias, string propertyName)
-    {
-        return $"{DropExistsConstraintCommand(targetEntityType, alias, propertyName)}; " +
+    private static string DropExistsConstraintCommand(string targetEntityType, string alias, string propertyName) => $"DROP CONSTRAINT ON {targetEntityType} ASSERT EXISTS ({alias}.{propertyName})";
+    private static string DropIndexCommand(string neo4jName, string propertyName) => $"DROP INDEX ON :{neo4jName}({propertyName})";
+    private string DropKeyConstraintCommand(string targetEntityType, string alias, string propertyName) => $"{DropExistsConstraintCommand(targetEntityType, alias, propertyName)}; " +
                 $"{DropUniqueConstraintCommand(targetEntityType, alias, propertyName)}";
-    }
 }

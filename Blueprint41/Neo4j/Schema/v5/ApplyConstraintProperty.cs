@@ -15,7 +15,7 @@ public class ApplyConstraintPropertyV5 : ApplyConstraintPropertyV4
         //       https://neo4j.com/docs/cypher-manual/current/constraints/
         var entity = Parent.Entity;
 
-        List<string> commands = new();
+        List<string> commands = [];
         foreach ((var actionEnum, string? constraintOrIndexName) in Commands)
         {
             switch (actionEnum)

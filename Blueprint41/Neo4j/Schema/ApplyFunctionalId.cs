@@ -23,7 +23,7 @@ public class ApplyFunctionalId
 
     internal virtual List<string> ToCypher()
     {
-        List<string> queries = new List<string>();
+        List<string> queries = [];
         switch (Action)
         {
             case ApplyFunctionalIdAction.CreateFunctionalId:
@@ -41,8 +41,5 @@ public class ApplyFunctionalId
         }
         return queries;
     }
-    public override string ToString()
-    {
-        return $"Differences for {Label} (\"{Prefix}\" : {StartFrom}) -> {Action.ToString()}";
-    }
+    public override string ToString() => $"Differences for {Label} (\"{Prefix}\" : {StartFrom}) -> {Action.ToString()}";
 }

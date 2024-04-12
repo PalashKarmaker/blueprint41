@@ -51,10 +51,7 @@ public class EntityPropertyCollection<TProperty, TParent> : IEnumerable<TPropert
             return (TProperty)_properties[name];
         }
     }
-    public bool Contains(string name)
-    {
-        return _properties.Contains(name);
-    }
+    public bool Contains(string name) => _properties.Contains(name);
     public int Count
     {
         get

@@ -5,16 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Blueprint41.Core
-{
-    public abstract class CollectionBase<TItem, TParent> : CollectionBase<TItem>
-    {
-        internal CollectionBase(TParent parent)
-             : base()
-        {
-            Parent = parent;
-        }
+namespace Blueprint41.Core;
 
-        public TParent Parent { get; private set; }
+public abstract class CollectionBase<TItem, TParent> : CollectionBase<TItem>
+{
+    internal CollectionBase(TParent parent)
+         : base()
+    {
+        Parent = parent;
     }
+
+    public TParent Parent { get; private set; }
 }

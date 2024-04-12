@@ -5,21 +5,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Blueprint41.Neo4j.Model
+namespace Blueprint41.Neo4j.Model;
+
+internal class RelationshipType
 {
-    internal class RelationshipType
+    internal RelationshipType(string name, bool autoIndexing)
     {
-        internal RelationshipType(string name, bool autoIndexing)
-        {
-            Name = name;
-            AutoIndexing = autoIndexing;
-        }
-
-        #region Properties
-
-        public string Name { get; private set; }
-        public bool AutoIndexing { get; private set; }
-
-        #endregion
+        Name = name;
+        AutoIndexing = autoIndexing;
     }
+
+    #region Properties
+
+    public string Name { get; private set; }
+    public bool AutoIndexing { get; private set; }
+
+    #endregion
 }

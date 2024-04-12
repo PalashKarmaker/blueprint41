@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Blueprint41
+namespace Blueprint41;
+
+public enum IdFormat
 {
-    public enum IdFormat
-    {
-        Hash,
-        Numeric,
-    }
+    Hash,
+    Numeric,
 }

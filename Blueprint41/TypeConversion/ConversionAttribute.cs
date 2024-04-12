@@ -7,16 +7,15 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Blueprint41.Core
-{
-    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
-    public class ConversionAttribute : Attribute
-    {
-        public ConversionAttribute(Type converter)
-        {
-            Converter = converter;
-        }
+namespace Blueprint41.Core;
 
-        public Type Converter { get; private set; }
+[AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+public class ConversionAttribute : Attribute
+{
+    public ConversionAttribute(Type converter)
+    {
+        Converter = converter;
     }
+
+    public Type Converter { get; private set; }
 }

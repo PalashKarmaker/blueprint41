@@ -7,40 +7,40 @@
 //     the code is regenerated.
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace Blueprint41.DatastoreTemplates
+namespace Blueprint41.DatastoreTemplates;
+
+using System.Linq;
+using System.Collections.Generic;
+using Blueprint41;
+using Blueprint41.Core;
+using System;
+
+/// <summary>
+/// Class to produce the template output
+/// </summary>
+
+#line 1 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "17.0.0.0")]
+public partial class Domain_Data_GraphEvents : GeneratorBase
 {
-    using System.Linq;
-    using System.Collections.Generic;
-    using Blueprint41;
-    using Blueprint41.Core;
-    using System;
-    
-    /// <summary>
-    /// Class to produce the template output
-    /// </summary>
-    
-    #line 1 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "17.0.0.0")]
-    public partial class Domain_Data_GraphEvents : GeneratorBase
-    {
 #line hidden
-        /// <summary>
-        /// Create the template output
-        /// </summary>
-        public override string TransformText()
-        {
-            this.Write("using System;\r\n\r\nusing Blueprint41;\r\nusing Blueprint41.Core;\r\nusing Blueprint41.D" +
-                    "atastoreTemplates;\r\n\r\nnamespace ");
-            
-            #line 12 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Settings.FullCRUDNamespace));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n{\r\n    public static class GraphEvents\r\n    {\r\n        public static class Node" +
-                    "s\r\n        {\r\n");
-            
-            #line 18 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+    /// <summary>
+    /// Create the template output
+    /// </summary>
+    public override string TransformText()
+    {
+        this.Write("using System;\r\n\r\nusing Blueprint41;\r\nusing Blueprint41.Core;\r\nusing Blueprint41.D" +
+                "atastoreTemplates;\r\n\r\nnamespace ");
+        
+        #line 12 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(Settings.FullCRUDNamespace));
+        
+        #line default
+        #line hidden
+        this.Write("\r\n{\r\n    public static class GraphEvents\r\n    {\r\n        public static class Node" +
+                "s\r\n        {\r\n");
+        
+        #line 18 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
 
 List<string> nodeEvents = new List<string>();
 nodeEvents.Add("OnNodeLoading");
@@ -56,221 +56,221 @@ nodeEvents.Add("OnNodeDeleted");
 foreach (var DALModel in Datastore.Entities.Where(item => !item.IsAbstract).OrderBy(item => item.Name))
 {	
 
-            
-            #line default
-            #line hidden
-            this.Write("            public static class ");
-            
-            #line 33 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(DALModel.Name));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n            {\r\n                public static readonly Entity Entity = ");
-            
-            #line 35 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Datastore.GetType().FullName.Replace("+", ".")));
-            
-            #line default
-            #line hidden
-            this.Write(".Model.Entities[\"");
-            
-            #line 35 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(DALModel.Name));
-            
-            #line default
-            #line hidden
-            this.Write("\"];\r\n\r\n");
-            
-            #line 37 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        
+        #line default
+        #line hidden
+        this.Write("            public static class ");
+        
+        #line 33 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(DALModel.Name));
+        
+        #line default
+        #line hidden
+        this.Write("\r\n            {\r\n                public static readonly Entity Entity = ");
+        
+        #line 35 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(Datastore.GetType().FullName.Replace("+", ".")));
+        
+        #line default
+        #line hidden
+        this.Write(".Model.Entities[\"");
+        
+        #line 35 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(DALModel.Name));
+        
+        #line default
+        #line hidden
+        this.Write("\"];\r\n\r\n");
+        
+        #line 37 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
 
-    foreach (var evnt in nodeEvents)
-    {
-        string eventargs = "NodeEventArgs";
+foreach (var evnt in nodeEvents)
+{
+    string eventargs = "NodeEventArgs";
 
-            
-            #line default
-            #line hidden
-            this.Write("                #region ");
-            
-            #line 42 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n\r\n                private static bool ");
-            
-            #line 44 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
-            
-            #line default
-            #line hidden
-            this.Write("IsRegistered = false;\r\n\r\n                private static event EventHandler<Entity" +
-                    ", ");
-            
-            #line 46 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(eventargs));
-            
-            #line default
-            #line hidden
-            this.Write("> ");
-            
-            #line 46 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
-            
-            #line default
-            #line hidden
-            this.Write(";\r\n                public static event EventHandler<Entity, ");
-            
-            #line 47 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(eventargs));
-            
-            #line default
-            #line hidden
-            this.Write("> ");
-            
-            #line 47 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n                {\r\n                    add\r\n                    {\r\n            " +
-                    "            lock (Entity)\r\n                        {\r\n                          " +
-                    "  if (!");
-            
-            #line 53 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
-            
-            #line default
-            #line hidden
-            this.Write("IsRegistered)\r\n                            {\r\n                                Ent" +
-                    "ity.Events.");
-            
-            #line 55 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt));
-            
-            #line default
-            #line hidden
-            this.Write(" += ");
-            
-            #line 55 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
-            
-            #line default
-            #line hidden
-            this.Write("Proxy;\r\n                                ");
-            
-            #line 56 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
-            
-            #line default
-            #line hidden
-            this.Write("IsRegistered = true;\r\n                            }\r\n                            " +
-                    "");
-            
-            #line 58 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
-            
-            #line default
-            #line hidden
-            this.Write(" += value;\r\n                        }\r\n                    }\r\n                   " +
-                    " remove\r\n                    {\r\n                        lock (Entity)\r\n         " +
-                    "               {\r\n                            ");
-            
-            #line 65 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
-            
-            #line default
-            #line hidden
-            this.Write(" -= value;\r\n                            if (");
-            
-            #line 66 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
-            
-            #line default
-            #line hidden
-            this.Write(" is null && ");
-            
-            #line 66 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
-            
-            #line default
-            #line hidden
-            this.Write("IsRegistered)\r\n                            {\r\n                                Ent" +
-                    "ity.Events.");
-            
-            #line 68 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt));
-            
-            #line default
-            #line hidden
-            this.Write(" -= ");
-            
-            #line 68 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
-            
-            #line default
-            #line hidden
-            this.Write("Proxy;\r\n                                ");
-            
-            #line 69 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
-            
-            #line default
-            #line hidden
-            this.Write("IsRegistered = false;\r\n                            }\r\n                        }\r\n" +
-                    "                    }\r\n                }\r\n\r\n                private static void " +
-                    "");
-            
-            #line 75 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
-            
-            #line default
-            #line hidden
-            this.Write("Proxy(object sender, ");
-            
-            #line 75 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(eventargs));
-            
-            #line default
-            #line hidden
-            this.Write(" args)\r\n                {\r\n                    EventHandler<Entity, ");
-            
-            #line 77 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(eventargs));
-            
-            #line default
-            #line hidden
-            this.Write("> handler = ");
-            
-            #line 77 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
-            
-            #line default
-            #line hidden
-            this.Write(";\r\n                    if (handler is not null)\r\n                        handler." +
-                    "Invoke((Entity)sender, args);\r\n                }\r\n\r\n                #endregion\r\n" +
-                    "");
-            
-            #line 83 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        
+        #line default
+        #line hidden
+        this.Write("                #region ");
+        
+        #line 42 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt));
+        
+        #line default
+        #line hidden
+        this.Write("\r\n\r\n                private static bool ");
+        
+        #line 44 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
+        
+        #line default
+        #line hidden
+        this.Write("IsRegistered = false;\r\n\r\n                private static event EventHandler<Entity" +
+                ", ");
+        
+        #line 46 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(eventargs));
+        
+        #line default
+        #line hidden
+        this.Write("> ");
+        
+        #line 46 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
+        
+        #line default
+        #line hidden
+        this.Write(";\r\n                public static event EventHandler<Entity, ");
+        
+        #line 47 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(eventargs));
+        
+        #line default
+        #line hidden
+        this.Write("> ");
+        
+        #line 47 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt));
+        
+        #line default
+        #line hidden
+        this.Write("\r\n                {\r\n                    add\r\n                    {\r\n            " +
+                "            lock (Entity)\r\n                        {\r\n                          " +
+                "  if (!");
+        
+        #line 53 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
+        
+        #line default
+        #line hidden
+        this.Write("IsRegistered)\r\n                            {\r\n                                Ent" +
+                "ity.Events.");
+        
+        #line 55 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt));
+        
+        #line default
+        #line hidden
+        this.Write(" += ");
+        
+        #line 55 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
+        
+        #line default
+        #line hidden
+        this.Write("Proxy;\r\n                                ");
+        
+        #line 56 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
+        
+        #line default
+        #line hidden
+        this.Write("IsRegistered = true;\r\n                            }\r\n                            " +
+                "");
+        
+        #line 58 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
+        
+        #line default
+        #line hidden
+        this.Write(" += value;\r\n                        }\r\n                    }\r\n                   " +
+                " remove\r\n                    {\r\n                        lock (Entity)\r\n         " +
+                "               {\r\n                            ");
+        
+        #line 65 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
+        
+        #line default
+        #line hidden
+        this.Write(" -= value;\r\n                            if (");
+        
+        #line 66 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
+        
+        #line default
+        #line hidden
+        this.Write(" is null && ");
+        
+        #line 66 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
+        
+        #line default
+        #line hidden
+        this.Write("IsRegistered)\r\n                            {\r\n                                Ent" +
+                "ity.Events.");
+        
+        #line 68 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt));
+        
+        #line default
+        #line hidden
+        this.Write(" -= ");
+        
+        #line 68 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
+        
+        #line default
+        #line hidden
+        this.Write("Proxy;\r\n                                ");
+        
+        #line 69 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
+        
+        #line default
+        #line hidden
+        this.Write("IsRegistered = false;\r\n                            }\r\n                        }\r\n" +
+                "                    }\r\n                }\r\n\r\n                private static void " +
+                "");
+        
+        #line 75 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
+        
+        #line default
+        #line hidden
+        this.Write("Proxy(object sender, ");
+        
+        #line 75 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(eventargs));
+        
+        #line default
+        #line hidden
+        this.Write(" args)\r\n                {\r\n                    EventHandler<Entity, ");
+        
+        #line 77 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(eventargs));
+        
+        #line default
+        #line hidden
+        this.Write("> handler = ");
+        
+        #line 77 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
+        
+        #line default
+        #line hidden
+        this.Write(";\r\n                    if (handler is not null)\r\n                        handler." +
+                "Invoke((Entity)sender, args);\r\n                }\r\n\r\n                #endregion\r\n" +
+                "");
+        
+        #line 83 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
 
-    }  
+}  
 
-            
-            #line default
-            #line hidden
-            this.Write("            }\r\n");
-            
-            #line 87 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        
+        #line default
+        #line hidden
+        this.Write("            }\r\n");
+        
+        #line 87 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
 
 }
 
-            
-            #line default
-            #line hidden
-            this.Write("        }\r\n        public static class Relationships\r\n        {\r\n");
-            
-            #line 93 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        
+        #line default
+        #line hidden
+        this.Write("        }\r\n        public static class Relationships\r\n        {\r\n");
+        
+        #line 93 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
 
 List<string> relationEvents = new List<string>();
 relationEvents.Add("OnRelationCreate");
@@ -281,224 +281,224 @@ relationEvents.Add("OnRelationDeleted");
 foreach (var DALModel in Datastore.Relations.OrderBy(item => item.Name))
 {	
 
-            
-            #line default
-            #line hidden
-            this.Write("            public static class ");
-            
-            #line 103 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(DALModel.Name));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n            {\r\n                public static readonly Relationship Relationship" +
-                    " = ");
-            
-            #line 105 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Datastore.GetType().FullName.Replace("+", ".")));
-            
-            #line default
-            #line hidden
-            this.Write(".Model.Relations[\"");
-            
-            #line 105 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(DALModel.Name));
-            
-            #line default
-            #line hidden
-            this.Write("\"];\r\n\r\n");
-            
-            #line 107 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        
+        #line default
+        #line hidden
+        this.Write("            public static class ");
+        
+        #line 103 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(DALModel.Name));
+        
+        #line default
+        #line hidden
+        this.Write("\r\n            {\r\n                public static readonly Relationship Relationship" +
+                " = ");
+        
+        #line 105 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(Datastore.GetType().FullName.Replace("+", ".")));
+        
+        #line default
+        #line hidden
+        this.Write(".Model.Relations[\"");
+        
+        #line 105 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(DALModel.Name));
+        
+        #line default
+        #line hidden
+        this.Write("\"];\r\n\r\n");
+        
+        #line 107 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
 
-    foreach (var evnt in relationEvents)
-    {
-        string eventargs = "RelationshipEventArgs";
+foreach (var evnt in relationEvents)
+{
+    string eventargs = "RelationshipEventArgs";
 
-            
-            #line default
-            #line hidden
-            this.Write("                #region ");
-            
-            #line 112 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n\r\n                private static bool ");
-            
-            #line 114 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
-            
-            #line default
-            #line hidden
-            this.Write("IsRegistered = false;\r\n\r\n                private static event EventHandler<Relati" +
-                    "onship, ");
-            
-            #line 116 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(eventargs));
-            
-            #line default
-            #line hidden
-            this.Write("> ");
-            
-            #line 116 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
-            
-            #line default
-            #line hidden
-            this.Write(";\r\n                public static event EventHandler<Relationship, ");
-            
-            #line 117 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(eventargs));
-            
-            #line default
-            #line hidden
-            this.Write("> ");
-            
-            #line 117 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n                {\r\n                    add\r\n                    {\r\n            " +
-                    "            lock (Relationship)\r\n                        {\r\n                    " +
-                    "        if (!");
-            
-            #line 123 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
-            
-            #line default
-            #line hidden
-            this.Write("IsRegistered)\r\n                            {\r\n                                Rel" +
-                    "ationship.Events.");
-            
-            #line 125 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt));
-            
-            #line default
-            #line hidden
-            this.Write(" += ");
-            
-            #line 125 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
-            
-            #line default
-            #line hidden
-            this.Write("Proxy;\r\n                                ");
-            
-            #line 126 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
-            
-            #line default
-            #line hidden
-            this.Write("IsRegistered = true;\r\n                            }\r\n                            " +
-                    "");
-            
-            #line 128 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
-            
-            #line default
-            #line hidden
-            this.Write(" += value;\r\n                        }\r\n                    }\r\n                   " +
-                    " remove\r\n                    {\r\n                        lock (Relationship)\r\n   " +
-                    "                     {\r\n                            ");
-            
-            #line 135 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
-            
-            #line default
-            #line hidden
-            this.Write(" -= value;\r\n                            if (");
-            
-            #line 136 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
-            
-            #line default
-            #line hidden
-            this.Write(" is null && ");
-            
-            #line 136 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
-            
-            #line default
-            #line hidden
-            this.Write("IsRegistered)\r\n                            {\r\n                                Rel" +
-                    "ationship.Events.");
-            
-            #line 138 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt));
-            
-            #line default
-            #line hidden
-            this.Write(" -= ");
-            
-            #line 138 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
-            
-            #line default
-            #line hidden
-            this.Write("Proxy;\r\n                                ");
-            
-            #line 139 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
-            
-            #line default
-            #line hidden
-            this.Write("IsRegistered = false;\r\n                            }\r\n                        }\r\n" +
-                    "                    }\r\n                }\r\n\r\n                private static void " +
-                    "");
-            
-            #line 145 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
-            
-            #line default
-            #line hidden
-            this.Write("Proxy(object sender, ");
-            
-            #line 145 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(eventargs));
-            
-            #line default
-            #line hidden
-            this.Write(" args)\r\n                {\r\n                    EventHandler<Relationship, ");
-            
-            #line 147 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(eventargs));
-            
-            #line default
-            #line hidden
-            this.Write("> handler = ");
-            
-            #line 147 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
-            
-            #line default
-            #line hidden
-            this.Write(";\r\n                    if (handler is not null)\r\n                        handler." +
-                    "Invoke((Relationship)sender, args);\r\n                }\r\n\r\n                #endre" +
-                    "gion\r\n");
-            
-            #line 153 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        
+        #line default
+        #line hidden
+        this.Write("                #region ");
+        
+        #line 112 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt));
+        
+        #line default
+        #line hidden
+        this.Write("\r\n\r\n                private static bool ");
+        
+        #line 114 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
+        
+        #line default
+        #line hidden
+        this.Write("IsRegistered = false;\r\n\r\n                private static event EventHandler<Relati" +
+                "onship, ");
+        
+        #line 116 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(eventargs));
+        
+        #line default
+        #line hidden
+        this.Write("> ");
+        
+        #line 116 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
+        
+        #line default
+        #line hidden
+        this.Write(";\r\n                public static event EventHandler<Relationship, ");
+        
+        #line 117 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(eventargs));
+        
+        #line default
+        #line hidden
+        this.Write("> ");
+        
+        #line 117 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt));
+        
+        #line default
+        #line hidden
+        this.Write("\r\n                {\r\n                    add\r\n                    {\r\n            " +
+                "            lock (Relationship)\r\n                        {\r\n                    " +
+                "        if (!");
+        
+        #line 123 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
+        
+        #line default
+        #line hidden
+        this.Write("IsRegistered)\r\n                            {\r\n                                Rel" +
+                "ationship.Events.");
+        
+        #line 125 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt));
+        
+        #line default
+        #line hidden
+        this.Write(" += ");
+        
+        #line 125 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
+        
+        #line default
+        #line hidden
+        this.Write("Proxy;\r\n                                ");
+        
+        #line 126 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
+        
+        #line default
+        #line hidden
+        this.Write("IsRegistered = true;\r\n                            }\r\n                            " +
+                "");
+        
+        #line 128 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
+        
+        #line default
+        #line hidden
+        this.Write(" += value;\r\n                        }\r\n                    }\r\n                   " +
+                " remove\r\n                    {\r\n                        lock (Relationship)\r\n   " +
+                "                     {\r\n                            ");
+        
+        #line 135 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
+        
+        #line default
+        #line hidden
+        this.Write(" -= value;\r\n                            if (");
+        
+        #line 136 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
+        
+        #line default
+        #line hidden
+        this.Write(" is null && ");
+        
+        #line 136 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
+        
+        #line default
+        #line hidden
+        this.Write("IsRegistered)\r\n                            {\r\n                                Rel" +
+                "ationship.Events.");
+        
+        #line 138 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt));
+        
+        #line default
+        #line hidden
+        this.Write(" -= ");
+        
+        #line 138 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
+        
+        #line default
+        #line hidden
+        this.Write("Proxy;\r\n                                ");
+        
+        #line 139 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
+        
+        #line default
+        #line hidden
+        this.Write("IsRegistered = false;\r\n                            }\r\n                        }\r\n" +
+                "                    }\r\n                }\r\n\r\n                private static void " +
+                "");
+        
+        #line 145 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
+        
+        #line default
+        #line hidden
+        this.Write("Proxy(object sender, ");
+        
+        #line 145 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(eventargs));
+        
+        #line default
+        #line hidden
+        this.Write(" args)\r\n                {\r\n                    EventHandler<Relationship, ");
+        
+        #line 147 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(eventargs));
+        
+        #line default
+        #line hidden
+        this.Write("> handler = ");
+        
+        #line 147 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        this.Write(this.ToStringHelper.ToStringWithCulture(evnt.ToCamelCase()));
+        
+        #line default
+        #line hidden
+        this.Write(";\r\n                    if (handler is not null)\r\n                        handler." +
+                "Invoke((Relationship)sender, args);\r\n                }\r\n\r\n                #endre" +
+                "gion\r\n");
+        
+        #line 153 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
 
-    }  
+}  
 
-            
-            #line default
-            #line hidden
-            this.Write("            }\r\n");
-            
-            #line 157 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
+        
+        #line default
+        #line hidden
+        this.Write("            }\r\n");
+        
+        #line 157 "C:\_CirclesArrows\blueprint41\Blueprint41\DatastoreTemplates\Domain_Data_GraphEvents.tt"
 
 }
 
-            
-            #line default
-            #line hidden
-            this.Write("        }\r\n    }\r\n}");
-            return this.GenerationEnvironment.ToString();
-        }
+        
+        #line default
+        #line hidden
+        this.Write("        }\r\n    }\r\n}");
+        return this.GenerationEnvironment.ToString();
     }
-    
-    #line default
-    #line hidden
 }
+
+#line default
+#line hidden
+

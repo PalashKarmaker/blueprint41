@@ -7,8 +7,8 @@ using System.Text;
 
 using Blueprint41.Neo4j.Model;
 
-namespace Blueprint41.Query
-{
+namespace Blueprint41.Query;
+
 	public partial class MiscResult : FieldResult<MiscResult, MiscListResult, object>, IPlainPrimitiveResult
 	{
 		internal MiscResult(FieldResult field) : base(field) { }
@@ -165,4 +165,3 @@ namespace Blueprint41.Query
 			return retval;
 		}
 	}
-}

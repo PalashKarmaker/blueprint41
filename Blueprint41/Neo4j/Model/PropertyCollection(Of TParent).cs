@@ -5,10 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Blueprint41.Neo4j.Model
+namespace Blueprint41.Neo4j.Model;
+
+internal class AttributeCollection<TParent> : Core.CollectionBase<Property<TParent>, TParent>
 {
-    internal class AttributeCollection<TParent> : Core.CollectionBase<Property<TParent>, TParent>
-    {
-        internal AttributeCollection(TParent parent) : base(parent) { }
-    }
+    internal AttributeCollection(TParent parent) : base(parent) { }
 }

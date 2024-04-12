@@ -27,7 +27,7 @@ internal abstract partial class RelationshipPersistenceProvider
 
         public static Dictionary<OGM, CollectionItemList> Get(IEnumerable<CollectionItem> items)
         {
-            Dictionary<OGM, CollectionItemList> result = new Dictionary<OGM, CollectionItemList>();
+            Dictionary<OGM, CollectionItemList> result = [];
             IEnumerable<CollectionItem> sorted = items.OrderBy(item => item.Parent.GetKey());
 
             CollectionItemList? current = null;
