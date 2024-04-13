@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-
-namespace Blueprint41.Core;
+﻿namespace Blueprint41.Core;
 
 public abstract class DisposableScope<T> : IDisposable
     where T : DisposableScope<T>
@@ -14,18 +10,21 @@ public abstract class DisposableScope<T> : IDisposable
 
         Initialize();
         isInitialized = true;
-
-        current ??= new AsyncLocal<Stack<T>?>();
-
-        current.Value ??= new Stack<T>();
-
-        current.Value.Push((T)this);
+        SetCurrent();
 
         isDisposed = false;
 
         return (T)this;
     }
 
+    private void SetCurrent()
+    {
+        current ??= new AsyncLocal<Stack<T>?>();
+
+        current.Value ??= new Stack<T>();
+
+        current.Value.Push((T)this);
+    }
 
     public static T? Current
     {
@@ -36,10 +35,14 @@ public abstract class DisposableScope<T> : IDisposable
 
             return current.Value.Peek();
         }
+        set
+        {
+            value?.SetCurrent();
+        }
     }
 
     [ThreadStatic]
-    private static AsyncLocal<Stack<T>?> current = new();
+    protected static AsyncLocal<Stack<T>?> current = new();
 
     private bool isInitialized;
     private bool isDisposed;
@@ -72,8 +75,11 @@ public abstract class DisposableScope<T> : IDisposable
         }
     }
 
-    protected virtual void Initialize() { }
-    protected virtual void Cleanup() { }
+    protected virtual void Initialize()
+    { }
+
+    protected virtual void Cleanup()
+    { }
 
     ~DisposableScope()
     {
@@ -85,5 +91,6 @@ public abstract class DisposableScope<T> : IDisposable
                 Dispose();
         }
     }
+
     private static readonly Lazy<bool> IsDebug = new(() => System.Diagnostics.Debugger.IsAttached, true);
 }

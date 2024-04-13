@@ -3,7 +3,7 @@
 	<PropertyGroup Label="Build">
 		<TargetFrameworks>net8.0</TargetFrameworks>
 		<RootNamespace>Blueprint41</RootNamespace>
-    <AssemblyName>Blueprint41.Neo4jDriver.v5</AssemblyName>
+		<AssemblyName>Blueprint41.Neo4jDriver.v5</AssemblyName>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 
 		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>

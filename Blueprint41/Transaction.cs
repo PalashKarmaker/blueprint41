@@ -1,14 +1,6 @@
 ﻿using Blueprint41.Core;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using static Blueprint41.Core.RelationshipPersistenceProvider;
-using persistence = Blueprint41.Neo4j.Persistence;
 
 namespace Blueprint41;
 
@@ -322,7 +314,7 @@ public abstract class Transaction : DisposableScope<Transaction>, IStatementRunn
 
         return item;
     }
-
+    private object lockObject = new();
     internal void Register(OGM item)
     {
         if (item is null)
@@ -331,22 +323,22 @@ public abstract class Transaction : DisposableScope<Transaction>, IStatementRunn
         item.Transaction = this;
 
         string entityName = item.GetEntity().Name;
-
-        if (!registeredEntities.TryGetValue(entityName, out Dictionary<OGM, OGM>? values))
+        lock (lockObject)
         {
-            values = new Dictionary<OGM, OGM>(1000);
-            registeredEntities.Add(entityName, values);
+            if (!registeredEntities.TryGetValue(entityName, out Dictionary<OGM, OGM>? values))
+            {
+                values = new Dictionary<OGM, OGM>(1000);
+                registeredEntities.TryAdd(entityName, values);
+            }
+            if (values.TryGetValue(item, out OGM? inSet))
+            {
+                if (inSet.PersistenceState != PersistenceState.DoesntExist && inSet == item)
+                    throw new InvalidOperationException("You cannot register an already loaded object.");
+            }
+            else
+                values.Add(item, item);
         }
 
-        if (values.TryGetValue(item, out OGM? inSet))
-        {
-            if (inSet.PersistenceState != PersistenceState.DoesntExist && inSet == item)
-                throw new InvalidOperationException("You cannot register an already loaded object.");
-        }
-        else
-        {
-            values.Add(item, item);
-        }
     }
 
     internal void Register(string type, OGM item, bool noError = false)
