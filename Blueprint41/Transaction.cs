@@ -490,7 +490,7 @@ public abstract class Transaction : DisposableScope<Transaction>, IStatementRunn
     #region PersistenceProviderFactory
 
     public PersistenceProvider PersistenceProviderFactory { get; private set; }
-    internal NodePersistenceProvider NodePersistenceProvider => PersistenceProviderFactory.NodePersistenceProvider;
+    public NodePersistenceProvider NodePersistenceProvider => PersistenceProviderFactory.NodePersistenceProvider;
     internal RelationshipPersistenceProvider RelationshipPersistenceProvider => PersistenceProviderFactory.RelationshipPersistenceProvider;
 
     #endregion PersistenceProviderFactory
