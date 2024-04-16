@@ -243,7 +243,7 @@ internal class Neo4jNodePersistenceProvider : NodePersistenceProvider
     {
         Transaction trans = Transaction.RunningTransaction;
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
         sb.Append("MATCH (node:");
         sb.Append(entity.Label.Name);
         sb.Append(")");
@@ -289,18 +289,35 @@ internal class Neo4jNodePersistenceProvider : NodePersistenceProvider
     }
     public override List<T> LoadWhere<T>(Entity entity, ICompiled query, Parameter[] parameters, int page = 0, int pageSize = 0, bool ascending = true, params Property[] orderBy)
     {
+        var skip = pageSize > 0 ? page * pageSize : 0;
+        int? take = pageSize > 0 ? pageSize : null;
+        (var cypherQuery, var context) = BuildCypherQuery(entity, query, parameters, skip, take, ascending, orderBy);
+        return LoadWhereInternal<T>(entity, cypherQuery, context);
+    }
+    public override List<T> LoadWhereChunked<T>(Entity entity, ICompiled query, Parameter[] parameters, int skip = 0, int? take = null, bool ascending = true, params Property[] orderBy) where T : class
+    {
+        (var cypherQuery, var context) = BuildCypherQuery(entity, query, parameters, skip, take, ascending, orderBy);
+        return LoadWhereInternal<T>(entity, cypherQuery, context);
+    }
+    private static List<T> LoadWhereInternal<T>(Entity entity, string cypherQuery, QueryExecutionContext context) where T : class, OGM
+    {
+        Dictionary<string, object?>? customState = null;
         Transaction trans = Transaction.RunningTransaction;
+        var args = entity.RaiseOnNodeLoading(trans, null, cypherQuery, context.QueryParameters.ToDictionary(item => item.Key, item => item.Value.value), ref customState);
+        var result = trans.Run(args.Cypher, args.Parameters);
+        return Load<T>(entity, args, result, trans);
+    }
 
-        QueryExecutionContext context = query.GetExecutionContext();
+    public static (string, QueryExecutionContext) BuildCypherQuery(Entity entity, ICompiled query, Parameter[] parameters, int skip = 0, int? take = null, bool ascending = true, params Property[] orderBy)
+    {
+        var context = query.GetExecutionContext();
         foreach (Parameter queryParameter in parameters)
-        {
             if (queryParameter.Value is null)
                 context.SetParameter(queryParameter.Name, null);
             else
                 context.SetParameter(queryParameter.Name, entity.Parent.PersistenceProvider.ConvertToStoredType(queryParameter.Value.GetType(), queryParameter.Value));
-        }
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
         sb.Append(context.CompiledQuery.QueryText);
         if (orderBy is not null && orderBy.Length != 0)
         {
@@ -310,23 +327,15 @@ internal class Neo4jNodePersistenceProvider : NodePersistenceProvider
 
             sb.Append(" ORDER BY ");
             sb.Append(string.Join(", ", orderBy.Select(item => string.Concat("node.", item.Name))));
-            if (ascending == false)
+            if (!ascending)
                 sb.Append(" DESC ");
         }
+        if(skip > 0) 
+            sb.Append($" SKIP {skip}");
 
-        if (pageSize > 0)
-        {
-            sb.Append(" SKIP ");
-            sb.Append(page * pageSize);
-            sb.Append(" LIMIT ");
-            sb.Append(pageSize);
-        }
-        Dictionary<string, object?>? customState = null;
-        var args = entity.RaiseOnNodeLoading(trans, null, sb.ToString(), context.QueryParameters.ToDictionary(item => item.Key, item => (object?)item.Value.value), ref customState);
-
-        var result = trans.Run(args.Cypher, args.Parameters);
-
-        return Load<T>(entity, args, result, trans);
+        if (take.HasValue)
+            sb.Append($" LIMIT {take}");
+        return (sb.ToString(), context);
     }
 
     private static List<T> Load<T>(Entity entity, NodeEventArgs args, RawResult result, Transaction trans)
@@ -355,15 +364,12 @@ internal class Neo4jNodePersistenceProvider : NodePersistenceProvider
                     string label = node.Properties[entity.NodeTypeName]!.As<string>();
                     concrete = concretes.FirstOrDefault(item => item.Label.Name == label);
                 }
-                if (concrete is null)
-                    concrete = entity.Parent.GetEntity(node.Labels);
+                concrete ??= entity.Parent.GetEntity(node.Labels);
                 if (concrete is null)
                     throw new KeyNotFoundException($"Unable to find the concrete class for entity {entity.Name}, labels in DB are: {string.Join(", ", node.Labels)}.");
             }
             else
-            {
                 concrete = entity;
-            }
 
             T? wrapper = (T?)Transaction.RunningTransaction.GetEntityByKey(concrete.Name, key);
             if (wrapper is null)

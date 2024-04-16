@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-
-using Blueprint41.Core;
+﻿using Blueprint41.Core;
 using Blueprint41.Log;
 using Blueprint41.Neo4j.Model;
 
@@ -21,7 +16,10 @@ public partial class Neo4jPersistenceProvider : PersistenceProvider
     public string? Database { get; private set; }
     public AdvancedConfig? AdvancedConfig { get; private set; }
 
-    private Neo4jPersistenceProvider() : this(null, null, null, null) { }
+    private Neo4jPersistenceProvider() : this(null, null, null, null)
+    {
+    }
+
     public Neo4jPersistenceProvider(string? uri, string? username, string? password, AdvancedConfig? advancedConfig = null) : base()
     {
         Uri = uri;
@@ -50,6 +48,7 @@ public partial class Neo4jPersistenceProvider : PersistenceProvider
             Type = !IsMemgraph && IsEnterpriseEdition && VersionGreaterOrEqual(5, 9),
         });
     }
+
     public Neo4jPersistenceProvider(string? uri, string? username, string? password, string database, AdvancedConfig? advancedConfig = null) : base()
     {
         Uri = uri;
@@ -103,9 +102,11 @@ public partial class Neo4jPersistenceProvider : PersistenceProvider
     }
 
     public bool HasFunction(string function) => functions.Contains(function);
+
     protected HashSet<string> functions = [];
 
     public bool HasProcedure(string procedure) => procedures.Contains(procedure);
+
     protected HashSet<string> procedures = [];
     private QueryTranslator? translator = null;
 
@@ -134,7 +135,7 @@ public partial class Neo4jPersistenceProvider : PersistenceProvider
         }
     }
 
-    private bool ShouldUseVoidTranslator() => 
+    private bool ShouldUseVoidTranslator() =>
         GetType() == typeof(Neo4jPersistenceProvider) || (Uri is null && Username is null && Password is null);
 
     private void FetchDatabaseInfo()
@@ -182,7 +183,8 @@ public partial class Neo4jPersistenceProvider : PersistenceProvider
             _ => throw new NotSupportedException($"Neo4j v{Version} is not supported by this version of Blueprint41, please upgrade to a later version.")
         };
     }
-    static string GetFunctions(string name, int version)
+
+    private static string GetFunctions(string name, int version)
     {
         if (name.IndexOf("neo4j", StringComparison.InvariantCultureIgnoreCase) >= 0)
         {
@@ -201,7 +203,8 @@ public partial class Neo4jPersistenceProvider : PersistenceProvider
             return string.Empty;
         }
     }
-    static string GetProcedures(string name, int version)
+
+    private static string GetProcedures(string name, int version)
     {
         if (name.IndexOf("neo4j", StringComparison.InvariantCultureIgnoreCase) >= 0)
         {
@@ -229,9 +232,11 @@ public partial class Neo4jPersistenceProvider : PersistenceProvider
 
         return voidTranslator;
     }
+
     private static QueryTranslator? voidTranslator = null;
 
     public override Session NewSession(bool readWriteMode) => new Neo4jSession(readWriteMode, TransactionLogger);
+
     public override Transaction NewTransaction(bool readWriteMode) => new Neo4jTransaction(readWriteMode, TransactionLogger);
 
     public static readonly PersistenceProvider VoidPersistenceProvider = new Neo4jPersistenceProvider();
@@ -246,6 +251,7 @@ public record FeatureSupport
     public bool Type;
     public bool CompositeUnique;
 }
+
 /*
 
 Neo4j type  Dotnet type Description                                                 Value range

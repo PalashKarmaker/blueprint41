@@ -31,4 +31,5 @@ public abstract class NodePersistenceProvider
     public abstract string NextFunctionID(FunctionalId functionalId);
 
     public abstract bool RelationshipExists(EntityProperty foreignProperty, OGM instance);
+    public abstract List<T> LoadWhereChunked<T>(Entity entity, ICompiled query, Parameter[] parameters, int skip = 0, int? take = null, bool ascending = true, params Property[] orderBy) where T : class, OGM;
 }

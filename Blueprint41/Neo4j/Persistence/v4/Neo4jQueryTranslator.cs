@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using Blueprint41.Core;
+﻿using Blueprint41.Core;
 using Blueprint41.Neo4j.Model;
 using Blueprint41.Neo4j.Persistence.Void;
 using Blueprint41.Neo4j.Schema;
@@ -15,7 +10,9 @@ namespace Blueprint41.Neo4j.Persistence.v4;
 
 internal class Neo4jQueryTranslator : QueryTranslator
 {
-    internal Neo4jQueryTranslator(Neo4jPersistenceProvider persistenceProvider) : base(persistenceProvider) { }
+    internal Neo4jQueryTranslator(Neo4jPersistenceProvider persistenceProvider) : base(persistenceProvider)
+    {
+    }
 
     #region Compile Query Parts
 
@@ -46,27 +43,28 @@ internal class Neo4jQueryTranslator : QueryTranslator
         state.Text.Append(")");
     }
 
-    #endregion
+    #endregion Compile Query Parts
 
     #region Compile Functions
 
-    public override string FnToUpper     => "toUpper({base})";
-    public override string FnToLower     => "toLower({base})";
-    public override string FnIgnoreCase  => "toLower({0})";
+    public override string FnToUpper => "toUpper({base})";
+    public override string FnToLower => "toLower({base})";
+    public override string FnIgnoreCase => "toLower({0})";
     public override string FnListExtract => "[item in {base} | {0}]";
 
-    #endregion
+    #endregion Compile Functions
 
     #region Full Text Indexes
 
-    public override string FtiSearch    => "CALL db.index.fulltext.queryNodes(\"fts\", '{0}') YIELD node AS {1}";
-    public override string FtiWeight    => ", score AS {0}";
-    public override string FtiCreate    => "CALL db.index.fulltext.createNodeIndex(\"fts\", [ {0} ], [ {1} ])";
-    public override string FtiEntity    => "\"{0}\"";
-    public override string FtiProperty  => "\"{0}\"";
+    public override string FtiSearch => "CALL db.index.fulltext.queryNodes(\"fts\", '{0}') YIELD node AS {1}";
+    public override string FtiWeight => ", score AS {0}";
+    public override string FtiCreate => "CALL db.index.fulltext.createNodeIndex(\"fts\", [ {0} ], [ {1} ])";
+    public override string FtiEntity => "\"{0}\"";
+    public override string FtiProperty => "\"{0}\"";
     public override string FtiSeparator => ", ";
-    public override string FtiRemove    => "CALL db.index.fulltext.drop(\"fts\")";
-    public override string FtiList      => "SHOW FULLTEXT INDEXES";
+    public override string FtiRemove => "CALL db.index.fulltext.drop(\"fts\")";
+    public override string FtiList => "SHOW FULLTEXT INDEXES";
+
     internal override void ApplyFullTextSearchIndexes(IEnumerable<Entity> entities)
     {
         if (HasFullTextSearchIndexes())
@@ -109,13 +107,16 @@ internal class Neo4jQueryTranslator : QueryTranslator
         }
     }
 
-    #endregion
+    #endregion Full Text Indexes
 
     #region
 
     internal override NodePersistenceProvider GetNodePersistenceProvider() => new v3.Neo4jNodePersistenceProvider(PersistenceProvider);
+
     internal override RelationshipPersistenceProvider GetRelationshipPersistenceProvider() => new v3.Neo4jRelationshipPersistenceProvider(PersistenceProvider);
+
     internal override RefactorTemplates GetTemplates() => new RefactorTemplates_v4();
+
     internal override SchemaInfo GetSchemaInfo(DatastoreModel datastoreModel) => new Schema.v4.SchemaInfo_v4(datastoreModel, PersistenceProvider);
 
     #endregion

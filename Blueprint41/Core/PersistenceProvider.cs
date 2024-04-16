@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-using Blueprint41.Neo4j.Model;
+﻿using Blueprint41.Neo4j.Model;
 using Blueprint41.Neo4j.Persistence.Void;
 using Blueprint41.Neo4j.Schema;
 
@@ -10,11 +6,12 @@ namespace Blueprint41.Core;
 
 public abstract class PersistenceProvider
 {
-#pragma warning disable IDE0200 
+#pragma warning disable IDE0200
+
     protected PersistenceProvider()
     {
         //WARNING: do not refactor warning IDE0200, the wrong translator will be returned
-        supportedTypeMappings = new Lazy<List<TypeMapping>>(delegate()
+        supportedTypeMappings = new Lazy<List<TypeMapping>>(delegate ()
                 {
                     return Translator.FilterSupportedTypeMappings(GetSupportedTypeMappings()).ToList();
                 },
@@ -41,6 +38,7 @@ public abstract class PersistenceProvider
         _relationshipPersistenceProvider = new Lazy<RelationshipPersistenceProvider>(() => Translator.GetRelationshipPersistenceProvider());
         _templates = new Lazy<RefactorTemplates>(() => Translator.GetTemplates()); //do not refactor warning IDE0200, the wrong translator will be returned
     }
+
 #pragma warning restore  IDE0200
 
     internal NodePersistenceProvider NodePersistenceProvider => _nodePersistenceProvider.Value;
@@ -50,6 +48,7 @@ public abstract class PersistenceProvider
     private readonly Lazy<RelationshipPersistenceProvider> _relationshipPersistenceProvider;
 
     public abstract Session NewSession(bool readWriteMode);
+
     public abstract Transaction NewTransaction(bool readWriteMode);
 
     public bool IsMemgraph { get; set; } = false;
@@ -62,14 +61,17 @@ public abstract class PersistenceProvider
 
     public IReadOnlyList<TypeMapping> SupportedTypeMappings => supportedTypeMappings.Value;
     private readonly Lazy<List<TypeMapping>> supportedTypeMappings;
+
     protected internal abstract List<TypeMapping> GetSupportedTypeMappings();
 
     internal Dictionary<Type, Conversion?> ConvertToStoredTypeCache
     { get { return convertToStoredType.Value; } }
+
     private readonly Lazy<Dictionary<Type, Conversion?>> convertToStoredType;
 
     internal Dictionary<Type, Conversion?> ConvertFromStoredTypeCache
     { get { return convertFromStoredType.Value; } }
+
     private readonly Lazy<Dictionary<Type, Conversion?>> convertFromStoredType;
 
     public static PersistenceProvider CurrentPersistenceProvider { get; set; } = Neo4jPersistenceProvider.VoidPersistenceProvider;

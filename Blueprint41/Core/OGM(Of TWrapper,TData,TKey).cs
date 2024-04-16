@@ -1,21 +1,17 @@
 ﻿using Blueprint41.Query;
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using model = Blueprint41.Neo4j.Model;
-using persistence = Blueprint41.Neo4j.Persistence;
 
 namespace Blueprint41.Core;
 
 public abstract class OGM<TWrapper, TKey> : OGMImpl
     where TWrapper : OGM<TWrapper, TKey>, new()
 {
-    protected OGM() : base() { }
+    protected OGM() : base()
+    {
+    }
 
     public static TWrapper? Load(TKey key) => Load(key, false);
+
     public static TWrapper? Load(TKey key, bool locked)
     {
         if (key is null && locked)
@@ -33,6 +29,7 @@ public abstract class OGM<TWrapper, TKey> : OGMImpl
         else
             return null;
     }
+
     public static TWrapper? Lookup(TKey key)
     {
         if (key is null)
@@ -86,33 +83,47 @@ public abstract class OGM<TWrapper, TKey> : OGMImpl
     }
 
     public static List<TWrapper> GetAll() => Entity == null ? [] : Transaction.RunningTransaction.NodePersistenceProvider.GetAll<TWrapper>(Entity);
+
     public static List<TWrapper> GetAll(int page, int pageSize, params Property[] orderBy) => GetAll(page, pageSize, true, orderBy);
+
     public static List<TWrapper> GetAll(int page, int pageSize, bool ascending = true, params Property[] orderBy) => Entity == null ? [] : Transaction.RunningTransaction.NodePersistenceProvider.GetAll<TWrapper>(Entity, page, pageSize, ascending, orderBy);
 
     [Obsolete("This method will be made internal in the next release.", false)]
     public static List<TWrapper> LoadWhere(string conditions, Parameter[] parameters) => Entity == null ? [] : Transaction.RunningTransaction.NodePersistenceProvider.LoadWhere<TWrapper>(Entity, conditions, parameters, 0, 0);
+
     [Obsolete("This method will be made internal in the next release.", false)]
     public static List<TWrapper> LoadWhere(string conditions, Parameter[] parameters, int page, int pageSize, params Property[] orderBy) => LoadWhere(conditions, parameters, page, pageSize, true, orderBy);
+
     [Obsolete("This method will be made internal in the next release.", false)]
     public static List<TWrapper> LoadWhere(string conditions, Parameter[] parameters, int page, int pageSize, bool ascending = true, params Property[] orderBy) => Entity == null ? [] : Transaction.RunningTransaction.NodePersistenceProvider.LoadWhere<TWrapper>(Entity, conditions, parameters, page, pageSize, ascending, orderBy);
+
     //public static List<TWrapper> LoadWhere(ICompiled query) =>
     //    LoadWhere(query, []);
     public static List<TWrapper> LoadWhere(ICompiled query, params Parameter[] parameters) =>
        Entity == null ? [] : Transaction.RunningTransaction.NodePersistenceProvider.LoadWhere<TWrapper>(Entity, query, parameters);
+
     public static List<TWrapper> LoadWhere(ICompiled query, Parameter[] parameters, int page, int pageSize, params Property[] orderBy) =>
         LoadWhere(query, parameters, page, pageSize, true, orderBy);
+
     public static List<TWrapper> LoadWhere(ICompiled query, Parameter[] parameters, int page, int pageSize, bool ascending = true, params Property[] orderBy) => Entity == null ? [] : Transaction.RunningTransaction.NodePersistenceProvider.LoadWhere<TWrapper>(Entity, query, parameters, page, pageSize, ascending, orderBy);
+
+    public static List<TWrapper> LoadWhereChunked(ICompiled query, Parameter[] parameters, int skip = 0, int? take = null, bool ascending = true, params Property[] orderBy) =>
+        Entity == null ? [] :
+            Transaction.RunningTransaction.NodePersistenceProvider.LoadWhereChunked<TWrapper>(Entity, query, parameters, skip, take, ascending, orderBy);
+
     public static List<TWrapper> Search(string text, params Property[] properties) => Entity == null ? [] : Transaction.RunningTransaction.NodePersistenceProvider.Search<TWrapper>(Entity, text, properties);
+
     public static List<TWrapper> Search(string text, int page = 0, int pageSize = 0, params Property[] properties) => Search(text, page, pageSize, true, properties);
+
     public static List<TWrapper> Search(string text, int page = 0, int pageSize = 0, bool ascending = true, params Property[] properties) =>
         Entity == null ? [] : Transaction.RunningTransaction.NodePersistenceProvider.Search<TWrapper>(Entity, text, properties, page, pageSize, ascending, Entity.Key!);
 
     internal abstract void SetKey(TKey key);
 
     protected static Entity? entity;
+
     public static Entity? Entity
     {
-
         get
         {
             if (entity is null)
@@ -124,7 +135,7 @@ public abstract class OGM<TWrapper, TKey> : OGMImpl
 
     internal static readonly TWrapper Instance = (TWrapper)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(TWrapper));
 
-    internal protected override void LazyGet(bool locked = false)
+    protected internal override void LazyGet(bool locked = false)
     {
         switch (PersistenceState)
         {
@@ -133,9 +144,11 @@ public abstract class OGM<TWrapper, TKey> : OGMImpl
                 if (locked)
                     PersistenceProvider.NodePersistenceProvider.Load(this, locked);
                 break;
+
             case PersistenceState.HasUid:
                 PersistenceProvider.NodePersistenceProvider.Load(this, locked);
                 break;
+
             case PersistenceState.Loaded:
             case PersistenceState.LoadedAndChanged:
             case PersistenceState.OutOfScope:
@@ -145,6 +158,7 @@ public abstract class OGM<TWrapper, TKey> : OGMImpl
                 if (locked)
                     PersistenceProvider.NodePersistenceProvider.Load(this, locked);
                 break;
+
             case PersistenceState.Deleted:
                 throw new InvalidOperationException("The object has been deleted, you cannot make changes to it anymore.");
             case PersistenceState.DoesntExist:
@@ -155,7 +169,8 @@ public abstract class OGM<TWrapper, TKey> : OGMImpl
                 throw new NotImplementedException(string.Format("The PersistenceState '{0}' is not yet implemented.", PersistenceState.ToString()));
         }
     }
-    internal protected override void LazySet()
+
+    protected internal override void LazySet()
     {
         if (PersistenceState == PersistenceState.OutOfScope)
             throw new InvalidOperationException("The transaction for this object has already ended.");
@@ -167,8 +182,10 @@ public abstract class OGM<TWrapper, TKey> : OGMImpl
         else if (PersistenceState == PersistenceState.Loaded || PersistenceState == PersistenceState.Persisted)
             PersistenceState = PersistenceState.LoadedAndChanged;
     }
-    internal protected bool LazySet<T>(Property property, T previousValue, T assignValue) => LazySet<T>(property, previousValue, assignValue, Transaction.RunningTransaction.TransactionDate);
-    internal protected override bool LazySet<T>(Property property, T previousValue, T assignValue, DateTime? moment)
+
+    protected internal bool LazySet<T>(Property property, T previousValue, T assignValue) => LazySet<T>(property, previousValue, assignValue, Transaction.RunningTransaction.TransactionDate);
+
+    protected internal override bool LazySet<T>(Property property, T previousValue, T assignValue, DateTime? moment)
     {
         if (previousValue is null && assignValue is null)
             return false;
@@ -206,7 +223,8 @@ public abstract class OGM<TWrapper, TKey> : OGMImpl
         LazySet();
         return true;
     }
-    internal protected override bool LazySet<T>(Property property, IEnumerable<CollectionItem<T>> previousValues, T assignValue, DateTime? moment)
+
+    protected internal override bool LazySet<T>(Property property, IEnumerable<CollectionItem<T>> previousValues, T assignValue, DateTime? moment)
     {
         if (!previousValues.Any() && assignValue is null)
             return false;
@@ -225,6 +243,7 @@ public abstract class OGM<TWrapper, TKey> : OGMImpl
     }
 
     public override int GetHashCode() => base.GetHashCode();
+
     public override bool Equals(object? obj)
     {
         if (obj is not TWrapper other)
@@ -259,8 +278,8 @@ public abstract class OGM<TWrapper, TKey> : OGMImpl
             return false;
 
         return ka.Equals(kb);
-
     }
+
     public static bool operator !=(OGM<TWrapper, TKey> a, OGM<TWrapper, TKey> b)
     {
         return !(a == b);
@@ -280,7 +299,7 @@ public abstract class OGM<TWrapper, TData, TKey> : OGM<TWrapper, TKey>, IInnerDa
         OriginalData = InnerData;
     }
 
-    sealed internal override void SetKey(TKey key) => InnerData.SetKey(key);
+    internal override sealed void SetKey(TKey key) => InnerData.SetKey(key);
 
     public static void Delete(TKey key)
     {
@@ -295,7 +314,8 @@ public abstract class OGM<TWrapper, TData, TKey> : OGM<TWrapper, TKey>, IInnerDa
     }
 
     private TData? innerData = default;
-    internal protected TData InnerData
+
+    protected internal TData InnerData
     {
         get
         {
@@ -306,7 +326,8 @@ public abstract class OGM<TWrapper, TData, TKey> : OGM<TWrapper, TKey>, IInnerDa
         }
         set { innerData = value; }
     }
-    internal protected TData? OriginalData = default;
+
+    protected internal TData? OriginalData = default;
     TData IInnerData<TData>.InnerData { get { return InnerData; } }
     TData IInnerData<TData>.OriginalData { get { return OriginalData ?? InnerData; } }
     Data IInnerData.InnerData => InnerData;
@@ -317,6 +338,7 @@ public abstract class OGM<TWrapper, TData, TKey> : OGM<TWrapper, TKey>, IInnerDa
         get { return InnerData.PersistenceState; }
         internal set { InnerData.PersistenceState = value; }
     }
+
     public override PersistenceState OriginalPersistenceState
     {
         get { return InnerData.OriginalPersistenceState; }
@@ -332,8 +354,10 @@ public abstract class OGM<TWrapper, TData, TKey> : OGM<TWrapper, TKey>, IInnerDa
         return data.GetKey();
     }
 
-    sealed internal override Data GetData() => InnerData;
-    sealed internal protected override void AfterSetData() => OriginalData = InnerData;
+    internal override sealed Data GetData() => InnerData;
+
+    protected internal override sealed void AfterSetData() => OriginalData = InnerData;
+
     //internal TData GetData()
     //{
     //    return Current ?? Loaded;
@@ -370,7 +394,9 @@ public abstract class OGM<TWrapper, TData, TKey> : OGM<TWrapper, TKey>, IInnerDa
     private static IDictionary<string, ICompiled>? StoredQueries = null;
     private static bool IsInitialized = false;
 
-    protected virtual void RegisterStoredQueries() { }
+    protected virtual void RegisterStoredQueries()
+    { }
+
     protected abstract void RegisterGeneratedStoredQueries();
 
     public static void RegisterQuery(string name, ICompiled query)
@@ -379,6 +405,7 @@ public abstract class OGM<TWrapper, TData, TKey> : OGM<TWrapper, TKey>, IInnerDa
 
         StoredQueries!.Add(name, query);
     }
+
     public static List<TWrapper> FromQuery(string name, params Parameter[] parameters)
     {
         InitializeStoredQueries();
@@ -386,6 +413,7 @@ public abstract class OGM<TWrapper, TData, TKey> : OGM<TWrapper, TKey>, IInnerDa
         ICompiled query = StoredQueries![name];
         return LoadWhere(query, parameters);
     }
+
     public static List<TWrapper> FromQuery(string name, Parameter[] parameters, int page, int size, bool ascending = true, params Property[] orderBy)
     {
         InitializeStoredQueries();
@@ -411,7 +439,7 @@ public abstract class OGM<TWrapper, TData, TKey> : OGM<TWrapper, TKey>, IInnerDa
         }
     }
 
-    #endregion
+    #endregion Stored Queries
 }
 
 public interface IInnerData
@@ -419,6 +447,7 @@ public interface IInnerData
     Data InnerData { get; }
     Data OriginalData { get; }
 }
+
 public interface IInnerData<TData> : IInnerData
 {
     new TData InnerData { get; }
