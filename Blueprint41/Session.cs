@@ -72,7 +72,7 @@ public abstract class Session : DisposableScope<Session>, IStatementRunner
     }
 
     public virtual Bookmark GetConsistency() => NullConsistency;
-    private static readonly Bookmark NullConsistency = new Bookmark();
+    private static readonly Bookmark NullConsistency = new();
 
     #endregion
 

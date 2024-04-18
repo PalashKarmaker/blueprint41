@@ -62,11 +62,11 @@ public partial class AliasResult : Result, IPlainAliasResult
 
     protected internal override void Compile(CompileState state) => state.Translator.Compile(this, state);
 
-    public QueryCondition HasLabel(string label) => new QueryCondition(this, Operator.HasLabel, new Literal(label));
+    public QueryCondition HasLabel(string label) => new(this, Operator.HasLabel, new Literal(label));
 
-    public static QueryCondition Not(QueryCondition condition) => new QueryCondition(string.Empty, Operator.Not, condition);
+    public static QueryCondition Not(QueryCondition condition) => new(string.Empty, Operator.Not, condition);
 
-    public AsResult As(string aliasName) => new AsResult(this, aliasName);
+    public AsResult As(string aliasName) => new(this, aliasName);
     public AsResult As(string aliasName, out AliasResult alias)
     {
         alias = new AliasResult(this, null)
@@ -84,7 +84,7 @@ public partial class AliasResult : Result, IPlainAliasResult
         }
     }
 
-    public AsResult Properties(string alias) => new AsResult(new MiscResult(t => t.FnProperties, [this], null), alias);
+    public AsResult Properties(string alias) => new(new MiscResult(t => t.FnProperties, [this], null), alias);
     public AsResult Properties(string alias, out PropertiesAliasResult propertiesAlias)
     {
         propertiesAlias = new PropertiesAliasResult()
@@ -142,8 +142,8 @@ public abstract partial class AliasResult<T, TList> : AliasResult
     public TList Collect() => ResultHelper.Of<TList>().NewAliasResult(this, t => t.FnCollect);
     public TList CollectDistinct() => ResultHelper.Of<TList>().NewAliasResult(this, t => t.FnCollectDistinct);
 
-    public NumericResult Count() => new NumericResult(this, t => t.FnCount, null, typeof(long));
-    public NumericResult CountDistinct() => new NumericResult(this, t => t.FnCountDistinct, null, typeof(long));
+    public NumericResult Count() => new(this, t => t.FnCount, null, typeof(long));
+    public NumericResult CountDistinct() => new(this, t => t.FnCountDistinct, null, typeof(long));
 
     public T Coalesce(T other) => ResultHelper.Of<T>().NewAliasResult(this, t => t.FnCoalesce, [other], null);
 }

@@ -81,7 +81,7 @@ public partial class EntityTimeCollection<TEntity> : EntityCollectionBase<TEntit
         LazyLoad();
         LazySet();
 
-        LinkedList<RelationshipAction> actions = new LinkedList<RelationshipAction>();
+        LinkedList<RelationshipAction> actions = new();
         foreach (var item in items)
         {
             if (item is null)
@@ -193,7 +193,7 @@ public partial class EntityTimeCollection<TEntity> : EntityCollectionBase<TEntit
 
             if (cancel.Count != 0)
             {
-                LinkedList<RelationshipAction> actions = new LinkedList<RelationshipAction>();
+                LinkedList<RelationshipAction> actions = new();
 
                 ForEach(delegate (int index, CollectionItem item)
                 {

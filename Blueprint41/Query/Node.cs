@@ -43,7 +43,7 @@ public abstract class Node
 
     public PathNode Path(out PathResult alias)
     {
-        AliasResult aliasResult = new AliasResult()
+        AliasResult aliasResult = new()
         {
             Node = this,
         };
@@ -52,7 +52,7 @@ public abstract class Node
     }
     public PathNode Path(out PathResult alias, string name)
     {
-        AliasResult aliasResult = new AliasResult()
+        AliasResult aliasResult = new()
         {
             AliasName = name,
             Node = this,

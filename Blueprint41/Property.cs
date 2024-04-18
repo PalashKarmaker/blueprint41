@@ -119,7 +119,7 @@ public abstract partial class Property : IRefactorProperty, IPropertyCondition, 
             if (innerReturnType is null)
             {
 
-                StringBuilder sb = new StringBuilder();
+                StringBuilder sb = new();
 
                 if (PropertyType == PropertyType.Collection || PropertyType == PropertyType.Lookup)
                 {
@@ -154,7 +154,7 @@ public abstract partial class Property : IRefactorProperty, IPropertyCondition, 
             if (outerReturnType is null)
             {
 
-                StringBuilder sb = new StringBuilder();
+                StringBuilder sb = new();
 
                 if (PropertyType == PropertyType.Collection)
                 {
@@ -191,7 +191,7 @@ public abstract partial class Property : IRefactorProperty, IPropertyCondition, 
             if (outerReturnTypeReadOnly is null)
             {
 
-                StringBuilder sb = new StringBuilder();
+                StringBuilder sb = new();
 
                 if (PropertyType == PropertyType.Collection)
                 {
@@ -410,7 +410,7 @@ public abstract partial class Property : IRefactorProperty, IPropertyCondition, 
 
         string oldname = Name;
 
-        NodePattern decoded = new NodePattern(Parent.Parent, pattern);
+        NodePattern decoded = new(Parent.Parent, pattern);
         decoded.Validate(EntityReturnType, strict);
 
         Entity original = (Entity)Parent;
@@ -574,7 +574,7 @@ public abstract partial class Property : IRefactorProperty, IPropertyCondition, 
                         {
                             string text = item["Text"].As<string>();
 
-                            Dictionary<string, object?> map = new Dictionary<string, object?>
+                            Dictionary<string, object?> map = new()
                             {
                                 { "Text", text },
                                 { "Blob", (byte[]?)(CompressedString?)text }
@@ -586,7 +586,7 @@ public abstract partial class Property : IRefactorProperty, IPropertyCondition, 
 #pragma warning disable S2583 // Conditionally executed code should be reachable
                     if (list.Count > 0)
                     {
-                        Dictionary<string, object?> batch = new Dictionary<string, object?>
+                        Dictionary<string, object?> batch = new()
                         {
                             { "Batch", list }
                         };

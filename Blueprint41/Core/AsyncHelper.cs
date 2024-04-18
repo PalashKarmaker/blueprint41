@@ -11,7 +11,7 @@ namespace Blueprint41.Core;
 public static class AsyncHelper
 {
     private static readonly TaskFactory _myTaskFactory = new
-         TaskFactory(CancellationToken.None,
+(CancellationToken.None,
                      TaskCreationOptions.None,
                      TaskContinuationOptions.None,
                      TaskScheduler.Default);

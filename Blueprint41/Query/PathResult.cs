@@ -26,9 +26,9 @@ public partial class PathResult : Result, IPathResult
     private Type? OverridenReturnType { get; set; }
     public Node Node { get; protected internal set; }
 
-    public NumericResult Lenght() => new NumericResult(Alias, t => t.FnLength, null, typeof(long));
+    public NumericResult Lenght() => new(Alias, t => t.FnLength, null, typeof(long));
 
-    public AsResult As(string aliasName) => new AsResult(this, aliasName);
+    public AsResult As(string aliasName) => new(this, aliasName);
     public AsResult As(string aliasName, out AliasResult alias)
     {
         alias = new AliasResult()

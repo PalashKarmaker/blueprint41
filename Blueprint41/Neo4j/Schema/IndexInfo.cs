@@ -64,7 +64,7 @@ public class IndexInfo
 
     #region Regex
 
-    private static readonly Regex index = new Regex(@"^ *index* on *: *(?<entity>[a-z0-9_]+) *\( *(?<field>[a-z0-9_]+) *\) *$", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Singleline);
+    private static readonly Regex index = new(@"^ *index* on *: *(?<entity>[a-z0-9_]+) *\( *(?<field>[a-z0-9_]+) *\) *$", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
     // description                  state       type
     // -----------                  -----       ----

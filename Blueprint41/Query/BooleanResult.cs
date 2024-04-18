@@ -45,7 +45,7 @@ public partial class BooleanResult
 
     #endregion
 
-    public override NumericResult ToInteger() => new NumericResult(t => t.FnConvertToBoolean, [this], typeof(long));
+    public override NumericResult ToInteger() => new(t => t.FnConvertToBoolean, [this], typeof(long));
 
     private static readonly Parameter ZERO = Parameter.Constant<long>(0);
     private static readonly Parameter ONE = Parameter.Constant<long>(1);

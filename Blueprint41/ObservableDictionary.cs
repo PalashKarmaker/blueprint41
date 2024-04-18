@@ -25,7 +25,7 @@ public sealed class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValu
         }
         set
         {
-            NotifyChangedEventArgs<KeyValuePair<TKey, TValue>> eventArgs = new NotifyChangedEventArgs<KeyValuePair<TKey, TValue>>(NotifyCollectionChangedAction.Replace, new KeyValuePair<TKey, TValue>(key, value), new KeyValuePair<TKey, TValue>(key, InnerDictionary[key]));
+            NotifyChangedEventArgs<KeyValuePair<TKey, TValue>> eventArgs = new(NotifyCollectionChangedAction.Replace, new KeyValuePair<TKey, TValue>(key, value), new KeyValuePair<TKey, TValue>(key, InnerDictionary[key]));
             BeforeCollectionChanged?.Invoke(this, eventArgs);
             InnerDictionary[key] = value;
             CollectionChanged?.Invoke(this, eventArgs);
@@ -39,7 +39,7 @@ public sealed class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValu
 
     public void Add(TKey key, TValue value)
     {
-        NotifyChangedEventArgs<KeyValuePair<TKey, TValue>> eventArgs = new NotifyChangedEventArgs<KeyValuePair<TKey, TValue>>(NotifyCollectionChangedAction.Add, new KeyValuePair<TKey, TValue>(key, value));
+        NotifyChangedEventArgs<KeyValuePair<TKey, TValue>> eventArgs = new(NotifyCollectionChangedAction.Add, new KeyValuePair<TKey, TValue>(key, value));
         BeforeCollectionChanged?.Invoke(this, eventArgs);
         InnerDictionary.Add(key, value);
         CollectionChanged?.Invoke(this, eventArgs);
@@ -47,7 +47,7 @@ public sealed class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValu
 
     public void Add(KeyValuePair<TKey, TValue> item)
     {
-        NotifyChangedEventArgs<KeyValuePair<TKey, TValue>> eventArgs = new NotifyChangedEventArgs<KeyValuePair<TKey, TValue>>(NotifyCollectionChangedAction.Add, item);
+        NotifyChangedEventArgs<KeyValuePair<TKey, TValue>> eventArgs = new(NotifyCollectionChangedAction.Add, item);
         BeforeCollectionChanged?.Invoke(this, eventArgs);
         ((IDictionary<TKey, TValue>)InnerDictionary).Add(item);
         CollectionChanged?.Invoke(this, eventArgs);
@@ -55,7 +55,7 @@ public sealed class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValu
 
     public void Clear()
     {
-        NotifyChangedEventArgs<KeyValuePair<TKey, TValue>> eventArgs = new NotifyChangedEventArgs<KeyValuePair<TKey, TValue>>(NotifyCollectionChangedAction.Reset);
+        NotifyChangedEventArgs<KeyValuePair<TKey, TValue>> eventArgs = new(NotifyCollectionChangedAction.Reset);
         BeforeCollectionChanged?.Invoke(this, eventArgs);
         InnerDictionary.Clear();
         CollectionChanged?.Invoke(this, eventArgs);
@@ -71,7 +71,7 @@ public sealed class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValu
 
     public bool Remove(TKey key)
     {
-        NotifyChangedEventArgs<KeyValuePair<TKey, TValue>> eventArgs = new NotifyChangedEventArgs<KeyValuePair<TKey, TValue>>(NotifyCollectionChangedAction.Remove, new KeyValuePair<TKey, TValue>(key, InnerDictionary[key]));
+        NotifyChangedEventArgs<KeyValuePair<TKey, TValue>> eventArgs = new(NotifyCollectionChangedAction.Remove, new KeyValuePair<TKey, TValue>(key, InnerDictionary[key]));
         BeforeCollectionChanged?.Invoke(this, eventArgs);
         bool result = InnerDictionary.Remove(key);
         CollectionChanged?.Invoke(this, eventArgs);
@@ -80,7 +80,7 @@ public sealed class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValu
 
     public bool Remove(KeyValuePair<TKey, TValue> item)
     {
-        NotifyChangedEventArgs<KeyValuePair<TKey, TValue>> eventArgs = new NotifyChangedEventArgs<KeyValuePair<TKey, TValue>>(NotifyCollectionChangedAction.Remove, item);
+        NotifyChangedEventArgs<KeyValuePair<TKey, TValue>> eventArgs = new(NotifyCollectionChangedAction.Remove, item);
         BeforeCollectionChanged?.Invoke(this, eventArgs);
         bool result = ((IDictionary<TKey, TValue>)InnerDictionary).Remove(item);
         CollectionChanged?.Invoke(this, eventArgs);

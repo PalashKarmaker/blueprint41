@@ -366,7 +366,7 @@ public sealed class CompressedString : IComparable, ICloneable, IConvertible, IE
     public static explicit operator XmlDocument?(CompressedString? x)
     {
         if (x is null) return null;
-        XmlDocument xmldoc = new XmlDocument();
+        XmlDocument xmldoc = new();
         xmldoc.InnerText = x.Value;
         return xmldoc;
     }

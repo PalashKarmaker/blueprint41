@@ -197,7 +197,7 @@ public partial class Relationship : IRefactorRelationship, IRelationshipEvents
     {
         VerifyPropertiesCanBeAdded();
 
-        RelationshipProperty value = new RelationshipProperty(this, PropertyType.Attribute, name, typeof(string), nullable, indexType, enumeration);
+        RelationshipProperty value = new(this, PropertyType.Attribute, name, typeof(string), nullable, indexType, enumeration);
         _properties.Add(name, value);
 
         return this;
@@ -206,7 +206,7 @@ public partial class Relationship : IRefactorRelationship, IRelationshipEvents
     {
         VerifyPropertiesCanBeAdded();
 
-        RelationshipProperty value = new RelationshipProperty(this, PropertyType.Attribute, name, typeof(string), nullable, indexType, enumeration);
+        RelationshipProperty value = new(this, PropertyType.Attribute, name, typeof(string), nullable, indexType, enumeration);
         _properties.Add(name, value);
 
         return this;
@@ -401,7 +401,7 @@ public partial class Relationship : IRefactorRelationship, IRelationshipEvents
 
     internal RelationshipEventArgs RaiseOnRelationCreate(Transaction trans)
     {
-        RelationshipEventArgs args = new RelationshipEventArgs(EventTypeEnum.OnRelationCreate, trans);
+        RelationshipEventArgs args = new(EventTypeEnum.OnRelationCreate, trans);
         if (!trans.FireGraphEvents)
             return args;
 
@@ -419,7 +419,7 @@ public partial class Relationship : IRefactorRelationship, IRelationshipEvents
 
     internal RelationshipEventArgs RaiseOnRelationCreated(Transaction trans)
     {
-        RelationshipEventArgs args = new RelationshipEventArgs(EventTypeEnum.OnRelationCreated, trans);
+        RelationshipEventArgs args = new(EventTypeEnum.OnRelationCreated, trans);
         if (!trans.FireGraphEvents)
             return args;
 
@@ -437,7 +437,7 @@ public partial class Relationship : IRefactorRelationship, IRelationshipEvents
 
     internal RelationshipEventArgs RaiseOnRelationDelete(Transaction trans)
     {
-        RelationshipEventArgs args = new RelationshipEventArgs(EventTypeEnum.OnRelationDelete, trans);
+        RelationshipEventArgs args = new(EventTypeEnum.OnRelationDelete, trans);
         if (!trans.FireGraphEvents)
             return args;
 
@@ -455,7 +455,7 @@ public partial class Relationship : IRefactorRelationship, IRelationshipEvents
 
     internal RelationshipEventArgs RaiseOnRelationDeleted(Transaction trans)
     {
-        RelationshipEventArgs args = new RelationshipEventArgs(EventTypeEnum.OnRelationDelete, trans);
+        RelationshipEventArgs args = new(EventTypeEnum.OnRelationDelete, trans);
         if (!trans.FireGraphEvents)
             return args;
 

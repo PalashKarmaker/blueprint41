@@ -11,7 +11,7 @@ internal class LabelCollection : Core.CollectionBase<Label>
 {
     public Label New(string name)
     {
-        Label value = new Label(name);
+        Label value = new(name);
         Add(name, value);
 
         return value;

@@ -10,9 +10,9 @@ namespace Blueprint41.Core;
 
 public class BlockingCollectionSlim<T> : IDisposable, IEnumerable<T>
 {
-    private readonly ConcurrentQueue<T> queue = new ConcurrentQueue<T>();
-    private readonly AutoResetEvent itemAdded = new AutoResetEvent(false);
-    private readonly ManualResetEventSlim finished = new ManualResetEventSlim(false);
+    private readonly ConcurrentQueue<T> queue = new();
+    private readonly AutoResetEvent itemAdded = new(false);
+    private readonly ManualResetEventSlim finished = new(false);
 
     public void Add(T item)
     {

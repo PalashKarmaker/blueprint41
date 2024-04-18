@@ -168,7 +168,7 @@ public abstract class TemplateBase
     /// </summary>
     public void Error(string message)
     {
-        System.CodeDom.Compiler.CompilerError error = new global::System.CodeDom.Compiler.CompilerError();
+        System.CodeDom.Compiler.CompilerError error = new();
         error.ErrorText = message;
         this.Errors.Add(error);
     }
@@ -177,7 +177,7 @@ public abstract class TemplateBase
     /// </summary>
     public void Warning(string message)
     {
-        System.CodeDom.Compiler.CompilerError error = new global::System.CodeDom.Compiler.CompilerError();
+        System.CodeDom.Compiler.CompilerError error = new();
         error.ErrorText = message;
         error.IsWarning = true;
         this.Errors.Add(error);
@@ -268,7 +268,7 @@ public abstract class TemplateBase
             }
         }
     }
-    private ToStringInstanceHelper toStringHelperField = new ToStringInstanceHelper();
+    private ToStringInstanceHelper toStringHelperField = new();
     /// <summary>
     /// Helper to produce culture-oriented representation of an object as a string
     /// </summary>

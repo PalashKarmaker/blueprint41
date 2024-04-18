@@ -16,7 +16,7 @@ public class InterfaceCollection : Core.CollectionBase<Interface, DatastoreModel
 
     public Interface New(string name)
     {
-        Interface value = new Interface(Parent, name);
+        Interface value = new(Parent, name);
         collection.Add(name, value);
 
         return value;

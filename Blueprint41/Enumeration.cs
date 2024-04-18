@@ -80,7 +80,7 @@ public class Enumeration : IRefactorEnumeration
         if (Parent is null)
             throw new InvalidOperationException("You cannot change an 'ad-hoc' enumeration.");
 
-        HashSet<string> hasedNames = new HashSet<string>(names);
+        HashSet<string> hasedNames = new(names);
         values.RemoveAll(item => hasedNames.Contains(item.Name));
     }
     void IRefactorEnumeration.Rename(string newName)

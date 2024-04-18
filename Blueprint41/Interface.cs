@@ -66,7 +66,7 @@ public class Interface : IRefactorInterface
         if (Parent is null)
             throw new InvalidOperationException("You cannot change an 'ad-hoc' interface.");
 
-        HashSet<Entity> test = new HashSet<Entity>(this.entities);
+        HashSet<Entity> test = new(this.entities);
 
         foreach (Entity entity in entities.Distinct())
             if (!test.Contains(entity))

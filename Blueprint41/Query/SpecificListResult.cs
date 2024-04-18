@@ -43,7 +43,7 @@ namespace Blueprint41.Query;
 
 		public AsResult As(string aliasName, out MiscListResult alias)
 		{
-			AliasResult aliasResult = new AliasResult(this, null)
+			AliasResult aliasResult = new(this, null)
 			{
 				AliasName = aliasName
 			};
@@ -57,7 +57,7 @@ namespace Blueprint41.Query;
 			alias = (T)(object)genericAlias;
 			return retval;
 		}
-    public MiscJaggedListResult PairsMin() => new MiscJaggedListResult(this, t => t.FnApocCollPairsMin);
+    public MiscJaggedListResult PairsMin() => new(this, t => t.FnApocCollPairsMin);
 }
 	public partial class StringListResult : ListResult<StringListResult, StringResult, string>, IPrimitiveListResult
 	{
@@ -94,7 +94,7 @@ namespace Blueprint41.Query;
 
 		public AsResult As(string aliasName, out StringListResult alias)
 		{
-			AliasResult aliasResult = new AliasResult(this, null)
+			AliasResult aliasResult = new(this, null)
 			{
 				AliasName = aliasName
 			};
@@ -108,26 +108,14 @@ namespace Blueprint41.Query;
 			alias = (T)(object)genericAlias;
 			return retval;
 		}
-    public StringJaggedListResult PairsMin() => new StringJaggedListResult(this, t => t.FnApocCollPairsMin);
+    public StringJaggedListResult PairsMin() => new(this, t => t.FnApocCollPairsMin);
 }
 	public partial class BooleanListResult : ListResult<BooleanListResult, BooleanResult, bool>, IPrimitiveListResult
 	{
-		public static QueryCondition operator ==(BooleanListResult left, BooleanListResult right)
-    {
-        return new QueryCondition(left, Operator.Equals, right);
-    }
-		public static QueryCondition operator ==(BooleanListResult left, bool[] right)
-    {
-        return new QueryCondition(left, Operator.Equals, Parameter.Constant(right));
-    }
-    public static QueryCondition operator ==(BooleanListResult left, Parameter right)
-    {
-        return new QueryCondition(left, Operator.Equals, right);
-    }
-    public static QueryCondition operator !=(BooleanListResult left, BooleanListResult right)
-    {
-        return new QueryCondition(left, Operator.NotEquals, right);
-    }
+    public static QueryCondition operator ==(BooleanListResult left, BooleanListResult right) => new(left, Operator.Equals, right);
+    public static QueryCondition operator ==(BooleanListResult left, bool[] right) => new(left, Operator.Equals, Parameter.Constant(right));
+    public static QueryCondition operator ==(BooleanListResult left, Parameter right) => new(left, Operator.Equals, right);
+    public static QueryCondition operator !=(BooleanListResult left, BooleanListResult right) => new(left, Operator.NotEquals, right);
     public static QueryCondition operator !=(BooleanListResult left, bool[] right)
     {
         return new QueryCondition(left, Operator.NotEquals, Parameter.Constant(right));
@@ -145,7 +133,7 @@ namespace Blueprint41.Query;
 
 		public AsResult As(string aliasName, out BooleanListResult alias)
 		{
-			AliasResult aliasResult = new AliasResult(this, null)
+			AliasResult aliasResult = new(this, null)
 			{
 				AliasName = aliasName
 			};
@@ -159,7 +147,7 @@ namespace Blueprint41.Query;
 			alias = (T)(object)genericAlias;
 			return retval;
 		}
-    public BooleanJaggedListResult PairsMin() => new BooleanJaggedListResult(this, t => t.FnApocCollPairsMin);
+    public BooleanJaggedListResult PairsMin() => new(this, t => t.FnApocCollPairsMin);
 }
 	public partial class DateTimeListResult : ListResult<DateTimeListResult, DateTimeResult, DateTime>, IPrimitiveListResult
 	{
@@ -196,7 +184,7 @@ namespace Blueprint41.Query;
 
 		public AsResult As(string aliasName, out DateTimeListResult alias)
 		{
-			AliasResult aliasResult = new AliasResult(this, null)
+			AliasResult aliasResult = new(this, null)
 			{
 				AliasName = aliasName
 			};
@@ -210,7 +198,7 @@ namespace Blueprint41.Query;
 			alias = (T)(object)genericAlias;
 			return retval;
 		}
-    public DateTimeJaggedListResult PairsMin() => new DateTimeJaggedListResult(this, t => t.FnApocCollPairsMin);
+    public DateTimeJaggedListResult PairsMin() => new(this, t => t.FnApocCollPairsMin);
 }
 	public partial class FloatListResult : ListResult<FloatListResult, FloatResult, double>, IPrimitiveListResult
 	{
@@ -247,7 +235,7 @@ namespace Blueprint41.Query;
 
 		public AsResult As(string aliasName, out FloatListResult alias)
 		{
-			AliasResult aliasResult = new AliasResult(this, null)
+			AliasResult aliasResult = new(this, null)
 			{
 				AliasName = aliasName
 			};
@@ -261,7 +249,7 @@ namespace Blueprint41.Query;
 			alias = (T)(object)genericAlias;
 			return retval;
 		}
-    public FloatJaggedListResult PairsMin() => new FloatJaggedListResult(this, t => t.FnApocCollPairsMin);
+    public FloatJaggedListResult PairsMin() => new(this, t => t.FnApocCollPairsMin);
 }
 	public partial class NumericListResult : ListResult<NumericListResult, NumericResult, long>, IPrimitiveListResult
 	{
@@ -298,7 +286,7 @@ namespace Blueprint41.Query;
 
 		public AsResult As(string aliasName, out NumericListResult alias)
 		{
-			AliasResult aliasResult = new AliasResult(this, null)
+			AliasResult aliasResult = new(this, null)
 			{
 				AliasName = aliasName
 			};
@@ -312,7 +300,7 @@ namespace Blueprint41.Query;
 			alias = (T)(object)genericAlias;
 			return retval;
 		}
-    public NumericJaggedListResult PairsMin() => new NumericJaggedListResult(this, t => t.FnApocCollPairsMin);
+    public NumericJaggedListResult PairsMin() => new(this, t => t.FnApocCollPairsMin);
 }
 	public partial class MiscJaggedListResult : ListResult<MiscJaggedListResult, MiscListResult, object[]>, IPrimitiveListResult
 	{
@@ -349,7 +337,7 @@ namespace Blueprint41.Query;
 
 		public AsResult As(string aliasName, out MiscJaggedListResult alias)
 		{
-			AliasResult aliasResult = new AliasResult(this, null)
+			AliasResult aliasResult = new(this, null)
 			{
 				AliasName = aliasName
 			};
@@ -399,7 +387,7 @@ namespace Blueprint41.Query;
 
 		public AsResult As(string aliasName, out StringJaggedListResult alias)
 		{
-			AliasResult aliasResult = new AliasResult(this, null)
+			AliasResult aliasResult = new(this, null)
 			{
 				AliasName = aliasName
 			};
@@ -449,7 +437,7 @@ namespace Blueprint41.Query;
 
 		public AsResult As(string aliasName, out BooleanJaggedListResult alias)
 		{
-			AliasResult aliasResult = new AliasResult(this, null)
+			AliasResult aliasResult = new(this, null)
 			{
 				AliasName = aliasName
 			};
@@ -499,7 +487,7 @@ namespace Blueprint41.Query;
 
 		public AsResult As(string aliasName, out DateTimeJaggedListResult alias)
 		{
-			AliasResult aliasResult = new AliasResult(this, null)
+			AliasResult aliasResult = new(this, null)
 			{
 				AliasName = aliasName
 			};
@@ -549,7 +537,7 @@ namespace Blueprint41.Query;
 
 		public AsResult As(string aliasName, out FloatJaggedListResult alias)
 		{
-			AliasResult aliasResult = new AliasResult(this, null)
+			AliasResult aliasResult = new(this, null)
 			{
 				AliasName = aliasName
 			};
@@ -599,7 +587,7 @@ namespace Blueprint41.Query;
 
 		public AsResult As(string aliasName, out NumericJaggedListResult alias)
 		{
-			AliasResult aliasResult = new AliasResult(this, null)
+			AliasResult aliasResult = new(this, null)
 			{
 				AliasName = aliasName
 			};

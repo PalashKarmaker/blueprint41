@@ -58,7 +58,7 @@ public class QueryExecutionContext
         List<dynamic> items = [];
 
         Transaction transaction = Transaction.RunningTransaction;
-        Dictionary<string, object?> parameters = new Dictionary<string, object?>(QueryParameters.Count);
+        Dictionary<string, object?> parameters = new(QueryParameters.Count);
         foreach (KeyValuePair<string, (object? value, bool isConstant)> queryParameter in QueryParameters)
         {
             if (queryParameter.Value.value is null)

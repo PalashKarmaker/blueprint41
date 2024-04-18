@@ -275,7 +275,7 @@ internal sealed class ResultHelper<T> : ResultHelper
     }
 
     internal static ResultHelper<T> Instance => instance.Value;
-    private static Lazy<ResultHelper<T>> instance = new Lazy<ResultHelper<T>>(() => (ResultHelper<T>)Of(typeof(T)), true);
+    private static Lazy<ResultHelper<T>> instance = new(() => (ResultHelper<T>)Of(typeof(T)), true);
 
     #endregion
 

@@ -16,7 +16,7 @@ public class EnumerationCollection : Core.CollectionBase<Enumeration, DatastoreM
 
     public Enumeration New(string name)
     {
-        Enumeration value = new Enumeration(Parent, name);
+        Enumeration value = new(Parent, name);
         collection.Add(name, value);
 
         return value;

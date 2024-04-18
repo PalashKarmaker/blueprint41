@@ -724,7 +724,7 @@ public class DynamicEntity : DynamicObject, OGM
         if (instance is not null)
             return instance;
 
-        DynamicEntity item = new DynamicEntity(entity, Parser.ShouldExecute);
+        DynamicEntity item = new(entity, Parser.ShouldExecute);
         ((OGM)item).SetKey(key);
 
         return item;

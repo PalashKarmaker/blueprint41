@@ -30,7 +30,7 @@ public class SchemaInfo_v4 : SchemaInfo
         string templateNumeric = "MATCH (node:{0}) WHERE toInteger(node.Uid) IS NOT NULL WITH toInteger(node.Uid) AS decoded RETURN case Max(decoded) WHEN NULL THEN 0 ELSE Max(decoded) END as MaxId";
         string templateHash = "MATCH (node:{0}) where node.Uid STARTS WITH '{1}' AND SIZE(node.Uid) = {2} CALL blueprint41.hashing.decode(replace(node.Uid, '{1}', '')) YIELD value as decoded RETURN  case Max(decoded) WHEN NULL THEN 0 ELSE Max(decoded) END as MaxId";
         string actualFidValue = "CALL blueprint41.functionalid.current('{0}') YIELD Sequence as sequence RETURN sequence";
-        StringBuilder queryBuilder = new StringBuilder();
+        StringBuilder queryBuilder = new();
         foreach (var entity in Model.Entities.Where(entity => entity.FunctionalId?.Label == functionalId.Label))
         {
             if (first)

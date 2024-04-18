@@ -25,7 +25,7 @@ public class TransactionLogger
 
     private Stopwatch watcher;
 
-    private readonly object FileLock = new object();
+    private readonly object FileLock = new();
 
     #endregion
 
@@ -102,7 +102,7 @@ public class TransactionLogger
                 {
                     if (par.Value is IEnumerable val)
                     {
-                        StringBuilder sb = new StringBuilder();
+                        StringBuilder sb = new();
                         foreach (var value in val)
                         {
                             sb.Append(Serializer.Serialize(value));
@@ -133,7 +133,7 @@ public class TransactionLogger
         
         LogFile ??= Path.Combine(LogDirectory, string.Concat("Log_", DateTime.Now.ToString("yyyyMMdd_hhmmss"), ".csv"));
 
-        FileInfo fileInfo = new FileInfo(LogFile);
+        FileInfo fileInfo = new(LogFile);
         if (fileInfo.Exists)
         {
             if (fileInfo.Length >= MaxFileSizeInBytes)

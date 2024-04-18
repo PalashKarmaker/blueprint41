@@ -43,7 +43,7 @@ public partial class EntityCollection<TEntity> : EntityCollectionBase<TEntity>
     {
         LazySet();
 
-        LinkedList<RelationshipAction> actions = new LinkedList<RelationshipAction>();
+        LinkedList<RelationshipAction> actions = new();
         foreach (TEntity? item in items)
         {
             if (item is null)
@@ -111,7 +111,7 @@ public partial class EntityCollection<TEntity> : EntityCollectionBase<TEntity>
 
             if (cancel.Count != 0)
             {
-                LinkedList<RelationshipAction> actions = new LinkedList<RelationshipAction>();
+                LinkedList<RelationshipAction> actions = new();
 
                 ForEach(delegate (int index, CollectionItem item)
                 {

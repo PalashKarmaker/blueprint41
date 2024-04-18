@@ -64,7 +64,7 @@ internal class Neo4jNodePersistenceProvider : NodePersistenceProvider
         Entity entity = item.GetEntity();
 
         string match;
-        Dictionary<string, object?> parameters = new Dictionary<string, object?>
+        Dictionary<string, object?> parameters = new()
         {
             { "key", item.GetKey() }
         };
@@ -94,7 +94,7 @@ internal class Neo4jNodePersistenceProvider : NodePersistenceProvider
         Entity entity = item.GetEntity();
 
         string match;
-        Dictionary<string, object?> parameters = new Dictionary<string, object?>
+        Dictionary<string, object?> parameters = new()
         {
             { "key", item.GetKey() }
         };
@@ -130,7 +130,7 @@ internal class Neo4jNodePersistenceProvider : NodePersistenceProvider
 
         IDictionary<string, object?> node = item.GetData();
 
-        Dictionary<string, object?> parameters = new Dictionary<string, object?>
+        Dictionary<string, object?> parameters = new()
         {
             { "node", node }
         };
@@ -189,7 +189,7 @@ internal class Neo4jNodePersistenceProvider : NodePersistenceProvider
         Entity entity = item.GetEntity();
 
         string match;
-        Dictionary<string, object?> parameters = new Dictionary<string, object?>
+        Dictionary<string, object?> parameters = new()
         {
             { "key", item.GetKey() }
         };
@@ -429,7 +429,7 @@ internal class Neo4jNodePersistenceProvider : NodePersistenceProvider
             queries.Add(string.Format("({0}.{1}:{2})", entity.Label.Name, property.Name, search));
         }
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
 
         Neo4jPersistenceProvider persistenceProvider = PersistenceProviderFactory as Neo4jPersistenceProvider ?? throw new NotSupportedException("Expected Neo4jPersistenceProvider");
         if (persistenceProvider.Major < 4)
@@ -491,7 +491,7 @@ internal class Neo4jNodePersistenceProvider : NodePersistenceProvider
             foreignProperty.Relationship?.Neo4JRelationshipType,
             foreignProperty.Parent.Label.Name);
 
-        Dictionary<string, object?> parameters = new Dictionary<string, object?>
+        Dictionary<string, object?> parameters = new()
         {
             { "key", item.GetKey() }
         };

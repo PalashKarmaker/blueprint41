@@ -34,7 +34,7 @@ public sealed class TransactionEventArgs
     public Transaction? Transaction { get; private set; }
     public EventTypeEnum EventType { get; private set; }
 
-    internal static TransactionEventArgs CreateInstance(EventTypeEnum eventType, Transaction trans) => new TransactionEventArgs(eventType, trans);
+    internal static TransactionEventArgs CreateInstance(EventTypeEnum eventType, Transaction trans) => new(eventType, trans);
 
     public static Type SenderType => typeof(Transaction);
 }

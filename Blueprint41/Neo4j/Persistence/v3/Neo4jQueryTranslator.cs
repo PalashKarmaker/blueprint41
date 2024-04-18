@@ -20,7 +20,7 @@ internal class Neo4jQueryTranslator : QueryTranslator
     internal override NodePersistenceProvider GetNodePersistenceProvider() => new Neo4jNodePersistenceProvider(PersistenceProvider);
     internal override RelationshipPersistenceProvider GetRelationshipPersistenceProvider() => new Neo4jRelationshipPersistenceProvider(PersistenceProvider);
 
-    internal override SchemaInfo GetSchemaInfo(DatastoreModel datastoreModel) => new SchemaInfo(datastoreModel, PersistenceProvider);
+    internal override SchemaInfo GetSchemaInfo(DatastoreModel datastoreModel) => new(datastoreModel, PersistenceProvider);
     internal override RefactorTemplates GetTemplates() => new RefactorTemplates_v3();
 
     #endregion

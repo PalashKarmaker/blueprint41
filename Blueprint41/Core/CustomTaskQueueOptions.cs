@@ -57,5 +57,5 @@ public class CustomTaskQueueOptions
     /// </summary>
     public TimeSpan WindDownAfter { get; set; }
 
-    public static readonly CustomTaskQueueOptions Disabled = new CustomTaskQueueOptions() { Enabled = false };
+    public static readonly CustomTaskQueueOptions Disabled = new() { Enabled = false };
 }

@@ -73,7 +73,7 @@ public sealed class ObservableList<T> : IObservableList<T>
             {
                 if (!Contains(newValue!))
                 {
-                    NotifyChangedEventArgs<CollectionItem<T>?> eventArgs = new NotifyChangedEventArgs<CollectionItem<T>?>(NotifyCollectionChangedAction.Replace, newValue, oldValue, index);
+                    NotifyChangedEventArgs<CollectionItem<T>?> eventArgs = new(NotifyCollectionChangedAction.Replace, newValue, oldValue, index);
                     BeforeCollectionChanged?.Invoke(this, eventArgs);
 
                     if (oldValue is not null)
@@ -111,7 +111,7 @@ public sealed class ObservableList<T> : IObservableList<T>
     {
         if (!Contains(item)) // if Item is already in the list, don't add it again
         {
-            NotifyChangedEventArgs<CollectionItem<T>?> eventArgs = new NotifyChangedEventArgs<CollectionItem<T>?>(NotifyCollectionChangedAction.Add, item);
+            NotifyChangedEventArgs<CollectionItem<T>?> eventArgs = new(NotifyCollectionChangedAction.Add, item);
             BeforeCollectionChanged?.Invoke(this, eventArgs);
             AddIndex(item.Item, InnerList.Count);
             InnerList.Add(item);
@@ -121,7 +121,7 @@ public sealed class ObservableList<T> : IObservableList<T>
     }
     public void Clear()
     {
-        NotifyChangedEventArgs<CollectionItem<T>?> eventArgs = new NotifyChangedEventArgs<CollectionItem<T>?>(NotifyCollectionChangedAction.Reset);
+        NotifyChangedEventArgs<CollectionItem<T>?> eventArgs = new(NotifyCollectionChangedAction.Reset);
         BeforeCollectionChanged?.Invoke(this, eventArgs);
         InnerList.Clear();
         InnerDict.Clear();
@@ -191,7 +191,7 @@ public sealed class ObservableList<T> : IObservableList<T>
         if (item is null)
             throw new ArgumentNullException(nameof(item));
 
-        NotifyChangedEventArgs<CollectionItem<T>?> eventArgs = new NotifyChangedEventArgs<CollectionItem<T>?>(NotifyCollectionChangedAction.Remove, item, index);
+        NotifyChangedEventArgs<CollectionItem<T>?> eventArgs = new(NotifyCollectionChangedAction.Remove, item, index);
         BeforeCollectionChanged?.Invoke(this, eventArgs);
 
         InnerList[index] = null;

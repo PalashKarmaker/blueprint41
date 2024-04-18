@@ -67,7 +67,7 @@ public abstract partial class GeneratorBase
             if (string.IsNullOrWhiteSpace(name))
                 return "_";
 
-            StringBuilder safe = new StringBuilder();
+            StringBuilder safe = new();
             if (name.Length == 0 || NeedsUnderscore(name[0]))
                 safe.Append("_");
 

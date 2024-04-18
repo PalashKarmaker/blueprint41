@@ -110,7 +110,7 @@ public abstract partial class DatastoreModel : IRefactorGlobal, IDatastoreUnitTe
             long patch = prevScript?.Patch ?? 0;
 
             Action<DatastoreModel> method = (Action<DatastoreModel>)Delegate.CreateDelegate(typeof(Action<DatastoreModel>), null, unitTestScript);
-            UpgradeScript injectedScript = new UpgradeScript(new Action(() => method(this)), major, minor, patch + 1, "InjectedUnitTestMethod");
+            UpgradeScript injectedScript = new(new Action(() => method(this)), major, minor, patch + 1, "InjectedUnitTestMethod");
             scripts.Add(injectedScript);
         }
 

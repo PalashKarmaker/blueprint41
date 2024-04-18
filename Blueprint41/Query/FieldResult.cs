@@ -131,41 +131,41 @@ public abstract class FieldResult : Result
     internal object[]? FunctionArgs { get; private set; }
     private Type? OverridenReturnType { get; set; }
 
-    public virtual NumericResult Count() => new NumericResult(this, t => t.FnCount, null, typeof(long));
-    public virtual NumericResult CountDistinct() => new NumericResult(this, t => t.FnCountDistinct, null, typeof(long));
-    public virtual BooleanResult Exists() => new BooleanResult(this, t => t.FnExists, null, typeof(bool));
-    public virtual BooleanResult IsNaN() => new BooleanResult(this, t => t.FnIsNaN, null, typeof(bool));
-    public virtual BooleanResult ToBoolean() => new BooleanResult(this, t => t.FnToBoolean, null, typeof(bool));
+    public virtual NumericResult Count() => new(this, t => t.FnCount, null, typeof(long));
+    public virtual NumericResult CountDistinct() => new(this, t => t.FnCountDistinct, null, typeof(long));
+    public virtual BooleanResult Exists() => new(this, t => t.FnExists, null, typeof(bool));
+    public virtual BooleanResult IsNaN() => new(this, t => t.FnIsNaN, null, typeof(bool));
+    public virtual BooleanResult ToBoolean() => new(this, t => t.FnToBoolean, null, typeof(bool));
 
     [Obsolete("Please use the 'ToInteger' method instead.")]
     public virtual NumericResult ToInt() => ToInteger();
-    public virtual NumericResult ToInteger() => new NumericResult(this, t => t.FnToInteger, null, typeof(long));
-    public virtual FloatResult ToFloat() => new FloatResult(this, t => t.FnToFloat, null, typeof(Double));
-    new public virtual StringResult ToString() => new StringResult(this, t => t.FnToString, null, typeof(string));
-    public virtual BooleanListResult ToBooleanList() => new BooleanListResult(this, t => t.FnAsIs, null, typeof(bool));
-    public virtual NumericListResult ToIntegerList() => new NumericListResult(this, t => t.FnAsIs, null, typeof(long));
-    public virtual FloatListResult ToFloatList() => new FloatListResult(this, t => t.FnAsIs, null, typeof(Double));
-    public virtual StringListResult ToStringList() => new StringListResult(this, t => t.FnAsIs, null, typeof(string));
+    public virtual NumericResult ToInteger() => new(this, t => t.FnToInteger, null, typeof(long));
+    public virtual FloatResult ToFloat() => new(this, t => t.FnToFloat, null, typeof(Double));
+    new public virtual StringResult ToString() => new(this, t => t.FnToString, null, typeof(string));
+    public virtual BooleanListResult ToBooleanList() => new(this, t => t.FnAsIs, null, typeof(bool));
+    public virtual NumericListResult ToIntegerList() => new(this, t => t.FnAsIs, null, typeof(long));
+    public virtual FloatListResult ToFloatList() => new(this, t => t.FnAsIs, null, typeof(Double));
+    public virtual StringListResult ToStringList() => new(this, t => t.FnAsIs, null, typeof(string));
 
     protected internal override void Compile(CompileState state) => state.Translator.Compile(this, state);
 
-    public QueryCondition In(Parameter parameter) => new QueryCondition(this, Operator.In, parameter);
+    public QueryCondition In(Parameter parameter) => new(this, Operator.In, parameter);
 
-    public QueryCondition In(Result alias) => new QueryCondition(this, Operator.In, alias);
+    public QueryCondition In(Result alias) => new(this, Operator.In, alias);
 
     public QueryCondition NotIn(Parameter parameter)
     {
-        BooleanResult result = new BooleanResult(this, t => t.FnNot);
+        BooleanResult result = new(this, t => t.FnNot);
         return new QueryCondition(result, Operator.In, parameter);
     }
 
     public QueryCondition NotIn(Result alias)
     {
-        BooleanResult result = new BooleanResult(this, t => t.FnNot);
+        BooleanResult result = new(this, t => t.FnNot);
         return new QueryCondition(result, Operator.In, alias);
     }
 
-    public AsResult As(string aliasName) => new AsResult(this, aliasName);
+    public AsResult As(string aliasName) => new(this, aliasName);
 
     public override string GetFieldName() => throw new NotSupportedException();
     public override Type? GetResultType()

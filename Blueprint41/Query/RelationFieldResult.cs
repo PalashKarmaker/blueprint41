@@ -62,18 +62,18 @@ public class RelationFieldResult : FieldResult, IPlainPrimitiveResult
 
     protected internal override void Compile(CompileState state) => state.Translator.Compile(this, state);
 
-    public QueryCondition In(IEnumerable<DateTime> enumerable) => new QueryCondition(this, Operator.In, Parameter.Constant(enumerable.ToArray(), typeof(DateTime)));
+    public QueryCondition In(IEnumerable<DateTime> enumerable) => new(this, Operator.In, Parameter.Constant(enumerable.ToArray(), typeof(DateTime)));
 
-    public DateTimeResult Coalesce(DateTime value) => new DateTimeResult(this, t => t.FnCoalesce, [Parameter.Constant(Conversion<DateTime, long>.Convert(value))]);
-    public DateTimeResult Coalesce(RelationFieldResult value) => new DateTimeResult(this, t => t.FnCoalesce, [value]);
-    public DateTimeResult Coalesce(DateTimeResult value) => new DateTimeResult(this, t => t.FnCoalesce, [value]);
-    public DateTimeResult Coalesce(Parameter value) => new DateTimeResult(this, t => t.FnCoalesce, [value]);
+    public DateTimeResult Coalesce(DateTime value) => new(this, t => t.FnCoalesce, [Parameter.Constant(Conversion<DateTime, long>.Convert(value))]);
+    public DateTimeResult Coalesce(RelationFieldResult value) => new(this, t => t.FnCoalesce, [value]);
+    public DateTimeResult Coalesce(DateTimeResult value) => new(this, t => t.FnCoalesce, [value]);
+    public DateTimeResult Coalesce(Parameter value) => new(this, t => t.FnCoalesce, [value]);
 
     public override Type GetResultType() => typeof(DateTime);
 
     public AsResult As(string aliasName, out RelationFieldResult alias)
     {
-        AliasResult aliasResult = new AliasResult(this, null)
+        AliasResult aliasResult = new(this, null)
         {
             AliasName = aliasName
         };

@@ -13,10 +13,10 @@ namespace Blueprint41;
 
 internal abstract class Serializer
 {
-    internal static Lazy<JsonSerializerOptions> serializeOptions = new Lazy<JsonSerializerOptions>(
+    internal static Lazy<JsonSerializerOptions> serializeOptions = new(
         delegate () 
         {
-            JsonSerializerOptions option = new JsonSerializerOptions();
+            JsonSerializerOptions option = new();
             option.Converters.Add(new DictionaryConverter());
             return option;
         }, 
@@ -43,17 +43,17 @@ internal abstract class Serializer
 }
 internal class Serializer<T> : Serializer
 {
-    private static DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(T));
+    private static DataContractJsonSerializer serializer = new(typeof(T));
 
     protected sealed override string SerializeInternal(object? value) => Serializer<T>.Serialize((T)value!);
     protected sealed override object? DeserializeInternal(string value) => Serializer<T>.Deserialize(value);
 
     public static string Serialize(T value)
     {
-        using MemoryStream ms = new MemoryStream();
+        using MemoryStream ms = new();
         JsonSerializer.Serialize(ms, value); //Serialize with default converter
         ms.Position = 0;
-        using (StreamReader sr = new StreamReader(ms, Encoding.UTF8))
+        using (StreamReader sr = new(ms, Encoding.UTF8))
         {
             return sr.ReadToEnd();
             //var retval = sr.ReadToEnd();
@@ -64,7 +64,7 @@ internal class Serializer<T> : Serializer
     }
     public static T Deserialize(string value)
     {
-        using MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(value));
+        using MemoryStream ms = new(Encoding.UTF8.GetBytes(value));
         if (value.TrimStart().StartsWith("["))
             return (T)serializer.ReadObject(ms)!;
         else

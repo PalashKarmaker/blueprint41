@@ -55,7 +55,7 @@ public class SubModel
         if (Name == "Main")
             throw new InvalidOperationException("You cannot add entities to the 'Main' SubModel.");
 
-        HashSet<Entity> test = new HashSet<Entity>(this.entities);
+        HashSet<Entity> test = new(this.entities);
 
         foreach (Entity entity in entities.Distinct())
             if (!test.Contains(entity))
@@ -106,7 +106,7 @@ public class SubModel
         if (Name == "Main")
             throw new InvalidOperationException("You cannot remove entities from the 'Main' SubModel.");
 
-        HashSet<Entity> test = new HashSet<Entity>(entities);
+        HashSet<Entity> test = new(entities);
 
         foreach (Entity entity in entities.Distinct())
             if (test.Contains(entity))

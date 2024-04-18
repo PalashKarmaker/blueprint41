@@ -22,8 +22,8 @@ public abstract class OGMImpl : OGM
 
     protected OGMImpl()
     {
-        if (!GetEntity().Parent.IsUpgraded)
-            throw new InvalidOperationException("You cannot use entity inside the upgrade script.");
+        //if (!GetEntity().Parent.IsUpgraded)
+        //    throw new InvalidOperationException("You cannot use entity inside the upgrade script.");
         
         Transaction.RunningTransaction.Register(this);
     }
@@ -324,7 +324,7 @@ public abstract class OGMImpl : OGM
         }
     }
     internal void AppendEventHistory(EntityEventArgs args) => eventHistory.Add(args);
-    private List<EntityEventArgs> eventHistory = new List<EntityEventArgs>(16);
+    private List<EntityEventArgs> eventHistory = new(16);
 
     #endregion
 

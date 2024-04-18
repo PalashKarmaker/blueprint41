@@ -142,20 +142,20 @@ public partial class DateTimeResult
 
     #endregion
 
-    public QueryCondition In(IEnumerable<DateTime> enumerable) => new QueryCondition(this, Operator.In, Parameter.Constant(enumerable.ToArray(), typeof(DateTime)));
+    public QueryCondition In(IEnumerable<DateTime> enumerable) => new(this, Operator.In, Parameter.Constant(enumerable.ToArray(), typeof(DateTime)));
 
-    public DateTimeResult Coalesce(RelationFieldResult value) => new DateTimeResult(this, t => t.FnCoalesce, [value]);
-    public DateTimeResult Min() => new DateTimeResult(this, t => t.FnMin);
-    public DateTimeResult Max() => new DateTimeResult(this, t => t.FnMax);
-    public DateTimeResult ConvertMinToNull() => new DateTimeResult(this, t => t.FnConvertMinOrMaxToNull, [MinDateTime.Value]);
-    public DateTimeResult ConvertMaxToNull() => new DateTimeResult(this, t => t.FnConvertMinOrMaxToNull, [MaxDateTime.Value]);
-    public DateTimeResult ConvertMinOrMaxToNull() => new DateTimeResult(this, t => t.FnConvertMinAndMaxToNull, [MinDateTime.Value, MaxDateTime.Value]);
+    public DateTimeResult Coalesce(RelationFieldResult value) => new(this, t => t.FnCoalesce, [value]);
+    public DateTimeResult Min() => new(this, t => t.FnMin);
+    public DateTimeResult Max() => new(this, t => t.FnMax);
+    public DateTimeResult ConvertMinToNull() => new(this, t => t.FnConvertMinOrMaxToNull, [MinDateTime.Value]);
+    public DateTimeResult ConvertMaxToNull() => new(this, t => t.FnConvertMinOrMaxToNull, [MaxDateTime.Value]);
+    public DateTimeResult ConvertMinOrMaxToNull() => new(this, t => t.FnConvertMinAndMaxToNull, [MinDateTime.Value, MaxDateTime.Value]);
 
-    private Lazy<Parameter> MinDateTime = new Lazy<Parameter>(delegate()
+    private Lazy<Parameter> MinDateTime = new(delegate()
     {
         return Parameter.Constant(Conversion<DateTime, long>.Convert(DateTime.MinValue));
     }, true);
-    private Lazy<Parameter> MaxDateTime = new Lazy<Parameter>(delegate ()
+    private Lazy<Parameter> MaxDateTime = new(delegate ()
     {
         return Parameter.Constant(Conversion<DateTime, long>.Convert(DateTime.MaxValue));
     }, true);

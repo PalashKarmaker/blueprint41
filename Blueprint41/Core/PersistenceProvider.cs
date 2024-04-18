@@ -1,11 +1,13 @@
 ﻿using Blueprint41.Neo4j.Model;
 using Blueprint41.Neo4j.Persistence.Void;
 using Blueprint41.Neo4j.Schema;
+using Neo4j.Driver;
 
 namespace Blueprint41.Core;
 
 public abstract class PersistenceProvider
 {
+    public abstract IDriver Driver { get; }
 #pragma warning disable IDE0200
 
     protected PersistenceProvider()

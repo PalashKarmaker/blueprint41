@@ -21,7 +21,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup Label="Package">
-		<PackageVersion>1.0.4</PackageVersion>
+		<PackageVersion>1.0.5</PackageVersion>
 		<PackageId>CypherOGM</PackageId>
 		<Title>CypherOGM</Title>
 		<Authors>Palash Karmaker, Circles Arrows Limited</Authors>
@@ -59,6 +59,7 @@
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="System.CodeDom" Version="8.0.0" />
 		<PackageReference Include="System.Text.Json" Version="8.0.3" />
+		<PackageReference Include="Neo4j.Driver" Version="5.18.1" />
 	</ItemGroup>
 
 	<ItemGroup>

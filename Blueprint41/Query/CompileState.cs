@@ -21,7 +21,7 @@ public class CompileState
         Translator = translator;
     }
 
-    public StringBuilder Text = new StringBuilder();
+    public StringBuilder Text = new();
     public List<Parameter> Parameters = [];
     public List<Parameter> Values = [];
     public List<string> Errors = [];
@@ -36,7 +36,7 @@ public class CompileState
 
         if (state is null)
         {
-            CompileState tempState = new CompileState(TypeMappings, Translator);
+            CompileState tempState = new(TypeMappings, Translator);
             compile.Invoke(tempState);
             compiled = tempState.Text.ToString();
         }

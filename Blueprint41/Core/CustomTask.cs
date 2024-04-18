@@ -85,7 +85,7 @@ public sealed class CustomTask
         get => current.Value;
         internal set => current.Value = value;
     }
-    private static AsyncLocal<CustomTask?> current = new AsyncLocal<CustomTask?>();
+    private static AsyncLocal<CustomTask?> current = new();
 
     public override string ToString()
     {

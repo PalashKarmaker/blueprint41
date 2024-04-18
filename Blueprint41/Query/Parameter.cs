@@ -158,13 +158,13 @@ public class Parameter
 
     private static AtomicDictionary<Type, Func<object, object>> fromEnumeratorCache = [];
 
-    public static Parameter New<T>(string name) => new Parameter(name, typeof(T));
+    public static Parameter New<T>(string name) => new(name, typeof(T));
 
-    public static Parameter New(string name, Type type) => new Parameter(name, type);
+    public static Parameter New(string name, Type type) => new(name, type);
 
-    public static Parameter New<T>(string name, T value) => new Parameter(name, value, typeof(T));
+    public static Parameter New<T>(string name, T value) => new(name, value, typeof(T));
 
-    public static Parameter New(string name, object? value, Type type) => new Parameter(name, value, type);
+    public static Parameter New(string name, object? value, Type type) => new(name, value, type);
 
     #region Internally used for code generation?
 
@@ -208,9 +208,9 @@ public class Parameter
 
     public static Parameter Null => Constant(null, null);
 
-    public static Parameter Constant<T>(T value) => new Parameter(CONSTANT_NAME, value, typeof(T));
+    public static Parameter Constant<T>(T value) => new(CONSTANT_NAME, value, typeof(T));
 
-    public static Parameter Constant(object? value, Type? type) => new Parameter(CONSTANT_NAME, value, type);
+    public static Parameter Constant(object? value, Type? type) => new(CONSTANT_NAME, value, type);
 
     public string Name { get; internal set; }
     public object? Value { get; private set; }

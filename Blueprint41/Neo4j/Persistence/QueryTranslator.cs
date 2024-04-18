@@ -1039,13 +1039,13 @@ public abstract partial class QueryTranslator(Neo4jPersistenceProvider persisten
 
     private static readonly string[] separator = ["{base}"];
 
-    private Lazy<bool> GetFunction(string function) => new Lazy<bool>(delegate ()
+    private Lazy<bool> GetFunction(string function) => new(delegate ()
                                                             {
                                                                 Neo4jPersistenceProvider? neo4j = PersistenceProvider as Neo4jPersistenceProvider;
                                                                 return neo4j?.HasFunction(function) ?? false;
                                                             }, true);
 
-    private Lazy<bool> GetProcedure(string procedure) => new Lazy<bool>(delegate ()
+    private Lazy<bool> GetProcedure(string procedure) => new(delegate ()
                                                               {
                                                                   Neo4jPersistenceProvider? neo4j = PersistenceProvider as Neo4jPersistenceProvider;
                                                                   return neo4j?.HasProcedure(procedure) ?? false;

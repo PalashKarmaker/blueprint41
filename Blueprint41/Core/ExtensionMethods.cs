@@ -1,19 +1,14 @@
-﻿using System;
+﻿using Blueprint41;
+using Blueprint41.Core;
 using System.CodeDom;
 using System.CodeDom.Compiler;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Blueprint41.Core;
-using System.Reflection;
-using System.Collections.ObjectModel;
-using Blueprint41;
 using System.Collections;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq.Expressions;
+using System.Reflection;
+using System.Text;
 
 namespace System.Linq
 {
@@ -61,10 +56,12 @@ namespace System.Linq
                         Removed.Add(l[leftIndex].item);
                         leftIndex++;
                         break;
+
                     case 1:
                         Added.Add(r[rightIndex].item);
                         rightIndex++;
                         break;
+
                     case 0:
                         Matched.Add((l[leftIndex].item, r[rightIndex].item));
                         rightIndex++;
@@ -88,13 +85,14 @@ namespace System.Linq
 
             return (Removed, Matched, Added);
         }
+
         public static (List<object> Removed, List<(object, object)> Matched, List<object> Added) Compare(this IEnumerable left, IEnumerable right, Func<object, IComparable>? leftField = null, Func<object, IComparable>? rightField = null) => Compare(left.Cast<object>(), right.Cast<object>(), leftField ?? GetItem, rightField ?? GetItem);
 
         private static IComparable GetItem(object item) => (IComparable)item;
     }
+
     public static partial class ExtensionMethods
     {
-
         public static bool IsSubclassOfOrSelf(this Type self, Type type)
         {
             if (self == type)
@@ -110,10 +108,9 @@ namespace System.Linq
             private const BindingFlags Flags = BindingFlags.Instance | BindingFlags.NonPublic;
             private static MethodInfo InitializeMethodInfo = typeof(HashSet<T>).GetMethod("Initialize", Flags)!;
             public static Action<HashSet<T>, int> InitializeMethod { get; } = (Action<HashSet<T>, int>)Delegate.CreateDelegate(typeof(Action<HashSet<T>, int>), InitializeMethodInfo);
-
         }
 
-        #endregion
+        #endregion Hashset Extensions
 
         public static void ForEach<T>(this IEnumerable<T> items, Action<T> action)
         {
@@ -123,6 +120,7 @@ namespace System.Linq
             foreach (T item in items)
                 action.Invoke(item);
         }
+
         public static void ForEach(this IEnumerable items, Action<object> action)
         {
             if (action is null)
@@ -131,6 +129,7 @@ namespace System.Linq
             foreach (object item in items)
                 action.Invoke(item);
         }
+
         public static IEnumerable<ReadOnlyCollection<T>> Chunks<T>(this IEnumerable<T> source, int pageSize)
         {
             using (var enumerator = source.GetEnumerator())
@@ -238,15 +237,18 @@ namespace System.Linq
                 case RelationshipType.Collection:
                 case RelationshipType.Collection_Collection:
                     return false;
+
                 case RelationshipType.Collection_Lookup:
                 case RelationshipType.Lookup:
                 case RelationshipType.Lookup_Collection:
                 case RelationshipType.Lookup_Lookup:
                     return true;
+
                 default:
                     throw new NotImplementedException();
             }
         }
+
         internal static bool IsImplicitCollection(this RelationshipType self)
         {
             switch (self)
@@ -258,13 +260,14 @@ namespace System.Linq
                 case RelationshipType.Lookup:
                 case RelationshipType.Lookup_Collection:
                     return true;
+
                 case RelationshipType.Lookup_Lookup:
                     return false;
+
                 default:
                     throw new NotImplementedException();
             }
         }
-
 
         public static TValue GetValue<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue defaultValue = default!) where TKey : notnull
         {
@@ -272,6 +275,7 @@ namespace System.Linq
                 return value;
             return defaultValue;
         }
+
         public static TValue GetValue<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue defaultValue = default!)
         {
             if (dictionary.TryGetValue(key, out var value))
@@ -286,6 +290,7 @@ namespace System.Linq
             else
                 dictionary.Add(key, value);
         }
+
         public static void AddOrSet<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue value)
         {
             if (dictionary.ContainsKey(key))
@@ -295,6 +300,7 @@ namespace System.Linq
         }
     }
 }
+
 namespace System
 {
     public static partial class ExtensionMethods
@@ -302,10 +308,10 @@ namespace System
         public static string ToCSharp(this Type type, bool nullable = false)
         {
             CodeDomProvider csharpProvider = CodeDomProvider.CreateProvider("C#");
-            CodeTypeReference typeReference = new CodeTypeReference(type);
-            CodeVariableDeclarationStatement variableDeclaration = new CodeVariableDeclarationStatement(typeReference, "dummy");
-            StringBuilder sb = new StringBuilder();
-            using (StringWriter writer = new StringWriter(sb))
+            CodeTypeReference typeReference = new(type);
+            CodeVariableDeclarationStatement variableDeclaration = new(typeReference, "dummy");
+            StringBuilder sb = new();
+            using (StringWriter writer = new(sb))
             {
                 csharpProvider.GenerateCodeFromStatement(variableDeclaration, writer, new CodeGeneratorOptions());
             }
@@ -364,8 +370,11 @@ namespace System
         }
 
         public static bool IsMin(this DateTime self) => (Conversion.MinDateTime - self).TotalDays >= -1;
+
         public static bool IsMin(this DateTime? self) => (self.HasValue) ? IsMin(self) : true;
+
         public static bool IsMax(this DateTime self) => (Conversion.MaxDateTime - self).TotalDays <= 1;
+
         public static bool IsMax(this DateTime? self) => (self.HasValue) ? IsMax(self) : true;
 
         public static string? ToJson<T>(this T self)
@@ -400,11 +409,15 @@ namespace System
         public static IEnumerable<object> NotNull(this IEnumerable self) => self.Cast<object?>().Where(item => item is not null)!;
 
         public static T GetTaskResult<T>(this Task<T> self) => self.WaitEx().ResultEx();
+
         //public static T GetTaskResult<T>(this Task<T> self) => AsyncHelper.RunSync(() => self);
 
         public static Task Continue(this Task self, Action callback) => self.ContinueWith(task => callback.Invoke());
+
         public static Task<TReturn> Continue<TReturn>(this Task self, Func<TReturn> callback) => self.ContinueWith(task => callback.Invoke());
+
         public static Task Continue<T>(this Task<T> self, Action<T> callback) => self.ContinueWith(task => callback.Invoke(task.GetAwaiter().GetResult()));
+
         public static Task<TReturn> Continue<T, TReturn>(this Task<T> self, Func<T, TReturn> callback) => self.ContinueWith(task => callback.Invoke(task.GetAwaiter().GetResult()));
 
         public static string? GetAsyncTaskDescription(this Task task)
@@ -427,7 +440,8 @@ namespace System
                 return $"async callback from method '{name.Substring(1, index - 1)}', returning type '{returns}'.";
             }
         }
-        private static Lazy<Func<Task, Delegate?>> getActionDelegate = new Lazy<Func<Task, Delegate?>>(delegate ()
+
+        private static Lazy<Func<Task, Delegate?>> getActionDelegate = new(delegate ()
         {
             var field = typeof(Task).GetField("m_action", BindingFlags.Instance | BindingFlags.NonPublic);
 
@@ -435,10 +449,10 @@ namespace System
             Expression accessField = Expression.Convert(Expression.Field(parameter, field!), typeof(Delegate));
 
             return Expression.Lambda<Func<Task, Delegate?>>(accessField, parameter).Compile();
-
         }, true);
     }
 }
+
 namespace Blueprint41.Core
 {
     public static partial class ExtensionMethods

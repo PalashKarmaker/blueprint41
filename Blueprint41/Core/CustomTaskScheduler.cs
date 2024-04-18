@@ -15,7 +15,7 @@ public class CustomTaskScheduler : TaskScheduler, IDisposable
     private readonly CustomTaskQueue scheduledMain;
     private readonly CustomTaskQueue scheduledSub;
 
-    private readonly AtomicDictionary<Task, CustomTask> history = new AtomicDictionary<Task, CustomTask>(16, true);
+    private readonly AtomicDictionary<Task, CustomTask> history = new(16, true);
     private int head = 0;
 
     public CustomTaskScheduler(CustomTaskQueueOptions? mainQueue = null, CustomTaskQueueOptions? subQueue = null)
@@ -132,7 +132,7 @@ public class CustomTaskScheduler : TaskScheduler, IDisposable
         return task;
     }
     
-    static private AsyncLocal<string?> taskDescription = new AsyncLocal<string?>();
+    static private AsyncLocal<string?> taskDescription = new();
 
     public virtual void Wait(bool includeSubTasks = true, bool clearHistory = true, StatusUpdate? status = null)
     {

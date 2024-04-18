@@ -34,7 +34,7 @@ public abstract partial class ListResult<TList, TResult> : AliasResult
 
     public TResult Head() => NewResult(t => t.FnListHead);
     public TResult Last() => NewResult(t => t.FnListLast);
-    public NumericResult Size() => new NumericResult(this, t => t.FnSize, null, typeof(long));
+    public NumericResult Size() => new(this, t => t.FnSize, null, typeof(long));
     public TList Sort(Func<TResult, string> fieldName, bool ascending)
     {
         string fld = fieldName.Invoke((TResult)this.Alias!);
@@ -86,7 +86,7 @@ public abstract partial class ListResult<TList, TResult> : AliasResult
 
     public AsResult As(string aliasName, out TList alias)
     {
-        AliasResult aliasResult = new AliasResult(this, null)
+        AliasResult aliasResult = new(this, null)
         {
             AliasName = aliasName
         };
@@ -126,19 +126,19 @@ public abstract partial class ListResult<TList, TResult, TType> : FieldResult
 
     public TResult Head() => NewResult(t => t.FnListHead);
     public TResult Last() => NewResult(t => t.FnListLast);
-    public NumericResult Size() => new NumericResult(this, t => t.FnSize, null, typeof(long));
+    public NumericResult Size() => new(this, t => t.FnSize, null, typeof(long));
     public TList Sort() => NewList(t => t.FnApocCollSort);
     public TList Flatten() => NewList(t => t.FnApocCollFlatten);
     public TList Collect() => NewList(t => t.FnCollect);
     public TList CollectDistinct() => NewList(t => t.FnCollectDistinct);
-    public override NumericResult Count() => new NumericResult(this, t => t.FnListSize, null, typeof(long));
+    public override NumericResult Count() => new(this, t => t.FnListSize, null, typeof(long));
 
     public TList Union(TList list) => NewList(t => t.FnApocCollUnion, [list]);
     public TList UnionAll(TList list) => NewList(t => t.FnApocCollUnionAll, [list]);
 
     public StringResult Reduce(string init, Func<StringResult, TResult, StringResult> logic)
     {
-        StringResult valueField = new StringResult(t => "value", [], typeof(string));
+        StringResult valueField = new(t => "value", [], typeof(string));
         TResult itemField = NewResult(t => "item", [], typeof(TType));
         StringResult result = logic.Invoke(valueField, itemField);
 

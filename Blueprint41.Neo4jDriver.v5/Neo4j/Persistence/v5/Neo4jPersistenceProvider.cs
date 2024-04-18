@@ -1,27 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
+﻿using Blueprint41.Core;
 using Neo4j.Driver;
-
-using Blueprint41.Core;
+using System;
 
 namespace Blueprint41.Neo4j.Persistence.Driver.v5
 {
     public partial class Neo4jPersistenceProvider : Void.Neo4jPersistenceProvider
     {
-        private const int MAX_CONNECTION_POOL_SIZE = 400;
-        private const int DEFAULT_READWRITESIZE = 65536;
-        private const int DEFAULT_READWRITESIZE_MAX = 655360;
-        private IDriver? driver = null;
-
-        public IDriver Driver
+        public override IDriver Driver
         {
             get
             {
                 if (driver is null)
                 {
-                    lock (typeof(Neo4jPersistenceProvider))
+                    lock (_lockObject)
                     {
                         driver ??= GraphDatabase.Driver(Uri, AuthTokens.Basic(Username, Password),
                                 o =>
@@ -41,14 +32,6 @@ namespace Blueprint41.Neo4j.Persistence.Driver.v5
                     }
                 }
                 return driver;
-            }
-        }
-
-        private class HostResolver(AdvancedConfig config) : IServerAddressResolver
-        {
-            public ISet<ServerAddress> Resolve(ServerAddress address)
-            {
-                return new HashSet<ServerAddress>(config.DNSResolverHook!(new Neo4jHost() { Host = address.Host, Port = address.Port }).Select(host => ServerAddress.From(host.Host, host.Port)));
             }
         }
 

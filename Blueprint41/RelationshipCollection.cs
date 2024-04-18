@@ -16,7 +16,7 @@ public class RelationshipCollection : Core.CollectionBase<Relationship, Datastor
 
     public Relationship New(Entity inEntity, Entity outEntity, string name, string? neo4jRelationshipType = null)
     {
-        Relationship value = new Relationship(Parent,name, neo4jRelationshipType, inEntity, null, outEntity, null);
+        Relationship value = new(Parent,name, neo4jRelationshipType, inEntity, null, outEntity, null);
 
         this.collection.Add(value.Name, value);
 
@@ -24,7 +24,7 @@ public class RelationshipCollection : Core.CollectionBase<Relationship, Datastor
     }
     public Relationship New(Interface inInterface, Entity outEntity, string name, string? neo4jRelationshipType = null)
     {
-        Relationship value = new Relationship(Parent, name, neo4jRelationshipType, null, inInterface, outEntity, null);
+        Relationship value = new(Parent, name, neo4jRelationshipType, null, inInterface, outEntity, null);
 
         this.collection.Add(value.Name, value);
 
@@ -32,7 +32,7 @@ public class RelationshipCollection : Core.CollectionBase<Relationship, Datastor
     }
     public Relationship New(Entity inEntity, Interface outInterface, string name, string? neo4jRelationshipType = null)
     {
-        Relationship value = new Relationship(Parent, name, neo4jRelationshipType, inEntity, null, null, outInterface);
+        Relationship value = new(Parent, name, neo4jRelationshipType, inEntity, null, null, outInterface);
 
         this.collection.Add(value.Name, value);
 
@@ -40,7 +40,7 @@ public class RelationshipCollection : Core.CollectionBase<Relationship, Datastor
     }
     public Relationship New(Interface inInterface, Interface outInterface, string name, string? neo4jRelationshipType = null)
     {
-        Relationship value = new Relationship(Parent, name, neo4jRelationshipType, null, inInterface, null, outInterface);
+        Relationship value = new(Parent, name, neo4jRelationshipType, null, inInterface, null, outInterface);
 
         this.collection.Add(value.Name, value);
 

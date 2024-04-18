@@ -170,14 +170,14 @@ public partial class FloatResult
 
     #endregion
 
-    public QueryCondition In(IEnumerable<double> enumerable) => new QueryCondition(this, Operator.In, Parameter.Constant(enumerable.ToArray(), typeof(double)));
+    public QueryCondition In(IEnumerable<double> enumerable) => new(this, Operator.In, Parameter.Constant(enumerable.ToArray(), typeof(double)));
 
-    public NumericResult Sign() => new NumericResult(this, t => t.FnSign, null, typeof(long));
-    public FloatResult Abs() => new FloatResult(this, t => t.FnAbs);
-    public FloatResult Sum() => new FloatResult(this, t => t.FnSum);
-    public FloatResult Min() => new FloatResult(this, t => t.FnMin);
-    public FloatResult Max() => new FloatResult(this, t => t.FnMax);
-    public FloatResult Avg() => new FloatResult(this, t => t.FnAvg, null, typeof(Double));
+    public NumericResult Sign() => new(this, t => t.FnSign, null, typeof(long));
+    public FloatResult Abs() => new(this, t => t.FnAbs);
+    public FloatResult Sum() => new(this, t => t.FnSum);
+    public FloatResult Min() => new(this, t => t.FnMin);
+    public FloatResult Max() => new(this, t => t.FnMax);
+    public FloatResult Avg() => new(this, t => t.FnAvg, null, typeof(Double));
     public FloatResult PercentileDisc(decimal percentile)
     {
         if (percentile < 0 || percentile > 1)
@@ -192,22 +192,22 @@ public partial class FloatResult
 
         return new FloatResult(this, t => t.FnPercentileCont, [Parameter.Constant((float)percentile)], typeof(Double));
     }
-    public FloatResult StDev() => new FloatResult(this, t => t.FnStDev, null, typeof(Double));
-    public FloatResult StDevP() => new FloatResult(this, t => t.FnStDevP, null, typeof(Double));
-    public NumericResult Round() => new NumericResult(this, t => t.FnRound, null, typeof(long));
-    public FloatResult Sqrt() => new FloatResult(this, t => t.FnSqrt);
-    public FloatResult Sin() => new FloatResult(this, t => t.FnSin);
-    public FloatResult Cos() => new FloatResult(this, t => t.FnCos);
-    public FloatResult Tan() => new FloatResult(this, t => t.FnTan);
-    public FloatResult Cot() => new FloatResult(this, t => t.FnCot);
-    public FloatResult Asin() => new FloatResult(this, t => t.FnASin);
-    public FloatResult Acos() => new FloatResult(this, t => t.FnACos);
-    public FloatResult Atan() => new FloatResult(this, t => t.FnATan);
-    public FloatResult Atan2() => new FloatResult(this, t => t.FnATan2);
-    public FloatResult Haversin() => new FloatResult(this, t => t.FnHaversin);
-    public FloatResult Degrees() => new FloatResult(this, t => t.FnDegrees);
-    public FloatResult Radians() => new FloatResult(this, t => t.FnRadians);
-    public FloatResult Log10() => new FloatResult(this, t => t.FnLog10);
-    public FloatResult Log() => new FloatResult(this, t => t.FnLog);
-    public FloatResult Exp() => new FloatResult(this, t => t.FnExp);
+    public FloatResult StDev() => new(this, t => t.FnStDev, null, typeof(Double));
+    public FloatResult StDevP() => new(this, t => t.FnStDevP, null, typeof(Double));
+    public NumericResult Round() => new(this, t => t.FnRound, null, typeof(long));
+    public FloatResult Sqrt() => new(this, t => t.FnSqrt);
+    public FloatResult Sin() => new(this, t => t.FnSin);
+    public FloatResult Cos() => new(this, t => t.FnCos);
+    public FloatResult Tan() => new(this, t => t.FnTan);
+    public FloatResult Cot() => new(this, t => t.FnCot);
+    public FloatResult Asin() => new(this, t => t.FnASin);
+    public FloatResult Acos() => new(this, t => t.FnACos);
+    public FloatResult Atan() => new(this, t => t.FnATan);
+    public FloatResult Atan2() => new(this, t => t.FnATan2);
+    public FloatResult Haversin() => new(this, t => t.FnHaversin);
+    public FloatResult Degrees() => new(this, t => t.FnDegrees);
+    public FloatResult Radians() => new(this, t => t.FnRadians);
+    public FloatResult Log10() => new(this, t => t.FnLog10);
+    public FloatResult Log() => new(this, t => t.FnLog);
+    public FloatResult Exp() => new(this, t => t.FnExp);
 }

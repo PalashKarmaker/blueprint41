@@ -1,11 +1,18 @@
 ﻿using Blueprint41.Core;
 using Blueprint41.Log;
 using Blueprint41.Neo4j.Model;
+using ND = Neo4j.Driver;
 
 namespace Blueprint41.Neo4j.Persistence.Void;
 
 public partial class Neo4jPersistenceProvider : PersistenceProvider
 {
+    protected const int MAX_CONNECTION_POOL_SIZE = 400;
+    protected const int DEFAULT_READWRITESIZE = 65536;
+    protected const int DEFAULT_READWRITESIZE_MAX = 655360;
+    protected ND.IDriver? driver = null;
+    protected readonly object _lockObject = new();
+
     // Precision (roughly) 10.8
     internal const decimal DECIMAL_FACTOR = 100000000m;
 
@@ -16,6 +23,38 @@ public partial class Neo4jPersistenceProvider : PersistenceProvider
     public string? Database { get; private set; }
     public AdvancedConfig? AdvancedConfig { get; private set; }
 
+    public override ND.IDriver Driver
+    {
+        get
+        {
+            if (driver is null)
+            {
+                lock (_lockObject)
+                {
+                    driver ??= ND.GraphDatabase.Driver(Uri, ND.AuthTokens.Basic(Username, Password),
+                            o =>
+                            {
+                                o.WithFetchSize(ND.Config.Infinite);
+                                o.WithMaxConnectionPoolSize(MAX_CONNECTION_POOL_SIZE);
+                                o.WithDefaultReadBufferSize(DEFAULT_READWRITESIZE);
+                                o.WithDefaultWriteBufferSize(DEFAULT_READWRITESIZE);
+                                o.WithMaxReadBufferSize(DEFAULT_READWRITESIZE_MAX);
+                                o.WithMaxWriteBufferSize(DEFAULT_READWRITESIZE_MAX);
+                                o.WithMaxTransactionRetryTime(TimeSpan.Zero);
+
+                                if (AdvancedConfig?.DNSResolverHook is not null)
+                                    o.WithResolver(new HostResolver(AdvancedConfig));
+                            }
+                        );
+                }
+            }
+            return driver;
+        }
+    }
+    protected class HostResolver(AdvancedConfig config) : ND.IServerAddressResolver
+    {
+        public ISet<ND.ServerAddress> Resolve(ND.ServerAddress address) => new HashSet<ND.ServerAddress>(config.DNSResolverHook!(new Neo4jHost() { Host = address.Host, Port = address.Port }).Select(host => ND.ServerAddress.From(host.Host, host.Port)));
+    }
     private Neo4jPersistenceProvider() : this(null, null, null, null)
     {
     }
@@ -121,9 +160,7 @@ public partial class Neo4jPersistenceProvider : PersistenceProvider
                     if (translator is null)
                     {
                         if (ShouldUseVoidTranslator())
-                        {
                             return GetVoidTranslator();
-                        }
 
                         FetchDatabaseInfo();
                         translator = DetermineTranslator();

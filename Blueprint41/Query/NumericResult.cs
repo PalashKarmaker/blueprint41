@@ -261,13 +261,13 @@ public partial class NumericResult
 
     #endregion
 
-    public QueryCondition In(IEnumerable<long> enumerable) => new QueryCondition(this, Operator.In, Parameter.Constant(enumerable.ToArray(), typeof(long)));
-    public NumericResult Sign() => new NumericResult(this, t => t.FnSign, null, typeof(long));
-    public NumericResult Abs() => new NumericResult(this, t => t.FnAbs);
-    public NumericResult Sum() => new NumericResult(this, t => t.FnSum);
-    public NumericResult Min() => new NumericResult(this, t => t.FnMin);
-    public NumericResult Max() => new NumericResult(this, t => t.FnMax);
-    public FloatResult Avg() => new FloatResult(this, t => t.FnAvg, null, typeof(Double));
+    public QueryCondition In(IEnumerable<long> enumerable) => new(this, Operator.In, Parameter.Constant(enumerable.ToArray(), typeof(long)));
+    public NumericResult Sign() => new(this, t => t.FnSign, null, typeof(long));
+    public NumericResult Abs() => new(this, t => t.FnAbs);
+    public NumericResult Sum() => new(this, t => t.FnSum);
+    public NumericResult Min() => new(this, t => t.FnMin);
+    public NumericResult Max() => new(this, t => t.FnMax);
+    public FloatResult Avg() => new(this, t => t.FnAvg, null, typeof(Double));
     public NumericResult PercentileDisc(decimal percentile)
     {
         if (percentile < 0 || percentile > 1)
@@ -282,6 +282,6 @@ public partial class NumericResult
 
         return new FloatResult(this, t => t.FnPercentileCont, [Parameter.Constant((float)percentile)], typeof(Double));
     }
-    public FloatResult StDev() => new FloatResult(this, t => t.FnStDev, null, typeof(Double));
-    public FloatResult StDevP() => new FloatResult(this, t => t.FnStDevP, null, typeof(Double));
+    public FloatResult StDev() => new(this, t => t.FnStDev, null, typeof(Double));
+    public FloatResult StDevP() => new(this, t => t.FnStDevP, null, typeof(Double));
 }

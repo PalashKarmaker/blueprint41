@@ -70,14 +70,14 @@ public static class Generator
 
         foreach (var relation in model.Relations)
         {
-            Domain_Data_Entity_Relation t4 = new Domain_Data_Entity_Relation();
+            Domain_Data_Entity_Relation t4 = new();
             t4.Settings = settings;
             t4.DALRelation = relation;
             t4.Datastore = model;
             string content = t4.TransformText();
             generatorResult.EntityResult.Add(relation.Name, content);
 
-            Domain_Data_Relationship relationship_template = new Domain_Data_Relationship();
+            Domain_Data_Relationship relationship_template = new();
             relationship_template.Settings = settings;
             relationship_template.DALRelation = relation;
             relationship_template.Datastore = model;

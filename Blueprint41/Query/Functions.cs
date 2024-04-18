@@ -8,19 +8,19 @@ namespace Blueprint41.Query;
 public static partial class Functions
 {
     public static Parameter NULL { get { return null!; } }
-    public static StringResult NewGuid() => new StringResult(t => t.FnApocCreateUuid, null, typeof(string));
-    public static FloatResult Pi() => new FloatResult(t => t.FnPi, null, typeof(Double));
-    public static FloatResult Rand() => new FloatResult(t => t.FnRand, null, typeof(Double));
-    public static StringResult SHA1(params FieldResult[] fields) => new StringResult(t => t.FnApocUtilSHA1(fields.Length), fields, typeof(string));
-    public static StringResult MD5(params FieldResult[] fields) => new StringResult(t => t.FnApocUtilMD5(fields.Length), fields, typeof(string));
-    public static NumericListResult Range(int start, int end, int step) => new NumericListResult(t => t.FnRange, [Parameter.Constant(start), Parameter.Constant(end), Parameter.Constant(step)], typeof(int));
-    public static NumericListResult Range(int start, int end, NumericResult step) => new NumericListResult(t => t.FnRange, [Parameter.Constant(start), Parameter.Constant(end), step], typeof(int));
-    public static NumericListResult Range(int start, NumericResult end, int step) => new NumericListResult(t => t.FnRange, [Parameter.Constant(start), end, Parameter.Constant(step)], typeof(int));
-    public static NumericListResult Range(int start, NumericResult end, NumericResult step) => new NumericListResult(t => t.FnRange, [Parameter.Constant(start), end, step], typeof(int));
-    public static NumericListResult Range(NumericResult start, int end, int step) => new NumericListResult(t => t.FnRange, [start, Parameter.Constant(end), Parameter.Constant(step)], typeof(int));
-    public static NumericListResult Range(NumericResult start, int end, NumericResult step) => new NumericListResult(t => t.FnRange, [start, Parameter.Constant(end), step], typeof(int));
-    public static NumericListResult Range(NumericResult start, NumericResult end, int step) => new NumericListResult(t => t.FnRange, [start, end, Parameter.Constant(step)], typeof(int));
-    public static NumericListResult Range(NumericResult start, NumericResult end, NumericResult step) => new NumericListResult(t => t.FnRange, [start, end, step], typeof(int));
+    public static StringResult NewGuid() => new(t => t.FnApocCreateUuid, null, typeof(string));
+    public static FloatResult Pi() => new(t => t.FnPi, null, typeof(Double));
+    public static FloatResult Rand() => new(t => t.FnRand, null, typeof(Double));
+    public static StringResult SHA1(params FieldResult[] fields) => new(t => t.FnApocUtilSHA1(fields.Length), fields, typeof(string));
+    public static StringResult MD5(params FieldResult[] fields) => new(t => t.FnApocUtilMD5(fields.Length), fields, typeof(string));
+    public static NumericListResult Range(int start, int end, int step) => new(t => t.FnRange, [Parameter.Constant(start), Parameter.Constant(end), Parameter.Constant(step)], typeof(int));
+    public static NumericListResult Range(int start, int end, NumericResult step) => new(t => t.FnRange, [Parameter.Constant(start), Parameter.Constant(end), step], typeof(int));
+    public static NumericListResult Range(int start, NumericResult end, int step) => new(t => t.FnRange, [Parameter.Constant(start), end, Parameter.Constant(step)], typeof(int));
+    public static NumericListResult Range(int start, NumericResult end, NumericResult step) => new(t => t.FnRange, [Parameter.Constant(start), end, step], typeof(int));
+    public static NumericListResult Range(NumericResult start, int end, int step) => new(t => t.FnRange, [start, Parameter.Constant(end), Parameter.Constant(step)], typeof(int));
+    public static NumericListResult Range(NumericResult start, int end, NumericResult step) => new(t => t.FnRange, [start, Parameter.Constant(end), step], typeof(int));
+    public static NumericListResult Range(NumericResult start, NumericResult end, int step) => new(t => t.FnRange, [start, end, Parameter.Constant(step)], typeof(int));
+    public static NumericListResult Range(NumericResult start, NumericResult end, NumericResult step) => new(t => t.FnRange, [start, end, step], typeof(int));
     public static StringResult NodeType(AliasResult alias)
     {
         if (alias is null)
@@ -151,11 +151,11 @@ public static partial class Functions
         return value;
     }
 
-    public static StringResult ToUpperCase(Parameter value) => new StringResult(t => t.FnToUpper.Replace("base", "0"), [value], value.Type);
-    public static StringResult ToLowerCase(Parameter value) => new StringResult(t => t.FnToLower.Replace("base", "0"), [value], value.Type);
+    public static StringResult ToUpperCase(Parameter value) => new(t => t.FnToUpper.Replace("base", "0"), [value], value.Type);
+    public static StringResult ToLowerCase(Parameter value) => new(t => t.FnToLower.Replace("base", "0"), [value], value.Type);
 
-    public static BooleanResult Exists(QueryCondition pattern) => new BooleanResult(t => t.FnPatternExists, new[] { pattern }, typeof(bool));
-    public static BooleanResult Not(BooleanResult field) => new BooleanResult(field, t => t.FnNot, null, typeof(bool));
+    public static BooleanResult Exists(QueryCondition pattern) => new(t => t.FnPatternExists, new[] { pattern }, typeof(bool));
+    public static BooleanResult Not(BooleanResult field) => new(field, t => t.FnNot, null, typeof(bool));
 
     public static StringResult Literal(string value)
     {
@@ -177,13 +177,13 @@ public static partial class Functions
         object? parameter = value is null ? null : Parameter.Constant(value);
         return new NumericResult(t => "{0}", [parameter!], typeof(int));
     }
-    public static BooleanResult ExistsSubquery(QueryCondition pattern) => new BooleanResult(t => t.FnExistsSubquery, new[] { pattern }, typeof(bool));
+    public static BooleanResult ExistsSubquery(QueryCondition pattern) => new(t => t.FnExistsSubquery, new[] { pattern }, typeof(bool));
     public static BooleanResult ExistsSubquery(Func<Query, ISemiBlankQuery> pattern, IBlankQuery query)
     {
         ((Query)query).SubQueryPart = (Query)pattern.Invoke((Query)query);
         return new BooleanResult(t => t.FnExistsSubquery, new[] { query }, typeof(bool));
     }
-    public static NumericResult CountSubquery(QueryCondition pattern) => new NumericResult(t => t.FnCountSubquery, new[] { pattern }, typeof(int));
+    public static NumericResult CountSubquery(QueryCondition pattern) => new(t => t.FnCountSubquery, new[] { pattern }, typeof(int));
     public static NumericResult CountSubquery(Func<Query, ISemiBlankQuery> pattern, IBlankQuery query)
     {
         ((Query)query).SubQueryPart = (Query)pattern.Invoke((Query)query);

@@ -11,7 +11,7 @@ internal class RelationshipTypeCollection : Core.CollectionBase<RelationshipType
 {
     public RelationshipType New(string name, bool autoIndexing = false)
     {
-        RelationshipType value = new RelationshipType(name, autoIndexing);
+        RelationshipType value = new(name, autoIndexing);
         collection.Add(name, value);
 
         return value;

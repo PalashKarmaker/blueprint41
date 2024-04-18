@@ -43,7 +43,7 @@ public abstract class EntityCollectionBase<TEntity> : EntityCollectionBase, ICol
         if (IsLoaded)
             return;
 
-        ObservableList<TEntity> tmp = new ObservableList<TEntity>(items);
+        ObservableList<TEntity> tmp = new(items);
         tmp.BeforeCollectionChanged += BeforeCollectionChanged;
         innerData = tmp;
         loadedData = tmp;

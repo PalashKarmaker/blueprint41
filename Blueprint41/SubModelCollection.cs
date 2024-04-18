@@ -24,7 +24,7 @@ public class SubModelCollection : Core.CollectionBase<SubModel, DatastoreModel>
     public SubModel New(string name, int chapter) => New(name, chapter, true, false);
     public SubModel New(string name, int chapter, bool isDraft, bool isLaboratory)
     {
-        SubModel value = new SubModel(Parent, name, chapter, isDraft, isLaboratory);
+        SubModel value = new(Parent, name, chapter, isDraft, isLaboratory);
         collection.Add(name, value);
 
         return value;
